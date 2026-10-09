@@ -10,7 +10,8 @@ WORKDIR /src
 
 # Önce sadece proje dosyası kopyalanır → paketler değişmedikçe "restore" adımı önbellekten gelir (hızlı build).
 COPY src/AracKiralama.Web/AracKiralama.Web.csproj src/AracKiralama.Web/
-RUN dotnet restore src/AracKiralama.Web/AracKiralama.Web.csproj -r linux-x64
+# PublishReadyToRun restore sırasında da verilmeli; yoksa Linux için gereken derleyici paketi inmez (NETSDK1094).
+RUN dotnet restore src/AracKiralama.Web/AracKiralama.Web.csproj -r linux-x64 -p:PublishReadyToRun=true
 
 COPY src/ src/
 # ReadyToRun: kod önceden makine koduna derlenir → zayıf (ücretsiz) sunucuda uygulama daha hızlı açılır.

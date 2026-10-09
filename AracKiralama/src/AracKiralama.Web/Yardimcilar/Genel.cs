@@ -1,5 +1,5 @@
 // ============================================================================
-// KÜÇÜK YARDIMCILAR: roller, iş kuralı hatası, sayfalama
+// KÜÇÜK YARDIMCILAR: roller, iş kuralı hatası, sayfalama, PostgreSQL bağlantı biçimi
 // ============================================================================
 using Microsoft.EntityFrameworkCore;
 
@@ -47,5 +47,34 @@ public class SayfaListesi<T>
             ToplamKayit = toplam,
             SayfaBoyutu = sayfaBoyutu,
         };
+    }
+}
+
+/// <summary>
+/// Neon "postgresql://kullanici:sifre@sunucu/veritabani?sslmode=require" biçiminde adres verir;
+/// C#'ın PostgreSQL kütüphanesi (Npgsql) ise "Host=...;Database=...;" biçimi ister.
+/// Hangisi yapıştırılırsa yapıştırılsın doğru biçime çevirir.
+/// </summary>
+public static class PostgreBaglantisi
+{
+    public static string? Duzenle(string? baglanti)
+    {
+        if (string.IsNullOrWhiteSpace(baglanti)) return null;
+        baglanti = baglanti.Trim();
+        if (!baglanti.StartsWith("postgres://") && !baglanti.StartsWith("postgresql://")) return baglanti;   // zaten "Host=..." biçiminde
+
+        var adres = new Uri(baglanti);
+        var kullanici = adres.UserInfo.Split(':', 2);
+        var parcalar = new List<string>
+        {
+            $"Host={adres.Host}",
+            $"Port={(adres.Port > 0 ? adres.Port : 5432)}",
+            $"Database={adres.AbsolutePath.Trim('/')}",
+            $"Username={Uri.UnescapeDataString(kullanici[0])}",
+            $"Password={(kullanici.Length > 1 ? Uri.UnescapeDataString(kullanici[1]) : "")}",
+            "SSL Mode=Require",
+        };
+        if (adres.Query.Contains("channel_binding=require")) parcalar.Add("Channel Binding=Require");
+        return string.Join(";", parcalar);
     }
 }

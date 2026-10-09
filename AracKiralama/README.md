@@ -474,7 +474,7 @@ Testler, sistemin kurallarının (fiyat, çakışma, iptal, iade...) doğru çal
    ```
 3. Sonunda şunu görmelisiniz:
    ```
-   Başarılı!  - Başarısız: 0, Başarılı: 63 ...
+   Başarılı!  - Başarısız: 0, Başarılı: 66 ...
    ```
 
 Test dosyaları `tests/AracKiralama.Tests/` klasöründedir; test adları Türkçedir, okuyunca ne kontrol ettiği anlaşılır:
@@ -781,7 +781,7 @@ AracKiralama/
 │  ├─ Views/                      Müşteri sayfaları + Shared/ (ortak parçalar, menü, araç kartı)
 │  └─ wwwroot/                    stil.css, js/ (genel, fiyat-hesapla, rezervasyon-adimlari, grafikler, tema),
 │                                 araç fotoğrafları, lib/ (Bootstrap, ikonlar, yazı tipi, Chart.js)
-└─ tests/AracKiralama.Tests/      Otomatik testler (63 adet)
+└─ tests/AracKiralama.Tests/      Otomatik testler (66 adet)
 ```
 
 ### Veri modeli (tablolar ve ilişkiler)

@@ -27,7 +27,7 @@ var builder = WebApplication.CreateBuilder(args);
 // ---------------------------------------------------------------------------
 var veriKlasoru = Environment.GetEnvironmentVariable("DATA_DIR") ?? builder.Environment.ContentRootPath;
 Directory.CreateDirectory(veriKlasoru);
-var postgreBaglantisi = builder.Configuration.GetConnectionString("PostgreSql");
+var postgreBaglantisi = PostgreBaglantisi.Duzenle(builder.Configuration.GetConnectionString("PostgreSql"));
 
 // PostgreSQL'in tarih kuralını SQLite ile aynı yapar (yerel saatli tarihler sorunsuz kaydedilsin).
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);

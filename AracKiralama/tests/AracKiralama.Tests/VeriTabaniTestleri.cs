@@ -4,6 +4,7 @@
 // komutlarını üretir; bir alanın türü PostgreSQL'e uymuyorsa burada hata verir.
 // ============================================================================
 using AracKiralama.Veri;
+using AracKiralama.Yardimcilar;
 using Microsoft.EntityFrameworkCore;
 
 namespace AracKiralama.Testler;
@@ -29,5 +30,22 @@ public class VeriTabaniTestleri
     {
         using var t = new TestVeriTabani();
         Assert.True(t.Vt.Araclar.Any());
+    }
+}
+
+public class BaglantiTestleri
+{
+    [Fact]
+    public void Neon_adres_bicimi_Npgsql_bicimine_cevrilir()
+    {
+        var sonuc = PostgreBaglantisi.Duzenle("postgresql://kullanici:gizli%21@ep-ornek.eu-central-1.aws.neon.tech/arackiralama?sslmode=require&channel_binding=require");
+        Assert.Equal("Host=ep-ornek.eu-central-1.aws.neon.tech;Port=5432;Database=arackiralama;Username=kullanici;Password=gizli!;SSL Mode=Require;Channel Binding=Require", sonuc);
+    }
+
+    [Fact]
+    public void Npgsql_bicimi_ve_bos_deger_oldugu_gibi_kalir()
+    {
+        Assert.Equal("Host=a;Database=b", PostgreBaglantisi.Duzenle("Host=a;Database=b"));
+        Assert.Null(PostgreBaglantisi.Duzenle(""));
     }
 }

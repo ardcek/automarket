@@ -32,7 +32,7 @@
 
 **4. Teknik (2 dk)**
 1. `/swagger` → `POST /api/fiyat` dene: "Sitedeki canlı fiyat hesaplayıcı da bu API'yi kullanıyor."
-2. `dotnet test` → 63 test yeşil.
+2. `dotnet test` → 66 test yeşil.
 3. Kod: `Servisler/RezervasyonServisi.cs` içindeki durum geçiş tablosu (`Gecisler`) ve `OnaylaAsync` transaction'ı. `Modeller/SiteAyarlari.cs`: "yeni ayar = tek satır, form kendiliğinden oluşuyor."
 
 ## Hocanın sorabileceği sorular
