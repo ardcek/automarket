@@ -563,6 +563,7 @@ Ziyaretçi ──► ardcek.com/automarket/  (Hostinger)
    Host=ep-xxxx.eu-central-1.aws.neon.tech; Database=neondb; Username=neondb_owner; Password=****; SSL Mode=VerifyFull; Channel Binding=Require;
    ```
    **Göz** ikonuyla şifreyi gösterip **kopyalayın**.
+   > `postgresql://...` ile başlayan adres biçimini kopyaladıysanız da sorun değil; program onu kendisi doğru biçime çevirir (`Yardimcilar/Genel.cs` → `PostgreBaglantisi`).
    > ⚠️ Bu satır veritabanının şifresidir. **GitHub'a, README'ye veya koda yazmayın**, kimseyle paylaşmayın.
 4. https://dashboard.render.com → **rota-arac-kiralama** servisi → soldan **Environment**.
 5. `ConnectionStrings__PostgreSql` satırı zaten var (değeri boş). Yoksa **Add Environment Variable** ile ekleyin:
