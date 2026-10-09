@@ -1,0 +1,14 @@
+@* MARKA FORMU *@
+@model Marka
+@{ var duzenleme = Model.Id > 0; ViewData["Title"] = duzenleme ? "Markayı düzenle" : "Yeni marka"; }
+<div class="sayfa-baslik"><div><a href="/Yonetim/Markalar" class="small"><i class="bi bi-arrow-left me-1"></i>Markalar</a><h1 class="mt-1">@ViewData["Title"]</h1></div></div>
+<form asp-action="@(duzenleme ? "Duzenle" : "Ekle")" method="post" class="card" style="max-width:640px">
+    <input type="hidden" asp-for="Id" />
+    <div class="card-body row g-3">
+        <div class="col-md-8"><label asp-for="Ad" class="form-label"></label><input asp-for="Ad" class="form-control" /><span asp-validation-for="Ad"></span></div>
+        <div class="col-md-4"><label asp-for="Sira" class="form-label"></label><input asp-for="Sira" class="form-control" /></div>
+        <div class="col-12"><label asp-for="LogoAdresi" class="form-label"></label><input asp-for="LogoAdresi" class="form-control" placeholder="/gorsel/5" /><div class="form-text">Logoyu Yönetim → Görseller'den yükleyip adresini buraya yapıştırın.</div></div>
+    </div>
+    <div class="card-body border-top text-end"><a href="/Yonetim/Markalar" class="btn btn-sade">Vazgeç</a> <button class="btn btn-primary">Kaydet</button></div>
+</form>
+@section Scripts { <partial name="_FormDogrulama" /> }

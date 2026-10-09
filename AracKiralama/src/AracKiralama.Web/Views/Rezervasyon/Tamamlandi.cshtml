@@ -1,0 +1,26 @@
+@* "TALEBİNİZ ALINDI" SAYFASI *@
+@model Rezervasyon
+@{ ViewData["Title"] = Icerik.Metin("rezervasyon.tamam-baslik"); }
+<div class="container py-5" style="max-width: 720px">
+    <div class="text-center mb-4">
+        <i class="bi bi-check-circle-fill text-success" style="font-size:3.5rem"></i>
+        <h1 class="h3 mt-2">@Icerik.Metin("rezervasyon.tamam-baslik")</h1>
+        <p class="text-muted">@Icerik.Metin("rezervasyon.tamam-metin")</p>
+        <div class="d-inline-flex gap-2 px-3 py-2 rounded-3 zemin-ana"><span class="small text-muted">Kod</span><b class="metin-ana rakam">@Model.Kod</b></div>
+    </div>
+    <div class="card"><div class="card-body">
+        <div class="d-flex justify-content-between mb-3"><b>@Model.Arac!.TamAd</b><partial name="_Durum" model="Model" /></div>
+        <div class="row g-3 mb-2 small">
+            <div class="col-6"><div class="kucuk-baslik">Alış</div>@Model.AlisSube!.Ad<br />@Bicim.TarihSaat(Model.BaslangicTarihi)</div>
+            <div class="col-6"><div class="kucuk-baslik">İade</div>@Model.IadeSube!.Ad<br />@Bicim.TarihSaat(Model.BitisTarihi)</div>
+        </div>
+        <ul class="dokum">
+            <li><span>@Model.GunSayisi gün × @Bicim.Para(Model.GunlukFiyat)</span><span>@Bicim.Para(Model.KiraTutari)</span></li>
+            @if (Model.Indirim > 0) { <li class="indirim"><span>İndirim</span><span>− @Bicim.Para(Model.Indirim)</span></li> }
+            @foreach (var e in Model.Ekstralar) { <li><span>@e.Ekstra!.Ad</span><span>@Bicim.Para(e.Tutar)</span></li> }
+            @if (Model.TekYonUcreti > 0) { <li><span>Farklı şubeye iade</span><span>@Bicim.Para(Model.TekYonUcreti)</span></li> }
+            <li class="toplam"><span>Toplam</span><span>@Bicim.Para(Model.ToplamTutar)</span></li>
+        </ul>
+    </div></div>
+    <div class="text-center mt-4"><a href="/Profil" class="btn btn-primary">@Icerik.Metin("menu.rezervasyonlarim")</a></div>
+</div>

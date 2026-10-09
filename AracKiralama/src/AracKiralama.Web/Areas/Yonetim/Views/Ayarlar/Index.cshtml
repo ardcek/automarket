@@ -1,0 +1,89 @@
+@* AYARLAR: bu form Modeller/SiteAyarlari.cs'teki [Ayar] etiketli özelliklerden OTOMATİK oluşur.
+   Yeni ayar = SiteAyarlari.cs'e bir satır. Buraya dokunmanız gerekmez.
+   Her alan türü için uygun kutu çizilir: açma/kapama, renk seçici, sayı, açılır liste, metin. *@
+@model List<AyarAlani>
+@{
+    ViewData["Title"] = "Ayarlar";
+    var gruplar = Model.GroupBy(a => a.Bilgi.Grup).ToList();
+}
+<div class="sayfa-baslik"><div><h1>Ayarlar</h1><div class="alt-yazi">Kaydettiğiniz her değişiklik sitede hemen geçerli olur.</div></div></div>
+
+<form method="post">
+    <ul class="nav nav-pills gap-1 mb-3 flex-wrap" role="tablist">
+        @for (var i = 0; i < gruplar.Count; i++)
+        {
+            <li class="nav-item"><button type="button" class="nav-link @(i == 0 ? "active" : "")" data-bs-toggle="pill" data-bs-target="#sekme-@i">@gruplar[i].Key</button></li>
+        }
+    </ul>
+
+    <div class="tab-content">
+        @for (var i = 0; i < gruplar.Count; i++)
+        {
+            <div class="tab-pane fade @(i == 0 ? "show active" : "")" id="sekme-@i">
+                <div class="card"><div class="card-body row g-3">
+                    @foreach (var alan in gruplar[i])
+                    {
+                        var b = alan.Bilgi;
+                        <div class="@(b.CokSatir ? "col-12" : "col-md-6")">
+                            @if (alan.Tur == typeof(bool))
+                            {
+                                @* Onay kutusu: işaretliyse "true", değilse arkadaki gizli kutudan "false" gider *@
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input" type="checkbox" id="@alan.Ad" name="@alan.Ad" value="true" checked="@(alan.Deger == "True")" />
+                                    <input type="hidden" name="@alan.Ad" value="false" />
+                                    <label class="form-check-label" for="@alan.Ad">@b.Ad</label>
+                                </div>
+                            }
+                            else
+                            {
+                                <label class="form-label" for="@alan.Ad">@b.Ad</label>
+                                if (b.Renk)
+                                {
+                                    <div class="d-flex gap-2 align-items-center"><input type="color" class="form-control form-control-color" id="@alan.Ad" name="@alan.Ad" value="@alan.Deger" /><code>@alan.Deger</code></div>
+                                }
+                                else if (b.Secenekler != null)
+                                {
+                                    <select class="form-select" id="@alan.Ad" name="@alan.Ad">
+                                        @foreach (var secenek in b.Secenekler.Split('|'))
+                                        {
+                                            var parca = secenek.Split(':');
+                                            <option value="@parca[0]" selected="@(alan.Deger == parca[0])">@parca[1]</option>
+                                        }
+                                    </select>
+                                }
+                                else if (b.CokSatir)
+                                {
+                                    <textarea class="form-control" id="@alan.Ad" name="@alan.Ad" rows="3">@alan.Deger</textarea>
+                                }
+                                else if (alan.Tur == typeof(int) || alan.Tur == typeof(decimal))
+                                {
+                                    <input type="number" step="any" class="form-control" id="@alan.Ad" name="@alan.Ad" value="@alan.Deger" required />
+                                }
+                                else
+                                {
+                                    <input type="text" class="form-control" id="@alan.Ad" name="@alan.Ad" value="@alan.Deger" />
+                                }
+                            }
+                            @if (b.Aciklama != null) { <div class="form-text">@b.Aciklama</div> }
+                        </div>
+                    }
+                </div></div>
+            </div>
+        }
+    </div>
+    <div class="d-flex justify-content-end mt-3"><button class="btn btn-primary btn-lg"><i class="bi bi-check2 me-1"></i>Ayarları kaydet</button></div>
+</form>
+
+<div class="card mt-4">
+    <div class="card-header text-danger"><i class="bi bi-exclamation-triangle me-1"></i>Dikkatli kullanın</div>
+    <div class="card-body d-flex flex-wrap gap-3">
+        <form asp-action="VarsayilanaDon" method="post"><button class="btn btn-sade" data-onay="Bütün ayarlar ilk haline dönsün mü?">Ayarları varsayılana döndür</button></form>
+        @if (User.IsInRole(Roller.Admin))
+        {
+            <form asp-action="DemoSifirla" method="post">
+                <button class="btn btn-sade text-danger" data-onay="Bütün araçlar, kullanıcılar ve rezervasyonlar silinip örnek veriler yeniden yüklenecek. Emin misiniz?">Demo verilerini sıfırla</button>
+            </form>
+            <div class="small text-muted align-self-center">Sunumdan önce "bugün teslim / gecikmiş" örneklerini tazelemek için. Ayarlar, metinler ve sayfalar korunur.</div>
+        }
+    </div>
+</div>

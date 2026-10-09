@@ -1,0 +1,28 @@
+@* GÖRSELLER: resim yükleyin, adresini kopyalayıp Ayarlar / Kategori / Marka / Araç formlarında kullanın.
+   Görseller veritabanında saklanır; sunucu yeniden başlasa da kaybolmaz. *@
+@model List<Gorsel>
+@{ ViewData["Title"] = "Görseller"; }
+<div class="sayfa-baslik"><div><h1>Görseller</h1><div class="alt-yazi">Yüklediğiniz resmin adresini (örn. /gorsel/3) ilgili ayara yapıştırın.</div></div></div>
+<form asp-action="Yukle" method="post" enctype="multipart/form-data" class="card p-3 mb-3 d-flex flex-row flex-wrap gap-2 align-items-center">
+    <input type="file" name="dosya" class="form-control w-auto" accept="image/png,image/jpeg,image/webp" required />
+    <button class="btn btn-primary"><i class="bi bi-upload me-1"></i>Yükle</button>
+    <span class="small text-muted">JPG, PNG, WEBP · en fazla 3 MB</span>
+</form>
+<div class="row g-3">
+    @foreach (var g in Model)
+    {
+        <div class="col-6 col-md-4 col-xl-3">
+            <div class="card overflow-hidden h-100">
+                <img src="/gorsel/@g.Id" alt="@g.DosyaAdi" style="aspect-ratio:16/10; object-fit:cover" loading="lazy" />
+                <div class="card-body p-2 small">
+                    <input class="form-control form-control-sm mb-2" value="/gorsel/@g.Id" readonly aria-label="Görsel adresi" />
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted text-truncate">@g.DosyaAdi</span>
+                        <form asp-action="Sil" asp-route-id="@g.Id" method="post"><button class="btn btn-sm btn-sade text-danger" data-onay="Görsel silinsin mi?" aria-label="Sil"><i class="bi bi-trash"></i></button></form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+@if (Model.Count == 0) { <div class="card bos-durum"><i class="bi bi-images"></i>Henüz görsel yüklenmedi.</div> }

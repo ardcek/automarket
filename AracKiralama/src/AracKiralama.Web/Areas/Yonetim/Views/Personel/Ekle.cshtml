@@ -1,0 +1,16 @@
+@* YENİ PERSONEL / ADMİN HESABI *@
+@model PersonelFormu
+@{ ViewData["Title"] = "Personel ekle"; }
+<div class="sayfa-baslik"><div><a href="/Yonetim/Personel" class="small"><i class="bi bi-arrow-left me-1"></i>Personel</a><h1 class="mt-1">Personel ekle</h1></div></div>
+<form asp-action="Ekle" method="post" class="card" style="max-width:640px">
+    <div class="card-body row g-3">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger small col-12"></div>
+        <div class="col-md-6"><label asp-for="Ad" class="form-label"></label><input asp-for="Ad" class="form-control" /><span asp-validation-for="Ad"></span></div>
+        <div class="col-md-6"><label asp-for="Soyad" class="form-label"></label><input asp-for="Soyad" class="form-control" /><span asp-validation-for="Soyad"></span></div>
+        <div class="col-12"><label asp-for="Eposta" class="form-label"></label><input asp-for="Eposta" class="form-control" /><span asp-validation-for="Eposta"></span></div>
+        <div class="col-md-6"><label asp-for="Sifre" class="form-label"></label><input asp-for="Sifre" class="form-control" /><span asp-validation-for="Sifre"></span></div>
+        <div class="col-md-6"><label asp-for="Rol" class="form-label"></label><select asp-for="Rol" class="form-select"><option value="@Roller.Personel">Personel</option><option value="@Roller.Admin">Admin</option></select></div>
+    </div>
+    <div class="card-body border-top text-end"><a href="/Yonetim/Personel" class="btn btn-sade">Vazgeç</a> <button class="btn btn-primary">Oluştur</button></div>
+</form>
+@section Scripts { <partial name="_FormDogrulama" /> }

@@ -1,0 +1,88 @@
+@* YÖNETİM PANELİ ŞABLONU: soldaki menü + üst çubuk + sayfa içeriği.
+   Menüye yeni sayfa eklemek için aşağıdaki "Menu(...)" satırlarından birini kopyalayın. *@
+@inject AracKiralama.Veri.VeriTabani VeriTabani
+@{
+    var a = Icerik.Ayarlar;
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var adminMi = User.IsInRole(Roller.Admin);
+    var bekleyenTalep = VeriTabani.Rezervasyonlar.Count(r => r.Durum == RezervasyonDurumu.OnayBekliyor);
+}
+@functions {
+    // Menü linki çizen küçük yardımcı: aktif sayfayı vurgular.
+    Microsoft.AspNetCore.Html.IHtmlContent Menu(string controller, string ikon, string yazi, string? aktifController, int rozet = 0)
+    {
+        var aktif = controller == aktifController ? "aktif" : "";
+        var rozetHtml = rozet > 0 ? $"<span class=\"badge rounded-pill text-bg-warning\">{rozet}</span>" : "";
+        return new Microsoft.AspNetCore.Html.HtmlString($"<a class=\"{aktif}\" href=\"/Yonetim/{controller}\"><i class=\"bi {ikon}\"></i>{Bicim.Guvenli(yazi)}{rozetHtml}</a>");
+    }
+}
+<!DOCTYPE html>
+<html lang="tr" data-varsayilan-tema="@a.VarsayilanTema">
+<head>
+    <partial name="_Head" />
+</head>
+<body>
+    <div class="yonetim-kabuk">
+        <aside class="yonetim-menu offcanvas-lg offcanvas-start" tabindex="-1" id="yonetimMenu">
+            <div class="offcanvas-body">
+                <div class="logo-alani d-flex justify-content-between align-items-center">
+                    <a class="logo" href="/Yonetim"><span class="logo-isaret"><i class="bi @a.LogoIkonu"></i></span> @a.FirmaAdi <small>Panel</small></a>
+                    <button type="button" class="btn-close d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#yonetimMenu" aria-label="Kapat"></button>
+                </div>
+                <nav class="yonetim-linkler">
+                    <div class="grup">Genel</div>
+                    @Menu("Panel", "bi-grid-1x2", "Gösterge Paneli", controller)
+                    @Menu("Takvim", "bi-calendar3-range", "Doluluk Takvimi", controller)
+
+                    <div class="grup">Operasyon</div>
+                    @Menu("Rezervasyonlar", "bi-journal-check", "Rezervasyonlar", controller, bekleyenTalep)
+                    @Menu("Araclar", "bi-car-front", "Araçlar", controller)
+                    @Menu("Bakim", "bi-tools", "Bakım", controller)
+                    @Menu("Odemeler", "bi-wallet2", "Ödemeler", controller)
+                    @Menu("Musteriler", "bi-people", "Müşteriler", controller)
+                    @Menu("Raporlar", "bi-bar-chart-line", "Raporlar", controller)
+
+                    <div class="grup">Tanımlar</div>
+                    @Menu("Kategoriler", "bi-tags", "Kategoriler", controller)
+                    @Menu("Markalar", "bi-award", "Markalar", controller)
+                    @Menu("Secenekler", "bi-ui-checks", "Yakıt ve Vites", controller)
+                    @Menu("Subeler", "bi-buildings", "Şubeler", controller)
+                    @Menu("Ekstralar", "bi-plus-square", "Ek Hizmetler", controller)
+
+                    <div class="grup">Site İçeriği</div>
+                    @Menu("Ayarlar", "bi-sliders", "Ayarlar", controller)
+                    @Menu("Metinler", "bi-fonts", "Site Metinleri", controller)
+                    @Menu("Sayfalar", "bi-file-earmark-text", "Sayfalar", controller)
+                    @Menu("Gorseller", "bi-images", "Görseller", controller)
+                    @if (adminMi) { @Menu("Personel", "bi-person-badge", "Personel ve Roller", controller) }
+                </nav>
+                <div class="kullanici-alani d-flex align-items-center gap-2">
+                    <span class="avatar">@User.Identity?.Name?[..1].ToUpperInvariant()</span>
+                    <div class="min-w-0 flex-grow-1"><div class="small fw-semibold text-truncate">@User.Identity?.Name</div><div class="small text-muted">@(adminMi ? "Yönetici" : "Personel")</div></div>
+                    <form asp-area="" asp-controller="Hesap" asp-action="Cikis" method="post"><button class="btn btn-sade btn-ikon btn-sm" aria-label="Çıkış"><i class="bi bi-box-arrow-right"></i></button></form>
+                </div>
+            </div>
+        </aside>
+
+        <div class="yonetim-ana">
+            <header class="yonetim-ust">
+                <button class="btn btn-sade btn-ikon d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#yonetimMenu" aria-label="Menü"><i class="bi bi-list"></i></button>
+                <form action="/Yonetim/Rezervasyonlar" method="get" class="flex-grow-1" style="max-width:420px">
+                    <div class="input-group"><span class="input-group-text"><i class="bi bi-search"></i></span><input type="search" name="Arama" class="form-control" placeholder="Rezervasyon kodu, plaka veya müşteri ara…" /></div>
+                </form>
+                <div class="ms-auto d-flex gap-2">
+                    <button class="btn btn-sade btn-ikon" type="button" data-tema-degistir aria-label="Tema"><i class="bi bi-moon-stars"></i></button>
+                    <a href="/" class="btn btn-sade d-none d-sm-inline-flex" target="_blank"><i class="bi bi-box-arrow-up-right me-2"></i>Siteyi aç</a>
+                </div>
+            </header>
+            <main class="yonetim-icerik">@RenderBody()</main>
+        </div>
+    </div>
+
+    <partial name="_Bildirim" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/genel.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

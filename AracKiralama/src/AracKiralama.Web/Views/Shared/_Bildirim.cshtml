@@ -1,0 +1,21 @@
+@* Controller'da Basarili("...") veya Hata("...") çağrılınca bir sonraki sayfanın sağ altında görünen bildirim. *@
+@{
+    var basarili = TempData["Basarili"] as string;
+    var hata = TempData["Hata"] as string;
+}
+@if (basarili != null || hata != null)
+{
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        @foreach (var (mesaj, ikon, renk) in new[] { (basarili, "bi-check-lg", "yesil"), (hata, "bi-exclamation-lg", "kirmizi") })
+        {
+            if (mesaj == null) continue;
+            <div class="toast" role="status">
+                <div class="d-flex align-items-center gap-3 p-3">
+                    <span class="gosterge p-0"><span class="ikon ikon-@renk" style="width:32px;height:32px;border-radius:50%"><i class="bi @ikon"></i></span></span>
+                    <div class="small">@mesaj</div>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="toast" aria-label="Kapat"></button>
+                </div>
+            </div>
+        }
+    </div>
+}

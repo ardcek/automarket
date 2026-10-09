@@ -1,0 +1,60 @@
+@* RAPORLAR: tarih aralığına göre gelir, araç kullanım oranı, şube geliri + Excel. Veriler: RaporServisi.RaporAsync *@
+@model RaporSonucu
+@using System.Text.Json
+@{
+    ViewData["Title"] = "Raporlar";
+    var bas = Model.Baslangic.ToString("yyyy-MM-dd");
+    var son = Model.Bitis.ToString("yyyy-MM-dd");
+}
+<div class="sayfa-baslik">
+    <div><h1>Raporlar</h1><div class="alt-yazi">@Bicim.Tarih(Model.Baslangic) – @Bicim.Tarih(Model.Bitis)</div></div>
+    <form method="get" class="d-flex flex-wrap gap-2">
+        <input type="date" name="baslangic" value="@bas" class="form-control w-auto" />
+        <input type="date" name="bitis" value="@son" class="form-control w-auto" />
+        <button class="btn btn-sade">Uygula</button>
+        <a href="/Yonetim/Raporlar/Excel?baslangic=@bas&bitis=@son" class="btn btn-primary"><i class="bi bi-file-earmark-excel me-1"></i>Excel</a>
+    </form>
+</div>
+<div class="d-flex flex-wrap gap-2 mb-3">
+    @foreach (var (yazi, gun) in new[] { ("Son 7 gün", 6), ("Son 30 gün", 29), ("Son 90 gün", 89), ("Son 1 yıl", 364) })
+    {
+        <a class="etiket" href="/Yonetim/Raporlar?baslangic=@DateTime.Today.AddDays(-gun).ToString("yyyy-MM-dd")&bitis=@DateTime.Today.ToString("yyyy-MM-dd")">@yazi</a>
+    }
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-sm-6 col-xl-3">@await Html.PartialAsync("_GostergeKarti", new GostergeKarti { Baslik = "Gelir", Deger = Bicim.Para(Model.ToplamGelir), Ikon = "bi-cash-stack" })</div>
+    <div class="col-sm-6 col-xl-3">@await Html.PartialAsync("_GostergeKarti", new GostergeKarti { Baslik = "Tamamlanan kiralama", Deger = Model.KiralamaSayisi.ToString(), Ikon = "bi-journal-check", Renk = "yesil" })</div>
+    <div class="col-sm-6 col-xl-3">@await Html.PartialAsync("_GostergeKarti", new GostergeKarti { Baslik = "Ortalama kiralama", Deger = Bicim.Para(Model.OrtalamaKiralama), Ikon = "bi-receipt", Renk = "mavi" })</div>
+    <div class="col-sm-6 col-xl-3">@await Html.PartialAsync("_GostergeKarti", new GostergeKarti { Baslik = "Ort. kullanım oranı", Deger = $"%{Model.OrtalamaKullanim * 100:0}", Ikon = "bi-speedometer2", Renk = "turuncu" })</div>
+</div>
+
+<div class="row g-3">
+    <div class="col-xl-8">
+        <div class="card tablo-karti"><div class="card-header">Araç bazlı performans</div><div class="table-responsive" style="max-height:560px"><table class="table table-hover align-middle">
+            <thead><tr><th>Araç</th><th>Kategori</th><th class="text-end">Kiralama</th><th class="text-end">Gün</th><th style="min-width:150px">Kullanım</th><th class="text-end">Gelir</th></tr></thead>
+            <tbody>
+                @foreach (var a in Model.Araclar)
+                {
+                    <tr>
+                        <td><a href="/Yonetim/Araclar/Detay/@a.AracId" class="text-reset fw-semibold">@a.Arac</a><div><span class="plaka">@a.Plaka</span></div></td>
+                        <td class="small">@a.Kategori</td>
+                        <td class="text-end rakam">@a.KiralamaSayisi</td>
+                        <td class="text-end rakam">@a.KiraliGun</td>
+                        <td><div class="d-flex align-items-center gap-2"><div class="progress flex-grow-1"><div class="progress-bar" style="width:@((int)(a.KullanimOrani * 100))%"></div></div><span class="small text-muted">%@((int)(a.KullanimOrani * 100))</span></div></td>
+                        <td class="text-end rakam fw-semibold">@Bicim.Para(a.Gelir)</td>
+                    </tr>
+                }
+            </tbody>
+        </table></div></div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card"><div class="card-header">Şubelere göre gelir</div><div class="card-body"><div class="grafik-kutusu" style="height:240px"><canvas id="sube-grafigi"></canvas></div></div></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="application/json" id="grafik-verisi">@Html.Raw(JsonSerializer.Serialize(new { subeler = Model.Subeler.Select(s => new GrafikNoktasi { Etiket = s.Sube, Deger = s.Gelir }) }))</script>
+    <script src="~/lib/chartjs/chart.umd.min.js"></script>
+    <script src="~/js/grafikler.js" asp-append-version="true"></script>
+}

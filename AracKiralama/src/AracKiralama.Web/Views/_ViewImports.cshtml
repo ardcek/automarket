@@ -1,9 +1,7 @@
-@using AracKiralama.Web
-@using AracKiralama.Web.Helpers
-@using AracKiralama.Web.Models.Entities
-@using AracKiralama.Web.Models.Enums
-@using AracKiralama.Web.Services
-@using AracKiralama.Web.ViewModels
-@using Microsoft.Extensions.Options
+@* Bütün view'larda geçerli "using"ler. Icerik = site ayarları ve metinler (Servisler/IcerikServisi.cs) *@
+@using AracKiralama.Modeller
+@using AracKiralama.FormModelleri
+@using AracKiralama.Servisler
+@using AracKiralama.Yardimcilar
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-@inject IOptions<SiteOptions> Site
+@inject IcerikServisi Icerik

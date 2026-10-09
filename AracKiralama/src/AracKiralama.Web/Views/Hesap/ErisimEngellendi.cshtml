@@ -1,0 +1,8 @@
+@* Yetkisi olmayan bir sayfaya girmeye çalışınca (ör. müşteri → /Yonetim) *@
+@{ ViewData["Title"] = "Erişim engellendi"; }
+<div class="container py-5 bos-durum">
+    <i class="bi bi-shield-lock text-danger"></i>
+    <h1 class="h3">Bu sayfaya erişim yetkiniz yok</h1>
+    <p>Bu bölüm sadece yetkili personel içindir.</p>
+    <form asp-action="Cikis" method="post"><a href="/" class="btn btn-primary">Ana sayfa</a> <button class="btn btn-sade">Farklı hesapla giriş</button></form>
+</div>

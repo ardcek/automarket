@@ -1,0 +1,17 @@
+@* 404 / 403 gibi hata kodları için sayfa *@
+@model int
+@{
+    var (baslik, ikon) = Model switch
+    {
+        404 => ("Sayfa bulunamadı", "bi-signpost-2"),
+        403 => ("Erişim engellendi", "bi-shield-lock"),
+        _ => ("Bir şeyler ters gitti", "bi-exclamation-octagon"),
+    };
+    ViewData["Title"] = baslik;
+}
+<div class="container py-5 bos-durum">
+    <i class="bi @ikon"></i>
+    <div class="display-4 fw-bold">@Model</div>
+    <h1 class="h4">@baslik</h1>
+    <a href="/" class="btn btn-primary mt-3">Ana sayfaya dön</a>
+</div>

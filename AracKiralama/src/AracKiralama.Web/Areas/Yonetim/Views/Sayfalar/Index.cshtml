@@ -1,0 +1,21 @@
+@* SAYFALAR: Hakkımızda, İletişim, KVKK gibi serbest metin sayfaları *@
+@model List<Sayfa>
+@{ ViewData["Title"] = "Sayfalar"; }
+<div class="sayfa-baslik"><div><h1>Sayfalar</h1><div class="alt-yazi">Menüde ve alt bilgide görünen içerik sayfaları</div></div><a href="/Yonetim/Sayfalar/Ekle" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Yeni sayfa</a></div>
+<div class="card tablo-karti"><div class="table-responsive"><table class="table table-hover align-middle">
+    <thead><tr><th>Başlık</th><th>Adres</th><th>Menüde</th><th>Alt bilgide</th><th>Yayında</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var s in Model)
+        {
+            <tr>
+                <td class="fw-semibold">@s.Baslik</td>
+                <td><a href="/Sayfa/@s.Adres" target="_blank">/Sayfa/@s.Adres</a></td>
+                <td>@(s.MenudeGoster ? "✓" : "")</td><td>@(s.AltBilgideGoster ? "✓" : "")</td><td>@(s.Aktif ? "✓" : "—")</td>
+                <td class="text-end text-nowrap">
+                    <a href="/Yonetim/Sayfalar/Duzenle/@s.Id" class="btn btn-sm btn-sade" aria-label="Düzenle"><i class="bi bi-pencil"></i></a>
+                    <form asp-action="Sil" asp-route-id="@s.Id" method="post" class="d-inline"><button class="btn btn-sm btn-sade text-danger" data-onay="@s.Baslik silinsin mi?" aria-label="Sil"><i class="bi bi-trash"></i></button></form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table></div></div>

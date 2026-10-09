@@ -1,0 +1,43 @@
+@* ÖDEMELER (kasa hareketleri) *@
+@model SayfaListesi<Odeme>
+@{
+    ViewData["Title"] = "Ödemeler";
+    var bas = (DateTime)ViewBag.Baslangic;
+    var son = (DateTime)ViewBag.Bitis;
+    var yontem = (OdemeYontemi?)ViewBag.Yontem;
+    var toplamlar = (Dictionary<OdemeYontemi, decimal>)ViewBag.YontemToplamlari;
+}
+<div class="sayfa-baslik"><div><h1>Ödemeler</h1><div class="alt-yazi">@Bicim.Tarih(bas) – @Bicim.Tarih(son)</div></div></div>
+<div class="row g-3 mb-3">
+    <div class="col-md-3">@await Html.PartialAsync("_GostergeKarti", new GostergeKarti { Baslik = "Toplam", Deger = Bicim.Para((decimal)ViewBag.Toplam), Ikon = "bi-wallet2" })</div>
+    @foreach (var y in Enum.GetValues<OdemeYontemi>())
+    {
+        <div class="col-md-3">@await Html.PartialAsync("_GostergeKarti", new GostergeKarti { Baslik = y.Ad(), Deger = Bicim.Para(toplamlar.GetValueOrDefault(y)), Ikon = "bi-cash", Renk = "mavi" })</div>
+    }
+</div>
+<div class="card tablo-karti">
+    <form method="get" class="card-header d-flex flex-wrap gap-2" data-otomatik-gonder>
+        <input type="date" name="baslangic" value="@bas.ToString("yyyy-MM-dd")" class="form-control w-auto" />
+        <input type="date" name="bitis" value="@son.ToString("yyyy-MM-dd")" class="form-control w-auto" />
+        <select name="yontem" class="form-select w-auto"><option value="">Tüm yöntemler</option>@foreach (var y in Enum.GetValues<OdemeYontemi>()) { <option value="@y" selected="@(yontem == y)">@y.Ad()</option> }</select>
+    </form>
+    <div class="table-responsive"><table class="table table-hover align-middle">
+        <thead><tr><th>Tarih</th><th>Rezervasyon</th><th>Müşteri</th><th>Tür</th><th>Yöntem</th><th>Alan</th><th class="text-end">Tutar</th></tr></thead>
+        <tbody>
+            @foreach (var o in Model.Kayitlar)
+            {
+                <tr>
+                    <td class="small">@Bicim.TarihSaat(o.Tarih)</td>
+                    <td><a href="/Yonetim/Rezervasyonlar/Detay/@o.RezervasyonId" class="rakam">@o.Rezervasyon!.Kod</a></td>
+                    <td>@o.Rezervasyon.Musteri!.TamAd</td>
+                    <td>@o.Tur.Ad()</td>
+                    <td>@o.Yontem.Ad()</td>
+                    <td class="small text-muted">@(o.AlanKullanici?.TamAd ?? "-")</td>
+                    <td class="text-end rakam fw-semibold">@Bicim.Para(o.Tutar)</td>
+                </tr>
+            }
+        </tbody>
+    </table></div>
+    @if (Model.Kayitlar.Count == 0) { <div class="bos-durum"><i class="bi bi-wallet2"></i>Bu aralıkta ödeme yok.</div> }
+</div>
+@await Html.PartialAsync("_Sayfalama", (Model.ToplamSayfa, Model.Sayfa, (Func<int, string>)(s => $"/Yonetim/Odemeler?baslangic={bas:yyyy-MM-dd}&bitis={son:yyyy-MM-dd}&yontem={yontem}&sayfa={s}")))

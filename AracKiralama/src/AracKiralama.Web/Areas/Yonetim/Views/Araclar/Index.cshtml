@@ -1,0 +1,39 @@
+@* FİLO LİSTESİ (arama + kategori / durum / şube filtresi) *@
+@model SayfaListesi<Arac>
+@{
+    ViewData["Title"] = "Araçlar";
+    var kategoriler = (List<Kategori>)ViewBag.Kategoriler;
+    var subeler = (List<Sube>)ViewBag.Subeler;
+}
+<div class="sayfa-baslik">
+    <div><h1>Araçlar</h1><div class="alt-yazi">Filoda @Model.ToplamKayit araç</div></div>
+    <a href="/Yonetim/Araclar/Ekle" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Yeni araç</a>
+</div>
+<div class="card tablo-karti">
+    <form method="get" class="card-header d-flex flex-wrap gap-2" data-otomatik-gonder>
+        <div class="input-group" style="max-width:280px"><span class="input-group-text"><i class="bi bi-search"></i></span><input type="search" name="arama" value="@ViewBag.Arama" class="form-control" placeholder="Plaka, marka veya model" /></div>
+        <select name="kategoriId" class="form-select w-auto"><option value="">Tüm kategoriler</option>@foreach (var k in kategoriler) { <option value="@k.Id" selected="@(ViewBag.KategoriId == k.Id)">@k.Ad</option> }</select>
+        <select name="durum" class="form-select w-auto"><option value="">Tüm durumlar</option>@foreach (var d in Enum.GetValues<AracDurumu>()) { <option value="@d" selected="@(ViewBag.Durum == d)">@d.Ad()</option> }</select>
+        <select name="subeId" class="form-select w-auto"><option value="">Tüm şubeler</option>@foreach (var s in subeler) { <option value="@s.Id" selected="@(ViewBag.SubeId == s.Id)">@s.Ad</option> }</select>
+    </form>
+    <div class="table-responsive"><table class="table table-hover align-middle">
+        <thead><tr><th>Araç</th><th>Plaka</th><th>Kategori</th><th>Şube</th><th class="text-end">Km</th><th class="text-end">Günlük</th><th>Durum</th><th></th></tr></thead>
+        <tbody>
+            @foreach (var a in Model.Kayitlar)
+            {
+                <tr>
+                    <td><div class="d-flex align-items-center gap-3"><img src="@(a.GorselAdresi ?? "/img/placeholder.svg")" alt="" class="kucuk-gorsel" /><div><a href="/Yonetim/Araclar/Detay/@a.Id" class="fw-semibold text-reset">@a.TamAd</a> @if (a.OneCikan) { <i class="bi bi-star-fill text-warning small" title="Ana sayfada öne çıkıyor"></i> }<div class="small text-muted">@a.Yil · @a.VitesTuru?.Ad · @a.YakitTuru?.Ad</div></div></div></td>
+                    <td><span class="plaka">@a.Plaka</span></td>
+                    <td>@a.Kategori?.Ad</td>
+                    <td class="small">@a.Sube?.Ad</td>
+                    <td class="text-end small rakam">@Bicim.Sayi(a.Kilometre)</td>
+                    <td class="text-end rakam fw-semibold">@Bicim.Para(a.GunlukFiyat)</td>
+                    <td><partial name="_AracDurumu" model="a.Durum" /></td>
+                    <td class="text-end text-nowrap"><a href="/Yonetim/Araclar/Duzenle/@a.Id" class="btn btn-sm btn-sade" aria-label="Düzenle"><i class="bi bi-pencil"></i></a></td>
+                </tr>
+            }
+        </tbody>
+    </table></div>
+    @if (Model.Kayitlar.Count == 0) { <div class="bos-durum"><i class="bi bi-car-front"></i>Araç bulunamadı.</div> }
+</div>
+@await Html.PartialAsync("_Sayfalama", (Model.ToplamSayfa, Model.Sayfa, (Func<int, string>)(s => Url.Action("Index", new { arama = ViewBag.Arama, kategoriId = ViewBag.KategoriId, durum = ViewBag.Durum, subeId = ViewBag.SubeId, sayfa = s })!)))

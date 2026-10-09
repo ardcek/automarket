@@ -1,0 +1,39 @@
+@* KAYIT SAYFASI. Yeni üyelik Yönetim → Ayarlar → Rezervasyon → "Yeni üye kaydı açık" ile kapatılabilir. *@
+@model KayitFormu
+@{ ViewData["Title"] = Icerik.Metin("hesap.kayit-baslik"); }
+<div class="giris-sayfasi">
+    <div class="giris-yan">
+        <h2>@Icerik.Metin("hesap.kayit-yan-baslik")</h2>
+        <p class="opacity-75 mb-0">@Icerik.Metin("hesap.kayit-yan-metin")</p>
+    </div>
+    <div class="giris-form">
+        <div class="ic">
+            <h1 class="h3">@Icerik.Metin("hesap.kayit-baslik")</h1>
+            @if (!Icerik.Ayarlar.UyeKaydiAcik)
+            {
+                <div class="alert alert-warning">@Icerik.Metin("hesap.kayit-kapali")</div>
+            }
+            else
+            {
+                <p class="text-muted">Zaten üye misiniz? <a asp-action="Giris">Giriş yapın</a></p>
+                <form asp-action="Kayit" method="post" class="row g-3">
+                    <input type="hidden" asp-for="DonusAdresi" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger small col-12"></div>
+                    <div class="col-6"><label asp-for="Ad" class="form-label"></label><input asp-for="Ad" class="form-control" /><span asp-validation-for="Ad"></span></div>
+                    <div class="col-6"><label asp-for="Soyad" class="form-label"></label><input asp-for="Soyad" class="form-control" /><span asp-validation-for="Soyad"></span></div>
+                    <div class="col-12"><label asp-for="Eposta" class="form-label"></label><input asp-for="Eposta" class="form-control" /><span asp-validation-for="Eposta"></span></div>
+                    <div class="col-12"><label asp-for="Telefon" class="form-label"></label><input asp-for="Telefon" class="form-control" placeholder="05xx xxx xx xx" /><span asp-validation-for="Telefon"></span></div>
+                    <div class="col-sm-6"><label asp-for="Sifre" class="form-label"></label><input asp-for="Sifre" class="form-control" /><span asp-validation-for="Sifre"></span></div>
+                    <div class="col-sm-6"><label asp-for="SifreTekrar" class="form-label"></label><input asp-for="SifreTekrar" class="form-control" /><span asp-validation-for="SifreTekrar"></span></div>
+                    <div class="col-12 form-check ms-1">
+                        <input type="checkbox" name="KvkkOnay" id="KvkkOnay" value="true" class="form-check-input" checked="@Model.KvkkOnay" />
+                        <label for="KvkkOnay" class="form-check-label small"><a href="/Sayfa/kvkk" target="_blank">KVKK aydınlatma metnini</a> okudum, kabul ediyorum.</label>
+                        <div><span asp-validation-for="KvkkOnay"></span></div>
+                    </div>
+                    <div class="col-12"><button class="btn btn-primary btn-lg w-100">@Icerik.Metin("menu.uyeol")</button></div>
+                </form>
+            }
+        </div>
+    </div>
+</div>
+@section Scripts { <partial name="_FormDogrulama" /> }

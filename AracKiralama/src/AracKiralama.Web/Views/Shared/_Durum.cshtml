@@ -1,0 +1,11 @@
+@* REZERVASYON DURUM ROZETİ. Kullanım: <partial name="_Durum" model="rezervasyon" />
+   Renkler stil.css → .durum-onaybekliyor, .durum-kirada ... *@
+@model Rezervasyon
+@if (Model.Durum == RezervasyonDurumu.Kirada && Model.BitisTarihi < DateTime.Now)
+{
+    <span class="durum durum-gecikti">Gecikti</span>
+}
+else
+{
+    <span class="durum durum-@Model.Durum.ToString().ToLowerInvariant()">@Model.Durum.Ad()</span>
+}

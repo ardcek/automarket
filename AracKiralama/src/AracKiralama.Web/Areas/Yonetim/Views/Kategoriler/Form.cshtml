@@ -1,0 +1,18 @@
+@* KATEGORİ FORMU *@
+@model Kategori
+@{ var duzenleme = Model.Id > 0; ViewData["Title"] = duzenleme ? "Kategoriyi düzenle" : "Yeni kategori"; }
+<div class="sayfa-baslik"><div><a href="/Yonetim/Kategoriler" class="small"><i class="bi bi-arrow-left me-1"></i>Kategoriler</a><h1 class="mt-1">@ViewData["Title"]</h1></div></div>
+<form asp-action="@(duzenleme ? "Duzenle" : "Ekle")" method="post" class="card" style="max-width:760px">
+    <input type="hidden" asp-for="Id" />
+    <div class="card-body row g-3">
+        <div class="col-md-6"><label asp-for="Ad" class="form-label"></label><input asp-for="Ad" class="form-control" /><span asp-validation-for="Ad"></span></div>
+        <div class="col-md-3"><label asp-for="Ikon" class="form-label"></label><div class="input-group"><span class="input-group-text"><i id="ikon" class="bi @Model.Ikon"></i></span><input asp-for="Ikon" class="form-control" data-ikon-onizle="#ikon" /></div></div>
+        <div class="col-md-3"><label asp-for="Sira" class="form-label"></label><input asp-for="Sira" class="form-control" /></div>
+        <div class="col-md-4"><label asp-for="MinYas" class="form-label"></label><input asp-for="MinYas" class="form-control" /></div>
+        <div class="col-md-4"><label asp-for="MinEhliyetYili" class="form-label"></label><input asp-for="MinEhliyetYili" class="form-control" /></div>
+        <div class="col-md-4"><label asp-for="VarsayilanDepozito" class="form-label"></label><input asp-for="VarsayilanDepozito" class="form-control" step="500" /></div>
+        <div class="col-12"><label asp-for="GorselAdresi" class="form-label"></label><input asp-for="GorselAdresi" class="form-control" placeholder="/img/cars/Renault_Clio.jpg veya /gorsel/5" /><div class="form-text">Ana sayfadaki kategori kartının resmi.</div></div>
+    </div>
+    <div class="card-body border-top text-end"><a href="/Yonetim/Kategoriler" class="btn btn-sade">Vazgeç</a> <button class="btn btn-primary">Kaydet</button></div>
+</form>
+@section Scripts { <partial name="_FormDogrulama" /> }

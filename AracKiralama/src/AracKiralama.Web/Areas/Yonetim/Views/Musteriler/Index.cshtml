@@ -1,0 +1,26 @@
+@* MÜŞTERİ LİSTESİ (harcamaya göre sıralı) *@
+@model List<MusteriSatiri>
+@{ ViewData["Title"] = "Müşteriler"; }
+<div class="sayfa-baslik"><div><h1>Müşteriler</h1><div class="alt-yazi">@Model.Count müşteri</div></div></div>
+<div class="card tablo-karti">
+    <form method="get" class="card-header d-flex flex-wrap gap-2 align-items-center" data-otomatik-gonder>
+        <div class="input-group" style="max-width:340px"><span class="input-group-text"><i class="bi bi-search"></i></span><input type="search" name="arama" value="@ViewBag.Arama" class="form-control" placeholder="Ad, e-posta veya telefon" /></div>
+        <div class="form-check form-switch ms-2"><input class="form-check-input" type="checkbox" id="kl" name="karaListe" value="true" checked="@((bool)ViewBag.KaraListe)" /><label class="form-check-label small" for="kl">Sadece kara liste</label></div>
+        <button class="btn btn-sade">Ara</button>
+    </form>
+    <div class="table-responsive"><table class="table table-hover align-middle">
+        <thead><tr><th>Müşteri</th><th>Telefon</th><th class="text-end">Kiralama</th><th class="text-end">Harcama</th><th></th></tr></thead>
+        <tbody>
+            @foreach (var s in Model)
+            {
+                <tr>
+                    <td><a href="/Yonetim/Musteriler/Detay/@s.Kullanici.Id" class="fw-semibold text-reset">@s.Kullanici.TamAd</a> @if (s.Kullanici.KaraListede) { <span class="durum durum-reddedildi">Kara liste</span> }<div class="small text-muted">@s.Kullanici.Email</div></td>
+                    <td class="small">@(s.Kullanici.PhoneNumber ?? "-")</td>
+                    <td class="text-end rakam">@s.KiralamaSayisi</td>
+                    <td class="text-end rakam fw-semibold">@Bicim.Para(s.ToplamHarcama)</td>
+                    <td class="text-end"><a href="/Yonetim/Musteriler/Detay/@s.Kullanici.Id" class="btn btn-sm btn-sade" aria-label="Detay"><i class="bi bi-chevron-right"></i></a></td>
+                </tr>
+            }
+        </tbody>
+    </table></div>
+</div>

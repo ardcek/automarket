@@ -1,0 +1,23 @@
+@* PROFİL VE EHLİYET BİLGİLERİ (rezervasyon için doğum ve ehliyet tarihi zorunlu) *@
+@model ProfilFormu
+@{ ViewData["Title"] = Icerik.Metin("menu.profil"); }
+<div class="container py-4" style="max-width: 820px">
+    <h1 class="h3 mb-4">@Icerik.Metin("menu.profil")</h1>
+    <form asp-action="Duzenle" method="post" class="card">
+        <input type="hidden" asp-for="DonusAdresi" />
+        <div class="card-body row g-3">
+            <div asp-validation-summary="ModelOnly" class="text-danger small col-12"></div>
+            <div class="col-md-6"><label asp-for="Ad" class="form-label"></label><input asp-for="Ad" class="form-control" /><span asp-validation-for="Ad"></span></div>
+            <div class="col-md-6"><label asp-for="Soyad" class="form-label"></label><input asp-for="Soyad" class="form-control" /><span asp-validation-for="Soyad"></span></div>
+            <div class="col-md-6"><label asp-for="Eposta" class="form-label"></label><input asp-for="Eposta" class="form-control" disabled /></div>
+            <div class="col-md-6"><label asp-for="Telefon" class="form-label"></label><input asp-for="Telefon" class="form-control" /><span asp-validation-for="Telefon"></span></div>
+            <div class="col-md-6"><label asp-for="TcNo" class="form-label"></label><input asp-for="TcNo" class="form-control" maxlength="11" /><span asp-validation-for="TcNo"></span></div>
+            <div class="col-md-6"><label asp-for="DogumTarihi" class="form-label"></label><input asp-for="DogumTarihi" type="date" class="form-control" /><span asp-validation-for="DogumTarihi"></span></div>
+            <div class="col-md-6"><label asp-for="EhliyetNo" class="form-label"></label><input asp-for="EhliyetNo" class="form-control" /></div>
+            <div class="col-md-6"><label asp-for="EhliyetTarihi" class="form-label"></label><input asp-for="EhliyetTarihi" type="date" class="form-control" /><span asp-validation-for="EhliyetTarihi"></span></div>
+            <div class="col-12 small text-muted"><i class="bi bi-info-circle me-1"></i>Her araç sınıfının en az yaş ve ehliyet süresi şartı vardır; rezervasyonda otomatik kontrol edilir.</div>
+        </div>
+        <div class="card-body border-top text-end"><a href="/Profil" class="btn btn-sade">Vazgeç</a> <button class="btn btn-primary">Kaydet</button></div>
+    </form>
+</div>
+@section Scripts { <partial name="_FormDogrulama" /> }

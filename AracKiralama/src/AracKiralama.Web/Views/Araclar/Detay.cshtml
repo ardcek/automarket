@@ -1,0 +1,104 @@
+@* ARAÇ DETAYI + CANLI FİYAT (sağdaki kutu wwwroot/js/fiyat-hesapla.js ile /api/fiyat'a sorar) *@
+@model AracDetaySayfasi
+@{
+    var a = Model.Arac;
+    ViewData["Title"] = a.TamAd;
+    var baslangic = Model.Filtre.Baslangic ?? DateTime.Today.AddDays(1).AddHours(10);
+    var bitis = Model.Filtre.Bitis ?? baslangic.AddDays(3);
+    var alis = Model.Filtre.AlisSubeId ?? a.SubeId;
+    var iade = Model.Filtre.IadeSubeId ?? alis;
+    var ayar = Icerik.Ayarlar;
+}
+
+<div class="container py-4">
+    <a asp-action="Index" asp-all-route-data="Model.Filtre.TarihDegerleri()" class="small"><i class="bi bi-arrow-left me-1"></i>@Icerik.Metin("menu.araclar")</a>
+
+    <div class="row g-4 mt-1">
+        <div class="col-lg-8">
+            <div class="detay-gorsel mb-4"><img src="@(a.GorselAdresi ?? "/img/placeholder.svg")" alt="@a.TamAd" /></div>
+            <div class="d-flex flex-wrap gap-2 mb-2">
+                <span class="etiket"><i class="bi @a.Kategori!.Ikon"></i>@a.Kategori.Ad</span>
+                <span class="etiket"><i class="bi bi-geo-alt"></i>@a.Sube!.Ad</span>
+            </div>
+            <h1 class="h2">@a.TamAd <span class="text-muted fw-normal">@a.Yil</span></h1>
+            <p class="text-muted mb-4">@a.Aciklama</p>
+
+            <div class="row g-3 mb-4">
+                @foreach (var (ikon, etiket, deger) in new[] { ("bi-gear-wide-connected", "Vites", a.VitesTuru!.Ad), ("bi-fuel-pump", "Yakıt", a.YakitTuru!.Ad), ("bi-people", "Koltuk", a.KoltukSayisi + " kişi"), ("bi-palette", "Renk", a.Renk) })
+                {
+                    <div class="col-6 col-md-3"><div class="ozellik-kutusu"><i class="bi @ikon"></i><div class="etiket-yazi">@etiket</div><div class="deger">@deger</div></div></div>
+                }
+            </div>
+
+            <div class="card">
+                <div class="card-header"><i class="bi bi-card-checklist me-2 metin-ana"></i>@Icerik.Metin("araclar.sartlar")</div>
+                <div class="card-body row g-3">
+                    <div class="col-sm-4"><div class="kucuk-baslik">Sürücü yaşı</div><b>En az @a.Kategori.MinYas</b></div>
+                    <div class="col-sm-4"><div class="kucuk-baslik">Ehliyet süresi</div><b>En az @a.Kategori.MinEhliyetYili yıl</b></div>
+                    <div class="col-sm-4"><div class="kucuk-baslik">Depozito</div><b>@Bicim.Para(a.Depozito)</b></div>
+                    <div class="col-12 small text-muted">
+                        @ayar.HaftalikIndirimGunu+ gün @Bicim.Yuzde(ayar.HaftalikIndirimOrani), @ayar.AylikIndirimGunu+ gün @Bicim.Yuzde(ayar.AylikIndirimOrani) indirim ·
+                        Farklı şubeye iade @Bicim.Para(ayar.TekYonUcreti) · Alışa @ayar.UcretsizIptalSaati saatten fazla varken iptal ücretsiz.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* ---------------- REZERVASYON / CANLI FİYAT KUTUSU ---------------- *@
+        <div class="col-lg-4">
+            <form class="card yapiskan" method="get" action="/Rezervasyon/Yeni" data-fiyat-formu data-arac-id="@a.Id">
+                <input type="hidden" name="aracId" value="@a.Id" />
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-baseline mb-3">
+                        <div class="fiyat fs-3">@Bicim.Para(a.GunlukFiyat) <small>@Icerik.Metin("araclar.gunluk")</small></div>
+                        @if (Model.Musait == true) { <span class="durum durum-musait">Müsait</span> }
+                        else if (Model.Musait == false) { <span class="durum durum-reddedildi">Dolu</span> }
+                    </div>
+                    <div class="row g-2 mb-2" data-tarih-cifti>
+                        <div class="col-6"><label class="form-label small">@Icerik.Metin("arama.alis")</label><input class="form-control form-control-sm" type="datetime-local" name="Baslangic" value="@Bicim.Kutu(baslangic)" min="@Bicim.Kutu(DateTime.Today)" data-tarih-baslangic /></div>
+                        <div class="col-6"><label class="form-label small">@Icerik.Metin("arama.iade")</label><input class="form-control form-control-sm" type="datetime-local" name="Bitis" value="@Bicim.Kutu(bitis)" data-tarih-bitis /></div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small">@Icerik.Metin("arama.alis-sube")</label>
+                            <select class="form-select form-select-sm" name="AlisSubeId">@foreach (var s in Model.Subeler) { <option value="@s.Id" selected="@(s.Id == alis)">@s.Ad</option> }</select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small">@Icerik.Metin("arama.iade-sube")</label>
+                            <select class="form-select form-select-sm" name="IadeSubeId">@foreach (var s in Model.Subeler) { <option value="@s.Id" selected="@(s.Id == iade)">@s.Ad</option> }</select>
+                        </div>
+                    </div>
+
+                    <div class="kucuk-baslik mb-2">@Icerik.Metin("araclar.ekstralar")</div>
+                    <div class="d-grid gap-2 mb-3">
+                        @foreach (var e in Model.Ekstralar.Take(4))
+                        {
+                            <label class="ekstra-secenek">
+                                <input type="checkbox" name="EkstraIdleri" value="@e.Id" />
+                                <span class="kutu py-2"><span class="ikon"><i class="bi @e.Ikon"></i></span><span class="small"><b>@e.Ad</b><br /><span class="text-muted">+@Bicim.Para(e.GunlukFiyat) / gün</span></span><i class="bi bi-check-circle-fill tik"></i></span>
+                            </label>
+                        }
+                    </div>
+
+                    <div data-fiyat-hatalari></div>
+                    <ul class="dokum mb-3" data-fiyat-dokumu><li><span>Fiyat hesaplanıyor…</span><span></span></li></ul>
+                    <button class="btn btn-primary btn-lg w-100" data-fiyat-gonder>@Icerik.Metin("araclar.rezervasyon-yap") <i class="bi bi-arrow-right ms-1"></i></button>
+                    <div class="small text-muted text-center mt-2"><i class="bi bi-lock me-1"></i>@Icerik.Metin("araclar.odeme-notu")</div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (Model.Benzerler.Count > 0)
+    {
+        <h2 class="h4 mt-5 mb-3">@Icerik.Metin("araclar.benzer")</h2>
+        <div class="row g-4">
+            @foreach (var b in Model.Benzerler)
+            {
+                <div class="col-sm-6 col-lg-3"><partial name="_AracKarti" model="new AracKartiModeli { Arac = b, Filtre = Model.Filtre }" /></div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts { <script src="~/js/fiyat-hesapla.js" asp-append-version="true"></script> }

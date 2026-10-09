@@ -1,0 +1,67 @@
+@* "REZERVASYONLARIM": aktif rezervasyonlar (iptal / sözleşme) ve geçmiş *@
+@model ProfilSayfasi
+@{ ViewData["Title"] = Icerik.Metin("menu.rezervasyonlarim"); }
+<div class="container py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+        <div>
+            <h1 class="h3 mb-0">@Icerik.Metin("profil.merhaba"), @Model.Kullanici.Ad</h1>
+            <div class="text-muted">@Icerik.Metin("profil.aciklama")</div>
+        </div>
+        <a href="/Profil/Duzenle" class="btn btn-sade"><i class="bi bi-person-gear me-1"></i>@Icerik.Metin("menu.profil")</a>
+    </div>
+
+    @if (!Model.ProfilTamam)
+    {
+        <div class="alert alert-warning d-flex flex-wrap align-items-center gap-2"><i class="bi bi-exclamation-triangle"></i>@Icerik.Metin("profil.eksik-bilgi")<a href="/Profil/Duzenle" class="btn btn-sm btn-sade ms-auto">Tamamla</a></div>
+    }
+
+    @if (Model.Aktifler.Count == 0)
+    {
+        <div class="card bos-durum"><i class="bi bi-calendar2-plus"></i><p>Yaklaşan bir rezervasyonunuz yok.</p><a href="/Araclar" class="btn btn-primary">Araç kirala</a></div>
+    }
+    <div class="row g-3">
+        @foreach (var r in Model.Aktifler)
+        {
+            <div class="col-lg-6">
+                <div class="card h-100 p-3 d-flex flex-row gap-3">
+                    <img src="@r.Arac!.GorselAdresi" alt="" class="rounded-3 d-none d-sm-block" style="width:128px;height:84px;object-fit:cover" />
+                    <div class="flex-grow-1 min-w-0">
+                        <div class="d-flex justify-content-between gap-2"><div><b>@r.Arac.TamAd</b><div class="small text-muted rakam">@r.Kod</div></div><partial name="_Durum" model="r" /></div>
+                        <div class="small mt-2">@r.AlisSube!.Ad · @Bicim.TarihSaat(r.BaslangicTarihi)<br />@r.IadeSube!.Ad · @Bicim.TarihSaat(r.BitisTarihi)</div>
+                        <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+                            <b class="me-auto">@Bicim.Para(r.ToplamTutar)</b>
+                            @if (r.Durum != RezervasyonDurumu.OnayBekliyor) { <a href="/Profil/Sozlesme/@r.Id" target="_blank" class="btn btn-sm btn-sade"><i class="bi bi-file-earmark-pdf"></i> Sözleşme</a> }
+                            @if (r.IptalEdilebilir)
+                            {
+                                <form asp-action="IptalEt" asp-route-id="@r.Id" method="post">
+                                    <button class="btn btn-sm btn-sade text-danger" data-onay="@r.Kod iptal edilsin mi? Alışa @Icerik.Ayarlar.UcretsizIptalSaati saatten az kaldıysa 1 günlük ücret kesilir.">İptal et</button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (Model.Gecmis.Count > 0)
+    {
+        <h2 class="h5 mt-5 mb-3">Geçmiş</h2>
+        <div class="card tablo-karti"><div class="table-responsive"><table class="table table-hover align-middle">
+            <thead><tr><th>Kod</th><th>Araç</th><th>Tarih</th><th>Durum</th><th class="text-end">Tutar</th><th></th></tr></thead>
+            <tbody>
+                @foreach (var r in Model.Gecmis)
+                {
+                    <tr>
+                        <td class="small rakam">@r.Kod</td>
+                        <td>@r.Arac!.TamAd</td>
+                        <td class="small text-muted">@Bicim.Tarih(r.BaslangicTarihi) – @Bicim.Tarih(r.BitisTarihi)</td>
+                        <td><partial name="_Durum" model="r" /></td>
+                        <td class="text-end rakam">@Bicim.Para(r.Durum == RezervasyonDurumu.IptalEdildi ? r.IptalUcreti : r.ToplamTutar)</td>
+                        <td class="text-end">@if (r.Durum == RezervasyonDurumu.Tamamlandi) { <a href="/Profil/Sozlesme/@r.Id" target="_blank" class="btn btn-sm btn-sade" aria-label="Sözleşme"><i class="bi bi-file-earmark-pdf"></i></a> }</td>
+                    </tr>
+                }
+            </tbody>
+        </table></div></div>
+    }
+</div>

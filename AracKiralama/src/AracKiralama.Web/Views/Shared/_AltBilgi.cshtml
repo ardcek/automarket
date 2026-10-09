@@ -1,0 +1,47 @@
+@* ALT BİLGİ (footer). Firma bilgileri Ayarlar'dan, yazılar Site Metinleri'nden, linkler Sayfalar'dan. *@
+@{ var a = Icerik.Ayarlar; }
+<footer class="alt-bilgi">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <a class="logo mb-3" href="/"><span class="logo-isaret"><i class="bi @a.LogoIkonu"></i></span> @a.FirmaAdi</a>
+                <p class="small mb-3">@Icerik.Metin("altbilgi.aciklama")</p>
+                <div class="d-flex gap-3 fs-5">
+                    @if (!string.IsNullOrEmpty(a.InstagramAdresi)) { <a href="@a.InstagramAdresi" target="_blank" rel="noopener" aria-label="Instagram"><i class="bi bi-instagram"></i></a> }
+                    @if (!string.IsNullOrEmpty(a.XAdresi)) { <a href="@a.XAdresi" target="_blank" rel="noopener" aria-label="X"><i class="bi bi-twitter-x"></i></a> }
+                    @if (!string.IsNullOrEmpty(a.LinkedinAdresi)) { <a href="@a.LinkedinAdresi" target="_blank" rel="noopener" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a> }
+                </div>
+            </div>
+            <div class="col-6 col-lg-2">
+                <h6 class="mb-3">@Icerik.Metin("altbilgi.kiralama")</h6>
+                <ul class="list-unstyled small d-grid gap-2">
+                    <li><a href="/Araclar">@Icerik.Metin("menu.araclar")</a></li>
+                    <li><a href="/Profil">@Icerik.Metin("menu.rezervasyonlarim")</a></li>
+                    @if (a.SubeleriGoster) { <li><a href="/#subeler">@Icerik.Metin("menu.subeler")</a></li> }
+                </ul>
+            </div>
+            <div class="col-6 col-lg-2">
+                <h6 class="mb-3">@Icerik.Metin("altbilgi.kurumsal")</h6>
+                <ul class="list-unstyled small d-grid gap-2">
+                    @foreach (var sayfa in Icerik.Sayfalar.Where(s => s.AltBilgideGoster))
+                    {
+                        <li><a href="/Sayfa/@sayfa.Adres">@sayfa.Baslik</a></li>
+                    }
+                </ul>
+            </div>
+            <div class="col-lg-4">
+                <h6 class="mb-3">@Icerik.Metin("altbilgi.iletisim")</h6>
+                <ul class="list-unstyled small d-grid gap-2">
+                    <li><i class="bi bi-telephone me-2"></i>@a.Telefon</li>
+                    <li><i class="bi bi-envelope me-2"></i>@a.Eposta</li>
+                    <li><i class="bi bi-geo-alt me-2"></i>@a.Adres</li>
+                    <li><i class="bi bi-clock me-2"></i>@a.CalismaSaatleri</li>
+                </ul>
+            </div>
+        </div>
+        <div class="en-alt d-flex flex-wrap justify-content-between gap-2">
+            <span>© @DateTime.Now.Year @a.FirmaAdi · @Icerik.Metin("altbilgi.telif")</span>
+            <a href="/swagger" target="_blank"><i class="bi bi-braces me-1"></i>API</a>
+        </div>
+    </div>
+</footer>

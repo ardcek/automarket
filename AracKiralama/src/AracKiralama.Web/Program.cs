@@ -1,149 +1,145 @@
+// ============================================================================
+// PROGRAM.CS — uygulamanın başlangıç noktası
+// Yukarıdan aşağı okunur:
+//   1) Servisleri kaydet (veritabanı, giriş sistemi, iş kuralları)
+//   2) Uygulamayı oluştur, veritabanını hazırla
+//   3) İstek hattını (middleware) kur ve çalıştır
+// ============================================================================
 using System.Globalization;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
-using Microsoft.Extensions.WebEncoders;
-using AracKiralama.Web.Data;
-using AracKiralama.Web.Helpers;
-using AracKiralama.Web.Models.Entities;
-using AracKiralama.Web.Services;
+using AracKiralama.Modeller;
+using AracKiralama.Servisler;
+using AracKiralama.Veri;
+using AracKiralama.Yardimcilar;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.WebEncoders;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ---------- Ayarlar (appsettings.json) ----------
-builder.Services.Configure<PricingOptions>(builder.Configuration.GetSection("Pricing"));
-builder.Services.Configure<SiteOptions>(builder.Configuration.GetSection("Site"));
+// ---------------------------------------------------------------------------
+// 1) VERİTABANI
+// ConnectionStrings:PostgreSql doluysa PostgreSQL (canlı site, Neon) kullanılır,
+// boşsa bilgisayarda kurulum gerektirmeyen SQLite dosyası (arackiralama.db).
+// ---------------------------------------------------------------------------
+var veriKlasoru = Environment.GetEnvironmentVariable("DATA_DIR") ?? builder.Environment.ContentRootPath;
+Directory.CreateDirectory(veriKlasoru);
+var postgreBaglantisi = builder.Configuration.GetConnectionString("PostgreSql");
 
-// ---------- Klasörler ----------
-// Veritabanı, yüklenen görseller ve oturum anahtarları DATA_DIR klasörüne yazılır (yoksa proje klasörü).
-var paths = new AppPaths(builder.Environment.ContentRootPath);
-builder.Services.AddSingleton(paths);
+// PostgreSQL'in tarih kuralını SQLite ile aynı yapar (yerel saatli tarihler sorunsuz kaydedilsin).
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
-// Oturum (cookie) şifreleme anahtarları diske yazılır → uygulama yeniden başlayınca kullanıcılar çıkış yapmış olmaz.
-builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(paths.KeysDir));
-
-// ---------- Veritabanı ----------
-// Varsayılan: DATA_DIR/arackiralama.db (SQLite). İsterseniz appsettings.json'a "ConnectionStrings:Default" ekleyin.
-// SQL Server'a geçmek için: UseSqlite → UseSqlServer ve connection string'i değiştirin.
-var connectionString = builder.Configuration.GetConnectionString("Default") ?? $"Data Source={paths.DatabaseFile}";
-builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlite(connectionString));
-
-// ---------- Sunucu arkasında çalışma (Render, Nginx...) ----------
-// HTTPS önde (proxy'de) sonlanır; gerçek protokol ve IP bilgisi X-Forwarded-* başlıklarıyla gelir.
-builder.Services.Configure<ForwardedHeadersOptions>(o =>
+builder.Services.AddDbContext<VeriTabani>(secenek =>
 {
-    o.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-    o.KnownIPNetworks.Clear();
-    o.KnownProxies.Clear();
+    if (!string.IsNullOrWhiteSpace(postgreBaglantisi)) secenek.UseNpgsql(postgreBaglantisi);
+    else secenek.UseSqlite($"Data Source={Path.Combine(veriKlasoru, "arackiralama.db")}");
 });
 
-// Render'ın "uygulama ayakta mı?" kontrolü için: GET /health
-builder.Services.AddHealthChecks();
-
-// ---------- Kimlik doğrulama (ASP.NET Core Identity) ----------
-builder.Services
-    .AddIdentity<AppUser, IdentityRole>(o =>
+// ---------------------------------------------------------------------------
+// 2) GİRİŞ SİSTEMİ (ASP.NET Identity): kullanıcılar, şifreler, roller
+// ---------------------------------------------------------------------------
+builder.Services.AddIdentity<Kullanici, IdentityRole>(secenek =>
     {
-        o.User.RequireUniqueEmail = true;
-        o.Password.RequiredLength = 6;
-        o.Password.RequireNonAlphanumeric = false;
-        o.Password.RequireUppercase = false;
+        secenek.User.RequireUniqueEmail = true;
+        secenek.Password.RequiredLength = 6;
+        secenek.Password.RequireNonAlphanumeric = false;
+        secenek.Password.RequireUppercase = false;
     })
-    .AddEntityFrameworkStores<AppDbContext>()
-    .AddErrorDescriber<TurkishIdentityErrorDescriber>()
+    .AddEntityFrameworkStores<VeriTabani>()
+    .AddErrorDescriber<TurkceIdentityMesajlari>()
     .AddDefaultTokenProviders();
 
-builder.Services.ConfigureApplicationCookie(o =>
+builder.Services.ConfigureApplicationCookie(secenek =>
 {
-    o.LoginPath = "/Account/Login";
-    o.AccessDeniedPath = "/Account/AccessDenied";
-    o.ExpireTimeSpan = TimeSpan.FromDays(7);
+    secenek.LoginPath = "/Hesap/Giris";
+    secenek.AccessDeniedPath = "/Hesap/ErisimEngellendi";
+    secenek.ReturnUrlParameter = "donusAdresi";   // girişten sonra kullanıcının gitmek istediği sayfaya dönülür
+    secenek.ExpireTimeSpan = TimeSpan.FromDays(7);
 });
 
-// ---------- Uygulama servisleri (iş kuralları) ----------
-// Scoped = her HTTP isteği için bir örnek oluşturulur.
-builder.Services.AddScoped<IPricingService, PricingService>();
-builder.Services.AddScoped<IAvailabilityService, AvailabilityService>();
-builder.Services.AddScoped<IReservationService, ReservationService>();
-builder.Services.AddScoped<IReportService, ReportService>();
-builder.Services.AddScoped<IContractPdfService, ContractPdfService>();
-builder.Services.AddScoped<IImageService, ImageService>();
-builder.Services.AddHostedService<OverdueReservationWorker>();
+// Oturum çerezlerinin şifreleme anahtarları diske yazılır (uygulama yeniden başlayınca oturum düşmesin).
+builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(veriKlasoru, "anahtarlar")));
+
+// ---------------------------------------------------------------------------
+// 3) UYGULAMA SERVİSLERİ (iş kuralları — Servisler klasörü)
+// Singleton = uygulama boyunca tek örnek · Scoped = her istekte yeni örnek
+// ---------------------------------------------------------------------------
+builder.Services.AddSingleton<IcerikServisi>();
+builder.Services.AddScoped(s => s.GetRequiredService<IcerikServisi>().Ayarlar);   // SiteAyarlari'nı isteyen her yere güncel ayarlar
+builder.Services.AddScoped<FiyatServisi>();
+builder.Services.AddScoped<MusaitlikServisi>();
+builder.Services.AddScoped<RezervasyonServisi>();
+builder.Services.AddScoped<RaporServisi>();
+builder.Services.AddScoped<SozlesmeServisi>();
+builder.Services.AddScoped<GorselServisi>();
+builder.Services.AddHostedService<GecikmeKontrolu>();
 
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
-// Fontta olmayan bir karakter (ör. emoji) girilirse PDF üretimi durmasın, o karakter boş geçilsin.
-QuestPDF.Settings.ThrowOnMissingTextGlyphs = false;
+QuestPDF.Settings.ThrowOnMissingTextGlyphs = false;   // fontta olmayan karakter PDF'i bozmasın
 
-// ---------- MVC + API ----------
-builder.Services.AddControllersWithViews(o => TurkishModelBindingMessages.Apply(o.ModelBindingMessageProvider));
-
-// Türkçe karakterler (ş, ğ, ı, ₺...) HTML çıktısında &#x15F; gibi kodlanmadan, olduğu gibi yazılsın.
-builder.Services.Configure<WebEncoderOptions>(o => o.TextEncoderSettings = new TextEncoderSettings(UnicodeRanges.All));
-builder.Services.AddOpenApi();
+// ---------------------------------------------------------------------------
+// 4) MVC, API ve diğer ayarlar
+// ---------------------------------------------------------------------------
+builder.Services.AddControllersWithViews(secenek =>
+{
+    TurkceFormMesajlari.Uygula(secenek.ModelBindingMessageProvider);        // "abc sayı değil" gibi mesajlar
+    secenek.ModelMetadataDetailsProviders.Add(new TurkceDogrulamaMesajlari());  // "X zorunludur" gibi mesajlar
+});
+builder.Services.Configure<WebEncoderOptions>(s => s.TextEncoderSettings = new TextEncoderSettings(UnicodeRanges.All)); // "ş" → "&#x15F;" olmasın
+builder.Services.AddOpenApi();        // API dokümantasyonu (/swagger)
+builder.Services.AddHealthChecks();   // /health → sunucu ayakta mı?
+builder.Services.Configure<ForwardedHeadersOptions>(s =>
+{
+    // Render gibi sunucularda HTTPS önde çözülür; gerçek bilgi X-Forwarded-* başlıklarıyla gelir.
+    s.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    s.KnownIPNetworks.Clear();
+    s.KnownProxies.Clear();
+});
 
 var app = builder.Build();
 
-// Form verisindeki sayılar "1500.50" biçiminde gelir; okuma kültürden bağımsız olsun.
-// Ekrandaki Türkçe biçimlendirme Helpers/Fmt.cs ile yapılır.
+// Formdaki sayılar "1500.50" gelir → okuma kültürden bağımsız. Ekrandaki Türkçe biçim: Yardimcilar/Bicim.cs
 CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
 CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("tr-TR");
 
-// ---------- Veritabanını oluştur + örnek verileri yükle ----------
-using (var scope = app.Services.CreateScope())
+// ---------------------------------------------------------------------------
+// 5) VERİTABANINI HAZIRLA: tablolar yoksa oluştur, boşsa örnek verileri yükle
+// ---------------------------------------------------------------------------
+using (var kapsam = app.Services.CreateScope())
 {
-    var timer = System.Diagnostics.Stopwatch.StartNew();
-    await DbSeeder.SeedAsync(scope.ServiceProvider);
-    app.Logger.LogInformation("Veritabanı hazır ({Ms} ms).", timer.ElapsedMilliseconds);
+    var sure = System.Diagnostics.Stopwatch.StartNew();
+    await OrnekVeriler.YukleAsync(kapsam.ServiceProvider);
+    app.Logger.LogInformation("Veritabanı hazır ({Tur}, {Ms} ms).", string.IsNullOrWhiteSpace(postgreBaglantisi) ? "SQLite" : "PostgreSQL", sure.ElapsedMilliseconds);
 }
 
-app.UseForwardedHeaders();   // en başta olmalı
-app.UseSecurityHeaders();    // Helpers/SecurityHeaders.cs
-
+// ---------------------------------------------------------------------------
+// 6) İSTEK HATTI: her istek bu sırayla bu adımlardan geçer
+// ---------------------------------------------------------------------------
+app.UseForwardedHeaders();
+app.UseGuvenlikBasliklari();
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    app.UseExceptionHandler("/AnaSayfa/Hata");
     app.UseHsts();
 }
-app.UseStatusCodePagesWithReExecute("/Home/StatusCode", "?code={0}");
-
+app.UseStatusCodePagesWithReExecute("/AnaSayfa/Durum", "?kod={0}");   // 404 vb. için özel sayfa
 app.UseHttpsRedirection();
-
-// Admin panelinden yüklenen araç görselleri: DATA_DIR/uploads → /uploads/...
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(paths.UploadsDir),
-    RequestPath = "/uploads",
-});
 app.UseRouting();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
 app.MapHealthChecks("/health");
-
-// API dokümantasyonu: /openapi/v1.json  ve arayüz: /swagger
 app.MapOpenApi();
-app.UseSwaggerUI(o =>
-{
-    o.SwaggerEndpoint("/openapi/v1.json", "Rota Araç Kiralama API");
-    o.DocumentTitle = "Rota API";
-});
+app.UseSwaggerUI(s => s.SwaggerEndpoint("/openapi/v1.json", "Araç Kiralama API"));
 
-app.MapControllerRoute(
-    name: "areas",
-    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+// Adres kalıpları: /Yonetim/Araclar/Duzenle/5  ve  /Araclar/Detay/5
+app.MapControllerRoute("yonetim", "{area:exists}/{controller=Panel}/{action=Index}/{id?}");
+app.MapControllerRoute("varsayilan", "{controller=AnaSayfa}/{action=Index}/{id?}").WithStaticAssets();
 
 app.Run();
 
-// Test projesinin WebApplicationFactory ile erişebilmesi için.
-public partial class Program;
+public partial class Program;   // testlerin uygulamaya erişebilmesi için

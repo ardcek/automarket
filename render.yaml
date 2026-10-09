@@ -22,3 +22,7 @@ services:
         value: Production
       - key: TZ
         value: Europe/Istanbul
+      # Kalıcı veritabanı (Neon PostgreSQL). Değer GitHub'a yazılmaz: Render → servis → Environment
+      # sayfasında girilir. Boş bırakılırsa geçici SQLite kullanılır (her yeniden başlatmada sıfırlanır).
+      - key: ConnectionStrings__PostgreSql
+        sync: false

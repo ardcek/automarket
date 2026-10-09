@@ -1,12 +1,18 @@
-@* Hem site hem yönetim paneli layout'unda kullanılan ortak <head> içeriği.
-   Bütün dosyalar yereldir (wwwroot/lib) → internet olmadan da çalışır ve CSP'ye takılmaz. *@
+@* <head> içeriği: hem site hem yönetim paneli kullanır.
+   Renkler ve köşe yuvarlaklığı admin ayarlarından CSS değişkenlerine yazılır (wwwroot/css/stil.css). *@
+@{
+    var a = Icerik.Ayarlar;
+}
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>@(ViewData["Title"] is string t ? $"{t} · {Site.Value.Name}" : $"{Site.Value.Name} {Site.Value.Tagline}")</title>
-@* Tema tercihini sayfa çizilmeden önce uygular (yanıp sönmeyi engeller); bu yüzden defer/async YOK. *@
-<script src="~/js/theme-init.js" asp-append-version="true"></script>
+<title>@(ViewData["Title"] is string baslik ? $"{baslik} · {a.FirmaAdi}" : $"{a.FirmaAdi} {a.Slogan}")</title>
+<script src="~/js/tema.js" asp-append-version="true"></script>
 <link rel="stylesheet" href="~/lib/inter/inter.css" />
 <link rel="stylesheet" href="~/lib/bootstrap-icons/bootstrap-icons.min.css" />
 <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%232747d6'/><text x='16' y='22' font-size='16' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>R</text></svg>" />
+<link rel="stylesheet" href="~/css/stil.css" asp-append-version="true" />
+@* stil.css'ten SONRA gelmeli: oradaki varsayılan renkleri ezip admin ayarındaki renkleri uygular *@
+<style>
+    :root { --ana: @a.AnaRenk; --ana-rgb: @Bicim.RgbDegeri(a.AnaRenk); --koyu: @a.KoyuRenk; --yuvarlak: @(a.KoseYuvarlakligi)px; }
+</style>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='@a.AnaRenk.Replace("#", "%23")'/><text x='16' y='22' font-size='16' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>@(a.FirmaAdi.Length > 0 ? a.FirmaAdi[..1] : "R")</text></svg>" />

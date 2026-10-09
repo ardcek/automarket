@@ -1,62 +1,60 @@
+@* SİTENİN ANA ŞABLONU: üst menü + sayfa içeriği (@RenderBody) + alt bilgi.
+   Menüdeki yazılar Yönetim → Site Metinleri'nden, menüye eklenen sayfalar Yönetim → Sayfalar'dan gelir. *@
 @{
+    var a = Icerik.Ayarlar;
     var controller = ViewContext.RouteData.Values["controller"]?.ToString();
-    var action = ViewContext.RouteData.Values["action"]?.ToString();
-    string Active(string c, string? a = null) => controller == c && (a is null || action == a) ? "active" : "";
-    var isStaff = User.IsInRole(Roles.Admin) || User.IsInRole(Roles.Staff);
+    var personelMi = User.IsInRole(Roller.Admin) || User.IsInRole(Roller.Personel);
 }
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" data-varsayilan-tema="@a.VarsayilanTema">
 <head>
     <partial name="_Head" />
-    @await RenderSectionAsync("Head", required: false)
 </head>
 <body>
-    <header class="site-nav">
+    <header class="ust-menu">
         <nav class="navbar navbar-expand-lg">
             <div class="container">
-                <a class="brand-logo" asp-controller="Home" asp-action="Index">
-                    <span class="brand-mark"><i class="bi bi-signpost-split-fill"></i></span>
-                    @Site.Value.Name <small>@Site.Value.Tagline</small>
+                <a class="logo" asp-controller="AnaSayfa" asp-action="Index">
+                    <span class="logo-isaret"><i class="bi @a.LogoIkonu"></i></span>
+                    @a.FirmaAdi <small>@a.Slogan</small>
                 </a>
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#menu" aria-label="Menü"><i class="bi bi-list fs-3"></i></button>
 
-                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-label="Menüyü aç">
-                    <i class="bi bi-list fs-3"></i>
-                </button>
-
-                <div class="collapse navbar-collapse" id="mainNav">
+                <div class="collapse navbar-collapse" id="menu">
                     <ul class="navbar-nav mx-auto gap-lg-1 mt-3 mt-lg-0">
-                        <li class="nav-item"><a class="nav-link @Active("Home", "Index")" asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
-                        <li class="nav-item"><a class="nav-link @Active("Vehicles")" asp-controller="Vehicles" asp-action="Index">Araçlar</a></li>
-                        <li class="nav-item"><a class="nav-link" href="@Url.Action("Index", "Home")#subeler">Şubeler</a></li>
-                        <li class="nav-item"><a class="nav-link @Active("Home", "About")" asp-controller="Home" asp-action="About">Hakkımızda</a></li>
-                        <li class="nav-item"><a class="nav-link @Active("Home", "Contact")" asp-controller="Home" asp-action="Contact">İletişim</a></li>
+                        <li class="nav-item"><a class="nav-link @(controller == "AnaSayfa" ? "active" : "")" asp-controller="AnaSayfa" asp-action="Index">@Icerik.Metin("menu.anasayfa")</a></li>
+                        <li class="nav-item"><a class="nav-link @(controller == "Araclar" ? "active" : "")" asp-controller="Araclar" asp-action="Index">@Icerik.Metin("menu.araclar")</a></li>
+                        @if (a.SubeleriGoster)
+                        {
+                            <li class="nav-item"><a class="nav-link" href="/#subeler">@Icerik.Metin("menu.subeler")</a></li>
+                        }
+                        @foreach (var sayfa in Icerik.Sayfalar.Where(s => s.MenudeGoster))
+                        {
+                            <li class="nav-item"><a class="nav-link" href="/Sayfa/@sayfa.Adres">@sayfa.Baslik</a></li>
+                        }
                     </ul>
 
                     <div class="d-flex align-items-center gap-2 pb-3 pb-lg-0">
-                        <button class="btn btn-ghost btn-icon" type="button" data-theme-toggle aria-label="Temayı değiştir" title="Açık / koyu tema">
-                            <i class="bi bi-moon-stars"></i>
-                        </button>
-
+                        <button class="btn btn-sade btn-ikon" type="button" data-tema-degistir aria-label="Temayı değiştir"><i class="bi bi-moon-stars"></i></button>
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <div class="dropdown">
-                                <button class="btn btn-ghost d-flex align-items-center gap-2 py-1 ps-1 pe-3" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <span class="avatar">@(User.Identity.Name?[..1].ToUpperInvariant())</span>
-                                    <span class="d-none d-sm-inline small">Hesabım</span>
+                                <button class="btn btn-sade d-flex align-items-center gap-2 py-1 ps-1 pe-3" data-bs-toggle="dropdown">
+                                    <span class="avatar">@User.Identity.Name?[..1].ToUpperInvariant()</span>
+                                    <span class="small">@Icerik.Metin("menu.hesabim")</span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li class="px-3 py-2 small text-muted">@User.Identity.Name</li>
-                                    @if (isStaff)
+                                    @if (personelMi)
                                     {
-                                        <li><a class="dropdown-item" asp-area="Admin" asp-controller="Dashboard" asp-action="Index"><i class="bi bi-speedometer2"></i> Yönetim Paneli</a></li>
-                                        <li><hr class="dropdown-divider" /></li>
+                                        <li><a class="dropdown-item" asp-area="Yonetim" asp-controller="Panel" asp-action="Index"><i class="bi bi-speedometer2"></i> @Icerik.Metin("menu.yonetim")</a></li>
                                     }
-                                    <li><a class="dropdown-item" asp-controller="Profile" asp-action="Index"><i class="bi bi-calendar2-check"></i> Rezervasyonlarım</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Profile" asp-action="Edit"><i class="bi bi-person"></i> Profil ve Ehliyet</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Profil" asp-action="Index"><i class="bi bi-calendar2-check"></i> @Icerik.Metin("menu.rezervasyonlarim")</a></li>
+                                    <li><a class="dropdown-item" asp-area="" asp-controller="Profil" asp-action="Duzenle"><i class="bi bi-person"></i> @Icerik.Metin("menu.profil")</a></li>
                                     <li><hr class="dropdown-divider" /></li>
                                     <li>
-                                        <form asp-controller="Account" asp-action="Logout" method="post">
-                                            <button class="dropdown-item text-danger"><i class="bi bi-box-arrow-right text-danger"></i> Çıkış Yap</button>
+                                        <form asp-area="" asp-controller="Hesap" asp-action="Cikis" method="post">
+                                            <button class="dropdown-item text-danger"><i class="bi bi-box-arrow-right text-danger"></i> @Icerik.Metin("menu.cikis")</button>
                                         </form>
                                     </li>
                                 </ul>
@@ -64,8 +62,11 @@
                         }
                         else
                         {
-                            <a class="btn btn-ghost" asp-controller="Account" asp-action="Login">Giriş Yap</a>
-                            <a class="btn btn-primary" asp-controller="Account" asp-action="Register">Üye Ol</a>
+                            <a class="btn btn-sade" asp-area="" asp-controller="Hesap" asp-action="Giris">@Icerik.Metin("menu.giris")</a>
+                            @if (a.UyeKaydiAcik)
+                            {
+                                <a class="btn btn-primary" asp-area="" asp-controller="Hesap" asp-action="Kayit">@Icerik.Metin("menu.uyeol")</a>
+                            }
                         }
                     </div>
                 </div>
@@ -73,16 +74,14 @@
         </nav>
     </header>
 
-    <main>
-        @RenderBody()
-    </main>
+    <main>@RenderBody()</main>
 
-    <partial name="_Footer" />
-    <partial name="_Toast" />
+    <partial name="_AltBilgi" />
+    <partial name="_Bildirim" />
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/genel.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -1,0 +1,3 @@
+@* ARAÇ DURUM ROZETİ (Müsait / Kirada / Bakımda / Pasif) *@
+@model AracDurumu
+<span class="durum durum-@Model.ToString().ToLowerInvariant()">@Model.Ad()</span>

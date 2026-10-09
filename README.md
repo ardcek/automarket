@@ -2,7 +2,7 @@
 
 Asıl proje **[`AracKiralama/`](AracKiralama/README.md)** klasöründedir. Detaylı kurulum ve kullanım: **[AracKiralama/README.md](AracKiralama/README.md)**
 
-🌐 **Canlı:** https://automarket.ardcek.com (kısa yol: https://ardcek.com/automarket/) — ücretsiz sunucu uykudaysa ilk açılış 30–60 sn sürer. Yayın adımları: [AracKiralama/README.md → 12. Canlı yayın](AracKiralama/README.md#12-canlı-yayın-internette-yayınlamak)
+🌐 **Canlı:** https://automarket.ardcek.com (kısa yol: https://ardcek.com/automarket/) — ücretsiz sunucu uykudaysa ilk açılış 30–60 sn sürer. Yayın adımları: [AracKiralama/README.md → 13. Canlı yayın](AracKiralama/README.md#13-canlı-yayın-internette-yayınlamak)
 
 ## Hızlı başlangıç
 
@@ -13,7 +13,7 @@ cd AracKiralama
 dotnet run --project src/AracKiralama.Web
 ```
 
-Tarayıcıda **http://localhost:5046** açın. Yönetim paneli: **http://localhost:5046/Admin**
+Tarayıcıda **http://localhost:5046** açın. Yönetim paneli: **http://localhost:5046/Yonetim** (sitenin bütün içeriği, renkleri, fiyat kuralları ve filtreleri buradan değişir).
 
 ## 🔑 Demo hesaplar (hepsinin şifresi: `Rota123!`)
 
@@ -24,7 +24,9 @@ Tarayıcıda **http://localhost:5046** açın. Yönetim paneli: **http://localho
 | 🙂 Müşteri | `musteri@rota.com` | `Rota123!` |
 | 🧒 Genç müşteri (20 yaş, lüks araç kiralayamaz) | `genc@rota.com` | `Rota123!` |
 
-Hesaplar programın ilk açılışında otomatik oluşturulur (`AracKiralama/src/AracKiralama.Web/Data/DbSeeder.cs`).
+Hesaplar programın ilk açılışında otomatik oluşturulur (`AracKiralama/src/AracKiralama.Web/Veri/OrnekVeriler.cs`).
+
+📚 Kodun tamamı Türkçedir. Kodu anlamak için: [Kod haritası](AracKiralama/docs/KOD-HARITASI.md) · Yeni özellik eklemek için: [Geliştirici rehberi](AracKiralama/docs/GELISTIRICI-REHBERI.md)
 
 ---
 

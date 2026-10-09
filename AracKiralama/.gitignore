@@ -13,10 +13,8 @@ TestResults/
 *.db-shm
 *.db-wal
 
-# Yüklenen araç görselleri
-src/AracKiralama.Web/wwwroot/uploads/
-src/AracKiralama.Web/uploads/
-src/AracKiralama.Web/keys/
+# Oturum şifreleme anahtarları (her bilgisayar kendininkini üretir, paylaşılmaz)
+src/AracKiralama.Web/anahtarlar/
 
 # dotnet publish çıktısı (README 12.7)
 publish/

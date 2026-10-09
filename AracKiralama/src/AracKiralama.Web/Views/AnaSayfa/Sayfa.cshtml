@@ -1,0 +1,27 @@
+@* İÇERİK SAYFASI (Hakkımızda, İletişim, KVKK...). Metin Yönetim → Sayfalar'dan yazılır.
+   {tek-yon} gibi yer tutucular güncel ayarlarla doldurulur (IcerikServisi.YerTutuculariDoldur). *@
+@model Sayfa
+@{
+    ViewData["Title"] = Model.Baslik;
+    var a = Icerik.Ayarlar;
+}
+<div class="container py-5" style="max-width: 860px">
+    <h1 class="bolum-baslik mb-4">@Model.Baslik</h1>
+    <div class="card"><div class="card-body p-4 icerik-metni">@Bicim.Paragraflar(Icerik.YerTutuculariDoldur(Model.Icerik))</div></div>
+
+    @if (Model.IletisimKartlari)
+    {
+        <div class="row g-3 mt-2">
+            @foreach (var (ikon, baslik, deger) in new[] { ("bi-telephone", "Telefon", a.Telefon), ("bi-envelope", "E-posta", a.Eposta), ("bi-geo-alt", "Adres", a.Adres), ("bi-clock", "Çalışma saatleri", a.CalismaSaatleri) })
+            {
+                <div class="col-sm-6">
+                    <div class="card adim-karti text-center">
+                        <span class="ikon mx-auto"><i class="bi @ikon"></i></span>
+                        <div class="kucuk-baslik">@baslik</div>
+                        <div class="fw-semibold">@deger</div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

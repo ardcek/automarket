@@ -1,0 +1,19 @@
+@* SAYFALAMA (1 2 3 ... sayfa numaraları).
+   Kullanım: @await Html.PartialAsync("_Sayfalama", (toplamSayfa, sayfa, (Func<int, string>)(s => linkUret(s)))) *@
+@model (int ToplamSayfa, int Sayfa, Func<int, string> Link)
+@if (Model.ToplamSayfa > 1)
+{
+    var ilk = Math.Max(1, Model.Sayfa - 2);
+    var son = Math.Min(Model.ToplamSayfa, Model.Sayfa + 2);
+    <nav class="mt-4" aria-label="Sayfalar">
+        <ul class="pagination justify-content-center flex-wrap">
+            <li class="page-item @(Model.Sayfa == 1 ? "disabled" : "")"><a class="page-link" href="@Model.Link(Model.Sayfa - 1)" aria-label="Önceki"><i class="bi bi-chevron-left"></i></a></li>
+            @for (var i = ilk; i <= son; i++)
+            {
+                <li class="page-item @(i == Model.Sayfa ? "active" : "")"><a class="page-link" href="@Model.Link(i)">@i</a></li>
+            }
+            <li class="page-item @(Model.Sayfa == Model.ToplamSayfa ? "disabled" : "")"><a class="page-link" href="@Model.Link(Model.Sayfa + 1)" aria-label="Sonraki"><i class="bi bi-chevron-right"></i></a></li>
+        </ul>
+        <div class="text-center small text-muted">Sayfa @Model.Sayfa / @Model.ToplamSayfa</div>
+    </nav>
+}

@@ -1,0 +1,19 @@
+@* ŞUBELER — liste. (Ekstralar, Markalar, Kategoriler sayfaları da aynı kalıpta.) *@
+@model List<Sube>
+@{ ViewData["Title"] = "Şubeler"; }
+<div class="sayfa-baslik"><div><h1>Şubeler</h1><div class="alt-yazi">Araç alma ve iade noktaları</div></div><a href="/Yonetim/Subeler/Ekle" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Yeni şube</a></div>
+<div class="card tablo-karti"><div class="table-responsive"><table class="table table-hover align-middle">
+    <thead><tr><th>Şube</th><th>Şehir</th><th>Adres</th><th>Telefon</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var s in Model)
+        {
+            <tr>
+                <td class="fw-semibold">@s.Ad</td><td>@s.Sehir</td><td class="small text-muted">@s.Adres</td><td class="small">@s.Telefon</td>
+                <td class="text-end text-nowrap">
+                    <a href="/Yonetim/Subeler/Duzenle/@s.Id" class="btn btn-sm btn-sade" aria-label="Düzenle"><i class="bi bi-pencil"></i></a>
+                    <form asp-action="Sil" asp-route-id="@s.Id" method="post" class="d-inline"><button class="btn btn-sm btn-sade text-danger" data-onay="@s.Ad silinsin mi?" aria-label="Sil"><i class="bi bi-trash"></i></button></form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table></div></div>

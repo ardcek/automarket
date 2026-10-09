@@ -1,0 +1,31 @@
+@* SAYFA FORMU. İçerik düz metindir: boş satır = paragraf, "- " = madde, "## " = ara başlık. *@
+@model Sayfa
+@{ var duzenleme = Model.Id > 0; ViewData["Title"] = duzenleme ? "Sayfayı düzenle" : "Yeni sayfa"; }
+<div class="sayfa-baslik"><div><a href="/Yonetim/Sayfalar" class="small"><i class="bi bi-arrow-left me-1"></i>Sayfalar</a><h1 class="mt-1">@ViewData["Title"]</h1></div></div>
+<form asp-action="@(duzenleme ? "Duzenle" : "Ekle")" method="post" class="row g-3">
+    <input type="hidden" asp-for="Id" />
+    <div class="col-xl-8">
+        <div class="card"><div class="card-body row g-3">
+            <div class="col-md-7"><label asp-for="Baslik" class="form-label"></label><input asp-for="Baslik" class="form-control" /><span asp-validation-for="Baslik"></span></div>
+            <div class="col-md-5"><label asp-for="Adres" class="form-label"></label><div class="input-group"><span class="input-group-text">/Sayfa/</span><input asp-for="Adres" class="form-control" /></div><span asp-validation-for="Adres"></span></div>
+            <div class="col-12"><label asp-for="Icerik" class="form-label"></label><textarea asp-for="Icerik" class="form-control" rows="16"></textarea></div>
+        </div></div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card"><div class="card-body d-grid gap-2">
+            @foreach (var alan in new[] { "Aktif", "MenudeGoster", "AltBilgideGoster", "IletisimKartlari" })
+            {
+                <div class="form-check form-switch"><input class="form-check-input" asp-for="@alan" /><label class="form-check-label" asp-for="@alan"></label></div>
+            }
+            <div><label asp-for="Sira" class="form-label"></label><input asp-for="Sira" class="form-control" /></div>
+        </div></div>
+        <div class="kart-sade p-3 mt-3 small">
+            <b>Yazım kuralları</b>
+            <div>Boş satır → yeni paragraf · <code>- </code> → madde · <code>## </code> → ara başlık</div>
+            <b class="d-block mt-2">Otomatik dolan alanlar</b>
+            <div><code>{firma}</code> <code>{telefon}</code> <code>{eposta}</code> <code>{tek-yon}</code> <code>{haftalik-gun}</code> <code>{haftalik-indirim}</code> <code>{aylik-gun}</code> <code>{aylik-indirim}</code> <code>{gecikme-tolerans}</code> <code>{gecikme-carpani}</code> <code>{yakit-ucreti}</code> <code>{iptal-saati}</code> <code>{en-uzun}</code></div>
+        </div>
+        <button class="btn btn-primary btn-lg w-100 mt-3">Kaydet</button>
+    </div>
+</form>
+@section Scripts { <partial name="_FormDogrulama" /> }

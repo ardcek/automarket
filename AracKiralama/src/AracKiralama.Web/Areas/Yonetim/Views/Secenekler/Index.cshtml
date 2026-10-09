@@ -1,0 +1,38 @@
+@* YAKIT VE VİTES TÜRLERİ: iki küçük liste tek sayfada (ekle, adını değiştir, sil) *@
+@{
+    ViewData["Title"] = "Yakıt ve Vites";
+    var listeler = new[]
+    {
+        ("yakit", "Yakıt türleri", ((List<YakitTuru>)ViewBag.Yakitlar).Select(y => (y.Id, y.Ad)).ToList()),
+        ("vites", "Vites türleri", ((List<VitesTuru>)ViewBag.Vitesler).Select(v => (v.Id, v.Ad)).ToList()),
+    };
+}
+<div class="sayfa-baslik"><div><h1>Yakıt ve Vites</h1><div class="alt-yazi">Eklenen seçenekler araç formunda ve filtrelerde görünür</div></div></div>
+<div class="row g-3">
+    @foreach (var (tur, baslik, kayitlar) in listeler)
+    {
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">@baslik</div>
+                <ul class="kisa-liste">
+                    @foreach (var (id, ad) in kayitlar)
+                    {
+                        <li>
+                            <form asp-action="AdDegistir" method="post" class="d-flex gap-2 flex-grow-1">
+                                <input type="hidden" name="tur" value="@tur" /><input type="hidden" name="id" value="@id" />
+                                <input name="ad" value="@ad" class="form-control form-control-sm" aria-label="Ad" />
+                                <button class="btn btn-sm btn-sade" aria-label="Kaydet"><i class="bi bi-check2"></i></button>
+                            </form>
+                            <form asp-action="Sil" method="post"><input type="hidden" name="tur" value="@tur" /><input type="hidden" name="id" value="@id" /><button class="btn btn-sm btn-sade text-danger" data-onay="@ad silinsin mi?" aria-label="Sil"><i class="bi bi-trash"></i></button></form>
+                        </li>
+                    }
+                </ul>
+                <form asp-action="Ekle" method="post" class="card-body border-top d-flex gap-2">
+                    <input type="hidden" name="tur" value="@tur" />
+                    <input name="ad" class="form-control" placeholder="Yeni seçenek adı" required />
+                    <button class="btn btn-primary text-nowrap"><i class="bi bi-plus-lg"></i> Ekle</button>
+                </form>
+            </div>
+        </div>
+    }
+</div>

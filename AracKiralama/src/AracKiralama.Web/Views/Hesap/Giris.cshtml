@@ -1,0 +1,32 @@
+@* GİRİŞ SAYFASI. Demo hesap butonları wwwroot/js/genel.js → data-demo ile çalışır. *@
+@model GirisFormu
+@{ ViewData["Title"] = Icerik.Metin("hesap.giris-baslik"); }
+<div class="giris-sayfasi">
+    <div class="giris-yan">
+        <h2>@Icerik.Metin("hesap.giris-yan-baslik")</h2>
+        <p class="opacity-75 mb-0">@Icerik.Metin("hesap.giris-yan-metin")</p>
+    </div>
+    <div class="giris-form">
+        <div class="ic">
+            <h1 class="h3">@Icerik.Metin("hesap.giris-baslik")</h1>
+            @if (Icerik.Ayarlar.UyeKaydiAcik) { <p class="text-muted">Hesabınız yok mu? <a asp-action="Kayit" asp-route-donusAdresi="@Model.DonusAdresi">Üye olun</a></p> }
+            <form asp-action="Giris" method="post">
+                <input type="hidden" asp-for="DonusAdresi" />
+                <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+                <div class="mb-3"><label asp-for="Eposta" class="form-label"></label><input asp-for="Eposta" class="form-control" autocomplete="username" /><span asp-validation-for="Eposta"></span></div>
+                <div class="mb-3"><label asp-for="Sifre" class="form-label"></label><input asp-for="Sifre" class="form-control" autocomplete="current-password" /><span asp-validation-for="Sifre"></span></div>
+                <div class="form-check mb-4"><input asp-for="BeniHatirla" class="form-check-input" /><label asp-for="BeniHatirla" class="form-check-label"></label></div>
+                <button class="btn btn-primary btn-lg w-100">@Icerik.Metin("hesap.giris-baslik")</button>
+            </form>
+            <div class="kart-sade p-3 mt-4 small">
+                <b><i class="bi bi-info-circle me-1"></i>Demo hesaplar (şifre: Rota123!)</b>
+                <div class="d-grid gap-1 mt-2">
+                    <button type="button" class="btn btn-sm btn-sade text-start" data-demo="admin@rota.com"><b>Admin</b> · admin@rota.com</button>
+                    <button type="button" class="btn btn-sm btn-sade text-start" data-demo="personel@rota.com"><b>Personel</b> · personel@rota.com</button>
+                    <button type="button" class="btn btn-sm btn-sade text-start" data-demo="musteri@rota.com"><b>Müşteri</b> · musteri@rota.com</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts { <partial name="_FormDogrulama" /> }

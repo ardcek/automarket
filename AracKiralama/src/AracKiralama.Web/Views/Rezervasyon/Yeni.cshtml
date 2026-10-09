@@ -1,0 +1,125 @@
+@* 3 ADIMLI REZERVASYON FORMU
+   Adımlar arası geçiş: wwwroot/js/rezervasyon-adimlari.js · Canlı fiyat: wwwroot/js/fiyat-hesapla.js
+   Form gönderilince: Controllers/RezervasyonController.cs → Yeni (POST) → RezervasyonServisi.OlusturAsync *@
+@model RezervasyonFormu
+@{
+    var a = Model.Arac!;
+    ViewData["Title"] = Icerik.Metin("rezervasyon.baslik");
+    var hataVar = !ViewData.ModelState.IsValid;
+    var suruculukUygun = Model.SurucuHatalari.Count == 0;
+    var donusAdresi = Context.Request.Path + Context.Request.QueryString;
+}
+
+<div class="container py-4">
+    <a href="/Araclar/Detay/@a.Id" class="small"><i class="bi bi-arrow-left me-1"></i>@a.TamAd</a>
+    <h1 class="h3 mt-2 mb-4">@Icerik.Metin("rezervasyon.baslik")</h1>
+
+    @if (!Icerik.Ayarlar.RezervasyonaAcik)
+    {
+        <div class="alert alert-warning">@Icerik.Metin("rezervasyon.kapali")</div>
+    }
+
+    <div class="adimlar mb-4">
+        @for (var i = 1; i <= 3; i++)
+        {
+            <div class="adim" data-adim-gostergesi="@i"><span class="numara">@i</span><span class="yazi">@Icerik.Metin($"rezervasyon.adim{i}")</span></div>
+        }
+    </div>
+
+    <form asp-action="Yeni" method="post" id="rezervasyon-formu" data-fiyat-formu data-arac-id="@a.Id" data-ilk-adim="@(hataVar ? 3 : 1)">
+        <input type="hidden" asp-for="AracId" />
+        <div class="row g-4">
+            <div class="col-lg-8">
+                @if (hataVar) { <div class="alert alert-danger" asp-validation-summary="ModelOnly"></div> }
+
+                @* ---- ADIM 1: tarih ve şube ---- *@
+                <section class="adim-paneli card" data-adim="1">
+                    <div class="card-body row g-3" data-tarih-cifti>
+                        <div class="col-md-6"><label asp-for="Baslangic" class="form-label"></label><input asp-for="Baslangic" type="datetime-local" class="form-control" value="@Bicim.Kutu(Model.Baslangic)" data-tarih-baslangic /></div>
+                        <div class="col-md-6"><label asp-for="Bitis" class="form-label"></label><input asp-for="Bitis" type="datetime-local" class="form-control" value="@Bicim.Kutu(Model.Bitis)" data-tarih-bitis /></div>
+                        <div class="col-md-6"><label asp-for="AlisSubeId" class="form-label"></label><select asp-for="AlisSubeId" class="form-select" asp-items="@(new SelectList(Model.Subeler, "Id", "Ad"))"></select></div>
+                        <div class="col-md-6"><label asp-for="IadeSubeId" class="form-label"></label><select asp-for="IadeSubeId" class="form-select" asp-items="@(new SelectList(Model.Subeler, "Id", "Ad"))"></select></div>
+                        <div class="col-12 text-end"><button type="button" class="btn btn-primary" data-adima-git="2">Devam <i class="bi bi-arrow-right"></i></button></div>
+                    </div>
+                </section>
+
+                @* ---- ADIM 2: ek hizmetler ---- *@
+                <section class="adim-paneli card" data-adim="2">
+                    <div class="card-body">
+                        <div class="row g-2">
+                            @foreach (var e in Model.Ekstralar)
+                            {
+                                <div class="col-md-6">
+                                    <label class="ekstra-secenek">
+                                        <input type="checkbox" name="EkstraIdleri" value="@e.Id" checked="@Model.EkstraIdleri.Contains(e.Id)" />
+                                        <span class="kutu"><span class="ikon"><i class="bi @e.Ikon"></i></span><span><b>@e.Ad</b> <span class="small text-muted">+@Bicim.Para(e.GunlukFiyat)/gün</span><span class="d-block small text-muted">@e.Aciklama</span></span><i class="bi bi-check-circle-fill tik fs-5"></i></span>
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                        <label asp-for="Not" class="form-label mt-3"></label>
+                        <textarea asp-for="Not" class="form-control" rows="2" placeholder="Uçuş numaranız, özel isteğiniz..."></textarea>
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-sade" data-adima-git="1"><i class="bi bi-arrow-left"></i> Geri</button>
+                            <button type="button" class="btn btn-primary" data-adima-git="3">Devam <i class="bi bi-arrow-right"></i></button>
+                        </div>
+                    </div>
+                </section>
+
+                @* ---- ADIM 3: sürücü kontrolü ve onay ---- *@
+                <section class="adim-paneli card" data-adim="3">
+                    <div class="card-body">
+                        @if (Model.Musteri != null)
+                        {
+                            <div class="row g-3 mb-3">
+                                <div class="col-sm-6"><div class="kucuk-baslik">Ad Soyad</div><b>@Model.Musteri.TamAd</b></div>
+                                <div class="col-sm-6"><div class="kucuk-baslik">Doğum / Ehliyet</div><b>@(Model.Musteri.DogumTarihi?.ToString("dd.MM.yyyy") ?? "—") / @(Model.Musteri.EhliyetTarihi?.ToString("dd.MM.yyyy") ?? "—")</b></div>
+                            </div>
+                        }
+                        @if (suruculukUygun)
+                        {
+                            <div class="alert alert-success small"><i class="bi bi-check-circle me-1"></i>Sürücü yaşı ve ehliyet süresi bu araç için uygun.</div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning">
+                                <ul class="mb-2 ps-3 small">@foreach (var h in Model.SurucuHatalari) { <li>@h</li> }</ul>
+                                <a href="/Profil/Duzenle?donusAdresi=@Uri.EscapeDataString(donusAdresi)" class="btn btn-sm btn-sade">Profil bilgilerimi güncelle</a>
+                            </div>
+                        }
+                        <div class="form-check">
+                            @* Onay kutusu elle yazıldı: [Range] kuralı onay kutusunda sadece sunucuda çalışır *@
+                            <input type="checkbox" name="KosullariKabul" id="KosullariKabul" value="true" class="form-check-input" checked="@Model.KosullariKabul" />
+                            <label for="KosullariKabul" class="form-check-label"><a href="/Sayfa/kiralama-kosullari" target="_blank">Kiralama koşullarını</a> okudum, kabul ediyorum.</label>
+                            <div><span asp-validation-for="KosullariKabul"></span></div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-sade" data-adima-git="2"><i class="bi bi-arrow-left"></i> Geri</button>
+                            <button type="submit" class="btn btn-primary btn-lg" data-fiyat-gonder data-kilitli="@(suruculukUygun ? "false" : "true")" disabled="@(!suruculukUygun)">@Icerik.Metin("rezervasyon.gonder")</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            @* ---- Sağ: araç özeti ve canlı fiyat ---- *@
+            <div class="col-lg-4">
+                <div class="card yapiskan overflow-hidden">
+                    <img src="@a.GorselAdresi" alt="" style="aspect-ratio:16/9; object-fit:cover" />
+                    <div class="card-body">
+                        <h3 class="h5">@a.TamAd</h3>
+                        <div class="ozellikler mb-3"><span><i class="bi bi-gear-wide-connected"></i>@a.VitesTuru?.Ad</span><span><i class="bi bi-fuel-pump"></i>@a.YakitTuru?.Ad</span><span><i class="bi bi-people"></i>@a.KoltukSayisi</span></div>
+                        <div data-fiyat-hatalari></div>
+                        <ul class="dokum" data-fiyat-dokumu><li><span>Fiyat hesaplanıyor…</span><span></span></li></ul>
+                        <div class="small text-muted mt-2">Depozito: <b data-fiyat-depozito>@Bicim.Para(a.Depozito)</b> (iadede geri verilir)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_FormDogrulama" />
+    <script src="~/js/fiyat-hesapla.js" asp-append-version="true"></script>
+    <script src="~/js/rezervasyon-adimlari.js" asp-append-version="true"></script>
+}

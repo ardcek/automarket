@@ -1,0 +1,16 @@
+@* EK HİZMET FORMU *@
+@model Ekstra
+@{ var duzenleme = Model.Id > 0; ViewData["Title"] = duzenleme ? "Hizmeti düzenle" : "Yeni hizmet"; }
+<div class="sayfa-baslik"><div><a href="/Yonetim/Ekstralar" class="small"><i class="bi bi-arrow-left me-1"></i>Ek Hizmetler</a><h1 class="mt-1">@ViewData["Title"]</h1></div></div>
+<form asp-action="@(duzenleme ? "Duzenle" : "Ekle")" method="post" class="card" style="max-width:720px">
+    <input type="hidden" asp-for="Id" />
+    <div class="card-body row g-3">
+        <div class="col-md-8"><label asp-for="Ad" class="form-label"></label><input asp-for="Ad" class="form-control" /><span asp-validation-for="Ad"></span></div>
+        <div class="col-md-4"><label asp-for="GunlukFiyat" class="form-label"></label><input asp-for="GunlukFiyat" class="form-control" step="10" /></div>
+        <div class="col-12"><label asp-for="Aciklama" class="form-label"></label><input asp-for="Aciklama" class="form-control" /></div>
+        <div class="col-md-6"><label asp-for="Ikon" class="form-label"></label><div class="input-group"><span class="input-group-text"><i id="ikon" class="bi @Model.Ikon"></i></span><input asp-for="Ikon" class="form-control" data-ikon-onizle="#ikon" /></div><div class="form-text">İkon adları: icons.getbootstrap.com</div></div>
+        <div class="col-md-6 d-flex align-items-end"><div class="form-check form-switch"><input asp-for="Aktif" class="form-check-input" /><label asp-for="Aktif" class="form-check-label"></label></div></div>
+    </div>
+    <div class="card-body border-top text-end"><a href="/Yonetim/Ekstralar" class="btn btn-sade">Vazgeç</a> <button class="btn btn-primary">Kaydet</button></div>
+</form>
+@section Scripts { <partial name="_FormDogrulama" /> }

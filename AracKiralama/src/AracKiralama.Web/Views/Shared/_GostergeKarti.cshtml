@@ -1,0 +1,13 @@
+@* YÖNETİM PANELİ BİLGİ KARTI (ikon + başlık + büyük rakam). Model: FormModelleri/YonetimFormlari.cs → GostergeKarti *@
+@model GostergeKarti
+<div class="card h-100 position-relative">
+    <div class="gosterge">
+        <span class="ikon ikon-@Model.Renk"><i class="bi @Model.Ikon"></i></span>
+        <div class="min-w-0">
+            <div class="baslik">@Model.Baslik</div>
+            <div class="deger rakam">@Model.Deger</div>
+            @if (Model.Aciklama != null) { <div class="aciklama">@Model.Aciklama</div> }
+        </div>
+    </div>
+    @if (Model.Link != null) { <a href="@Model.Link" class="stretched-link" aria-label="@Model.Baslik"></a> }
+</div>

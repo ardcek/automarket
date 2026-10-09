@@ -1,0 +1,17 @@
+@* YENİ BAKIM KAYDI (bu tarihlerde araç kiralanamaz) *@
+@model BakimFormu
+@{ ViewData["Title"] = "Bakım kaydı"; }
+<div class="sayfa-baslik"><div><a href="/Yonetim/Bakim" class="small"><i class="bi bi-arrow-left me-1"></i>Bakım</a><h1 class="mt-1">Yeni bakım kaydı</h1></div></div>
+<form asp-action="Ekle" method="post" class="card" style="max-width:760px">
+    <div class="card-body row g-3">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger small col-12"></div>
+        <div class="col-md-8"><label asp-for="AracId" class="form-label"></label><select asp-for="AracId" class="form-select" asp-items="@(new SelectList(Model.Araclar.Select(a => new { a.Id, Ad = a.TamAd + " · " + a.Plaka }), "Id", "Ad"))"></select></div>
+        <div class="col-md-4"><label asp-for="Tur" class="form-label"></label><select asp-for="Tur" class="form-select" asp-items="Html.GetEnumSelectList<BakimTuru>()"></select></div>
+        <div class="col-md-6"><label asp-for="BaslangicTarihi" class="form-label"></label><input asp-for="BaslangicTarihi" type="datetime-local" class="form-control" value="@Bicim.Kutu(Model.BaslangicTarihi)" /></div>
+        <div class="col-md-6"><label asp-for="BitisTarihi" class="form-label"></label><input asp-for="BitisTarihi" type="datetime-local" class="form-control" value="@Bicim.Kutu(Model.BitisTarihi)" /><span asp-validation-for="BitisTarihi"></span></div>
+        <div class="col-md-6"><label asp-for="Kilometre" class="form-label"></label><input asp-for="Kilometre" class="form-control" /></div>
+        <div class="col-md-6"><label asp-for="Maliyet" class="form-label"></label><input asp-for="Maliyet" class="form-control" step="50" /></div>
+        <div class="col-12"><label asp-for="Aciklama" class="form-label"></label><textarea asp-for="Aciklama" class="form-control" rows="2"></textarea></div>
+    </div>
+    <div class="card-body border-top text-end"><a href="/Yonetim/Bakim" class="btn btn-sade">Vazgeç</a> <button class="btn btn-primary">Kaydet</button></div>
+</form>

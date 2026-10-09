@@ -1,0 +1,26 @@
+@* BAKIM KAYITLARI *@
+@model List<Bakim>
+@{ ViewData["Title"] = "Bakım"; var sadeceAcik = (bool)ViewBag.SadeceAcik; }
+<div class="sayfa-baslik">
+    <div><h1>Bakım Kayıtları</h1><div class="alt-yazi">Toplam maliyet: <b>@Bicim.Para((decimal)ViewBag.ToplamMaliyet)</b></div></div>
+    <div class="d-flex gap-2"><a href="/Yonetim/Bakim?sadeceAcik=@(!sadeceAcik)" class="btn btn-sade">@(sadeceAcik ? "Tümünü göster" : "Sadece açık olanlar")</a><a href="/Yonetim/Bakim/Ekle" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Bakım kaydı</a></div>
+</div>
+<div class="card tablo-karti"><div class="table-responsive"><table class="table table-hover align-middle">
+    <thead><tr><th>Araç</th><th>Tür</th><th>Tarih</th><th class="text-end">Maliyet</th><th>Durum</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var b in Model)
+        {
+            <tr>
+                <td><a href="/Yonetim/Araclar/Detay/@b.AracId" class="fw-semibold text-reset">@b.Arac!.TamAd</a><div><span class="plaka">@b.Arac.Plaka</span></div></td>
+                <td>@b.Tur.Ad()<div class="small text-muted">@b.Aciklama</div></td>
+                <td class="small">@Bicim.TarihSaat(b.BaslangicTarihi)<br /><span class="text-muted">→ @Bicim.TarihSaat(b.BitisTarihi)</span></td>
+                <td class="text-end rakam">@Bicim.Para(b.Maliyet)</td>
+                <td>@if (b.Tamamlandi) { <span class="durum durum-tamamlandi">Tamamlandı</span> } else { <span class="durum durum-bakimda">Devam ediyor</span> }</td>
+                <td class="text-end text-nowrap">
+                    @if (!b.Tamamlandi) { <form asp-action="Tamamla" asp-route-id="@b.Id" method="post" class="d-inline"><button class="btn btn-sm btn-yumusak">Tamamla</button></form> }
+                    <form asp-action="Sil" asp-route-id="@b.Id" method="post" class="d-inline"><button class="btn btn-sm btn-sade text-danger" data-onay="Bakım kaydı silinsin mi?" aria-label="Sil"><i class="bi bi-trash"></i></button></form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table></div></div>

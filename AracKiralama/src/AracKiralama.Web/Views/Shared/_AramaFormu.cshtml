@@ -1,0 +1,33 @@
+@* ŞUBE + TARİH ARAMA FORMU (ana sayfa ve araç listesi). Sonuçlar /Araclar sayfasında. *@
+@model (AracFiltresi Filtre, List<Sube> Subeler)
+@{
+    var baslangic = Model.Filtre.Baslangic ?? DateTime.Today.AddDays(1).AddHours(10);
+    var bitis = Model.Filtre.Bitis ?? baslangic.AddDays(3);
+}
+<form action="/Araclar" method="get" class="row g-3 align-items-end" data-tarih-cifti>
+    <div class="col-12 col-md-6 col-lg-3">
+        <label class="form-label" for="a-alis"><i class="bi bi-geo-alt me-1"></i>@Icerik.Metin("arama.alis-sube")</label>
+        <select class="form-select" id="a-alis" name="AlisSubeId">
+            <option value="">@Icerik.Metin("arama.tum-subeler")</option>
+            @foreach (var s in Model.Subeler) { <option value="@s.Id" selected="@(Model.Filtre.AlisSubeId == s.Id)">@s.Ad</option> }
+        </select>
+    </div>
+    <div class="col-12 col-md-6 col-lg-3">
+        <label class="form-label" for="a-iade"><i class="bi bi-geo me-1"></i>@Icerik.Metin("arama.iade-sube")</label>
+        <select class="form-select" id="a-iade" name="IadeSubeId">
+            <option value="">@Icerik.Metin("arama.ayni-sube")</option>
+            @foreach (var s in Model.Subeler) { <option value="@s.Id" selected="@(Model.Filtre.IadeSubeId == s.Id)">@s.Ad</option> }
+        </select>
+    </div>
+    <div class="col-12 col-sm-6 col-lg-2">
+        <label class="form-label" for="a-bas"><i class="bi bi-calendar-event me-1"></i>@Icerik.Metin("arama.alis")</label>
+        <input class="form-control" type="datetime-local" id="a-bas" name="Baslangic" value="@Bicim.Kutu(baslangic)" min="@Bicim.Kutu(DateTime.Today)" data-tarih-baslangic />
+    </div>
+    <div class="col-12 col-sm-6 col-lg-2">
+        <label class="form-label" for="a-bit"><i class="bi bi-calendar-check me-1"></i>@Icerik.Metin("arama.iade")</label>
+        <input class="form-control" type="datetime-local" id="a-bit" name="Bitis" value="@Bicim.Kutu(bitis)" data-tarih-bitis />
+    </div>
+    <div class="col-12 col-lg-2 d-grid">
+        <button class="btn btn-primary btn-lg text-nowrap"><i class="bi bi-search me-2"></i>@Icerik.Metin("arama.buton")</button>
+    </div>
+</form>

@@ -1,0 +1,55 @@
+@* REZERVASYON LİSTESİ: durum sekmeleri, arama, şube filtresi, hızlı işlem butonları *@
+@model SayfaListesi<Rezervasyon>
+@{
+    ViewData["Title"] = "Rezervasyonlar";
+    var f = (RezervasyonFiltresi)ViewBag.Filtre;
+    var sayilar = (Dictionary<RezervasyonDurumu, int>)ViewBag.DurumSayilari;
+    var subeler = (List<Sube>)ViewBag.Subeler;
+}
+<div class="sayfa-baslik"><div><h1>Rezervasyonlar</h1><div class="alt-yazi">Talepleri onaylayın, teslim ve iade işlemlerini yönetin.</div></div></div>
+
+<ul class="nav nav-pills gap-1 mb-3 flex-nowrap overflow-auto pb-1">
+    <li class="nav-item"><a class="nav-link @(f.Durum == null && !f.SadeceGeciken ? "active" : "")" href="/Yonetim/Rezervasyonlar">Tümü <span class="opacity-75">@sayilar.Values.Sum()</span></a></li>
+    @foreach (var d in Enum.GetValues<RezervasyonDurumu>())
+    {
+        <li class="nav-item"><a class="nav-link text-nowrap @(f.Durum == d ? "active" : "")" href="/Yonetim/Rezervasyonlar?Durum=@d">@d.Ad() <span class="opacity-75">@sayilar.GetValueOrDefault(d)</span></a></li>
+    }
+    <li class="nav-item"><a class="nav-link text-nowrap @(f.SadeceGeciken ? "active" : "")" href="/Yonetim/Rezervasyonlar?SadeceGeciken=true"><i class="bi bi-alarm"></i> Geciken</a></li>
+</ul>
+
+<div class="card tablo-karti">
+    <form method="get" class="card-header d-flex flex-wrap gap-2 align-items-center" data-otomatik-gonder>
+        <input type="hidden" name="Durum" value="@f.Durum" />
+        <div class="input-group" style="max-width:340px"><span class="input-group-text"><i class="bi bi-search"></i></span><input type="search" name="Arama" value="@f.Arama" class="form-control" placeholder="Kod, plaka, müşteri adı / e-posta" /></div>
+        <select name="SubeId" class="form-select w-auto"><option value="">Tüm şubeler</option>@foreach (var s in subeler) { <option value="@s.Id" selected="@(f.SubeId == s.Id)">@s.Ad</option> }</select>
+        <button class="btn btn-sade">Ara</button>
+        <span class="ms-auto small text-muted">@Model.ToplamKayit kayıt</span>
+    </form>
+    <div class="table-responsive"><table class="table table-hover align-middle">
+        <thead><tr><th>Kod</th><th>Müşteri</th><th>Araç</th><th>Alış → İade</th><th>Durum</th><th class="text-end">Tutar</th><th></th></tr></thead>
+        <tbody>
+            @foreach (var r in Model.Kayitlar)
+            {
+                <tr>
+                    <td><a href="/Yonetim/Rezervasyonlar/Detay/@r.Id" class="fw-semibold rakam">@r.Kod</a></td>
+                    <td><b>@r.Musteri!.TamAd</b><div class="small text-muted">@r.Musteri.Email</div></td>
+                    <td>@r.Arac!.TamAd<div><span class="plaka">@r.Arac.Plaka</span></div></td>
+                    <td class="small">@Bicim.TarihSaat(r.BaslangicTarihi) <span class="text-muted">· @r.AlisSube!.Ad</span><br />@Bicim.TarihSaat(r.BitisTarihi) <span class="text-muted">· @r.IadeSube!.Ad</span></td>
+                    <td><partial name="_Durum" model="r" /></td>
+                    <td class="text-end rakam fw-semibold">@Bicim.Para(r.ToplamTutar)</td>
+                    <td class="text-end text-nowrap">
+                        @if (r.Durum == RezervasyonDurumu.OnayBekliyor)
+                        {
+                            <form asp-action="Onayla" asp-route-id="@r.Id" method="post" class="d-inline"><button class="btn btn-sm btn-primary">Onayla</button></form>
+                        }
+                        else if (r.Durum == RezervasyonDurumu.Onaylandi) { <a href="/Yonetim/Rezervasyonlar/TeslimEt/@r.Id" class="btn btn-sm btn-yumusak">Teslim et</a> }
+                        else if (r.Durum == RezervasyonDurumu.Kirada) { <a href="/Yonetim/Rezervasyonlar/IadeAl/@r.Id" class="btn btn-sm btn-yumusak">İade al</a> }
+                        <a href="/Yonetim/Rezervasyonlar/Detay/@r.Id" class="btn btn-sm btn-sade" aria-label="Detay"><i class="bi bi-chevron-right"></i></a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table></div>
+    @if (Model.Kayitlar.Count == 0) { <div class="bos-durum"><i class="bi bi-journal-x"></i>Kayıt bulunamadı.</div> }
+</div>
+@await Html.PartialAsync("_Sayfalama", (Model.ToplamSayfa, Model.Sayfa, (Func<int, string>)(s => Url.Action("Index", new { f.Durum, f.Arama, f.SubeId, f.SadeceGeciken, Sayfa = s })!)))

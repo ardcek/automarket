@@ -1,0 +1,45 @@
+@* DOLULUK TAKVİMİ (Gantt). Bloklar Controller'da hesaplanır (PanelControllerlari.cs → TakvimController).
+   CSS Grid: 1. sütun araç adı, sonraki her sütun bir gün. "--gun" değişkeni sütun sayısını verir. *@
+@model TakvimSayfasi
+@{
+    ViewData["Title"] = "Doluluk Takvimi";
+    var bugun = DateTime.Today;
+    string Link(DateTime bas) => $"/Yonetim/Takvim?baslangic={bas:yyyy-MM-dd}&gun={Model.GunSayisi}&subeId={Model.SubeId}&kategoriId={Model.KategoriId}";
+}
+<div class="sayfa-baslik">
+    <div><h1>Doluluk Takvimi</h1><div class="alt-yazi">@Bicim.Tarih(Model.Baslangic) – @Bicim.Tarih(Model.Baslangic.AddDays(Model.GunSayisi - 1)) · @Model.Satirlar.Count araç</div></div>
+    <form method="get" class="d-flex flex-wrap gap-2" data-otomatik-gonder>
+        <input type="hidden" name="baslangic" value="@Model.Baslangic.ToString("yyyy-MM-dd")" />
+        <select name="subeId" class="form-select form-select-sm w-auto"><option value="">Tüm şubeler</option>@foreach (var s in Model.Subeler) { <option value="@s.Id" selected="@(Model.SubeId == s.Id)">@s.Ad</option> }</select>
+        <select name="kategoriId" class="form-select form-select-sm w-auto"><option value="">Tüm kategoriler</option>@foreach (var k in Model.Kategoriler) { <option value="@k.Id" selected="@(Model.KategoriId == k.Id)">@k.Ad</option> }</select>
+        <select name="gun" class="form-select form-select-sm w-auto">@foreach (var g in new[] { 14, 21, 30, 42 }) { <option value="@g" selected="@(Model.GunSayisi == g)">@g gün</option> }</select>
+        <div class="btn-group"><a class="btn btn-sade btn-sm" href="@Link(Model.Baslangic.AddDays(-7))"><i class="bi bi-chevron-left"></i></a><a class="btn btn-sade btn-sm" href="@Link(bugun.AddDays(-3))">Bugün</a><a class="btn btn-sade btn-sm" href="@Link(Model.Baslangic.AddDays(7))"><i class="bi bi-chevron-right"></i></a></div>
+    </form>
+</div>
+
+<div class="renk-aciklamasi mb-3">
+    <span><i class="blok-onaybekliyor"></i>Onay bekliyor</span><span><i class="blok-onaylandi"></i>Onaylandı</span><span><i class="blok-kirada"></i>Kirada</span>
+    <span><i class="blok-gecikti"></i>Gecikti</span><span><i class="blok-tamamlandi"></i>Tamamlandı</span><span><i class="blok-bakim"></i>Bakım</span>
+</div>
+
+<div class="card tablo-karti">
+    <div class="takvim-kaydirma">
+        <div class="takvim" style="--gun:@Model.GunSayisi">
+            <div class="takvim-ust">
+                <div class="takvim-ad kucuk-baslik">Araç</div>
+                @foreach (var g in Model.Gunler) { <div class="gun @(g == bugun ? "bugun" : "")">@Bicim.GunAdi(g)<b>@g.Day</b></div> }
+            </div>
+            @foreach (var satir in Model.Satirlar)
+            {
+                <div class="takvim-satir">
+                    <a class="takvim-ad text-reset" href="/Yonetim/Araclar/Detay/@satir.Arac.Id"><span class="fw-semibold small text-truncate">@satir.Arac.TamAd</span><span class="small text-muted">@satir.Arac.Plaka</span></a>
+                    @for (var i = 0; i < Model.GunSayisi; i++) { <div class="hucre @(Model.Gunler[i] == bugun ? "bugun" : "")" style="grid-column:@(i + 2)"></div> }
+                    @foreach (var b in satir.Bloklar)
+                    {
+                        <a href="@b.Link" class="blok @b.Renk" style="grid-column:@(b.BaslangicSutunu + 1) / span @b.GunSayisi" title="@b.Ipucu" data-bs-toggle="tooltip">@b.Yazi</a>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

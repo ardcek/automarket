@@ -1,0 +1,17 @@
+@* PERSONEL VE ROLLER (sadece Admin görür) *@
+@model List<(Kullanici Kullanici, string Rol)>
+@{ ViewData["Title"] = "Personel"; }
+<div class="sayfa-baslik"><div><h1>Personel ve Roller</h1><div class="alt-yazi">Admin her şeye erişir; Personel bu sayfa hariç her şeye erişir.</div></div><a href="/Yonetim/Personel/Ekle" class="btn btn-primary"><i class="bi bi-person-plus me-1"></i>Personel ekle</a></div>
+<div class="card tablo-karti"><div class="table-responsive"><table class="table align-middle">
+    <thead><tr><th>Ad Soyad</th><th>E-posta</th><th>Rol</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var (k, rol) in Model)
+        {
+            <tr>
+                <td class="fw-semibold">@k.TamAd</td><td>@k.Email</td>
+                <td><span class="durum @(rol == Roller.Admin ? "durum-onaylandi" : "durum-kirada")">@rol</span></td>
+                <td class="text-end"><form asp-action="RolDegistir" asp-route-id="@k.Id" method="post"><button class="btn btn-sm btn-sade" data-onay="Rol değiştirilsin mi?">@(rol == Roller.Admin ? "Personel yap" : "Admin yap")</button></form></td>
+            </tr>
+        }
+    </tbody>
+</table></div></div>

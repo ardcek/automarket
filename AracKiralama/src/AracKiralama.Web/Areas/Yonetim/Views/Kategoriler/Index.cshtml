@@ -1,0 +1,20 @@
+@* KATEGORİLER — liste. Sürücü yaş / ehliyet şartları kategoriye göre belirlenir. *@
+@model List<Kategori>
+@{ ViewData["Title"] = "Kategoriler"; }
+<div class="sayfa-baslik"><div><h1>Kategoriler</h1><div class="alt-yazi">Araç sınıfları ve sürücü şartları</div></div><a href="/Yonetim/Kategoriler/Ekle" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Yeni kategori</a></div>
+<div class="card tablo-karti"><div class="table-responsive"><table class="table table-hover align-middle">
+    <thead><tr><th>Kategori</th><th>En az yaş</th><th>En az ehliyet</th><th class="text-end">Depozito</th><th>Sıra</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var k in Model)
+        {
+            <tr>
+                <td><div class="d-flex align-items-center gap-2">@if (k.GorselAdresi != null) { <img src="@k.GorselAdresi" alt="" class="kucuk-gorsel" /> }<b><i class="bi @k.Ikon me-1"></i>@k.Ad</b></div></td>
+                <td>@k.MinYas</td><td>@k.MinEhliyetYili yıl</td><td class="text-end rakam">@Bicim.Para(k.VarsayilanDepozito)</td><td>@k.Sira</td>
+                <td class="text-end text-nowrap">
+                    <a href="/Yonetim/Kategoriler/Duzenle/@k.Id" class="btn btn-sm btn-sade" aria-label="Düzenle"><i class="bi bi-pencil"></i></a>
+                    <form asp-action="Sil" asp-route-id="@k.Id" method="post" class="d-inline"><button class="btn btn-sm btn-sade text-danger" data-onay="@k.Ad silinsin mi?" aria-label="Sil"><i class="bi bi-trash"></i></button></form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table></div></div>

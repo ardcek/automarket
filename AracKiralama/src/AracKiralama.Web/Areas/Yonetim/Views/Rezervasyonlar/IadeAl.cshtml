@@ -1,0 +1,32 @@
+@* İADE: gecikme, yakıt ve hasar ücretleri kaydedince otomatik hesaplanır (FiyatServisi). *@
+@model IadeFormu
+@{ var r = Model.Rezervasyon!; var a = Icerik.Ayarlar; ViewData["Title"] = "İade"; }
+<div class="sayfa-baslik"><div><a href="/Yonetim/Rezervasyonlar/Detay/@r.Id" class="small"><i class="bi bi-arrow-left me-1"></i>@r.Kod</a><h1 class="mt-1">İade al</h1><div class="alt-yazi">@r.Musteri!.TamAd · @r.Arac!.TamAd <span class="plaka">@r.Arac.Plaka</span></div></div></div>
+<div class="row g-3">
+    <div class="col-lg-7">
+        <form asp-action="IadeAl" method="post" class="card">
+            <input type="hidden" asp-for="RezervasyonId" />
+            <div class="card-body row g-3">
+                <div asp-validation-summary="ModelOnly" class="text-danger small col-12"></div>
+                <div class="col-md-6"><label asp-for="IadeTarihi" class="form-label"></label><input asp-for="IadeTarihi" type="datetime-local" class="form-control" value="@Bicim.Kutu(Model.IadeTarihi)" /><div class="form-text">Planlanan: @Bicim.TarihSaat(r.BitisTarihi)</div></div>
+                <div class="col-md-6"><label asp-for="IadeKm" class="form-label"></label><input asp-for="IadeKm" class="form-control" /><div class="form-text">Teslimde: @Bicim.Sayi(r.TeslimKm ?? 0) km</div></div>
+                <div class="col-md-6"><label asp-for="IadeYakit" class="form-label"></label><select asp-for="IadeYakit" class="form-select" asp-items="Html.GetEnumSelectList<YakitSeviyesi>()"></select><div class="form-text">Teslimde: @r.TeslimYakit?.Ad()</div></div>
+                <div class="col-md-6"><label asp-for="HasarTutari" class="form-label"></label><input asp-for="HasarTutari" class="form-control" step="0.01" /></div>
+                <div class="col-12"><label asp-for="HasarAciklamasi" class="form-label"></label><input asp-for="HasarAciklamasi" class="form-control" placeholder="Hasar yoksa boş bırakın" /></div>
+                <div class="col-12"><label asp-for="Not" class="form-label"></label><textarea asp-for="Not" class="form-control" rows="2"></textarea></div>
+            </div>
+            <div class="card-body border-top text-end"><a href="/Yonetim/Rezervasyonlar/Detay/@r.Id" class="btn btn-sade">Vazgeç</a> <button class="btn btn-primary">İadeyi tamamla</button></div>
+        </form>
+    </div>
+    <div class="col-lg-5">
+        <div class="card p-3">
+            <div class="kucuk-baslik mb-2">Otomatik eklenecek ücretler</div>
+            <ul class="dokum">
+                <li><span>Mevcut toplam</span><span>@Bicim.Para(r.ToplamTutar)</span></li>
+                <li><span>Geç iade (şu an iade edilirse)</span><span class="@(Model.TahminiGecikmeUcreti > 0 ? "text-danger fw-semibold" : "")">@Bicim.Para(Model.TahminiGecikmeUcreti)</span></li>
+                <li><span>Eksik yakıt</span><span class="text-muted">her ¼ depo @Bicim.Para(a.YakitCeyrekUcreti)</span></li>
+            </ul>
+            <div class="small text-muted mt-2">Geç iade: @a.GecikmeToleransi dk tolerans, sonra her gün için günlük ücret × @a.GecikmeCarpani.ToString("0.#", Bicim.Tr). (Ayarlar → Fiyatlar)</div>
+        </div>
+    </div>
+</div>

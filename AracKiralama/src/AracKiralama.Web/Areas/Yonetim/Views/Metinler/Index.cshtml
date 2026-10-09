@@ -1,0 +1,42 @@
+@* SİTE METİNLERİ: sitedeki her başlık / buton yazısı. Liste Yardimcilar/VarsayilanMetinler.cs dosyasından gelir.
+   Kutu boş bırakılırsa varsayılan yazı kullanılır (gri olarak görünen). *@
+@{
+    ViewData["Title"] = "Site Metinleri";
+    var gruplar = VarsayilanMetinler.Liste.GroupBy(m => m.Key.Split('.')[0]).ToList();
+}
+<div class="sayfa-baslik"><div><h1>Site Metinleri</h1><div class="alt-yazi">Sitede görünen yazıları değiştirin. Boş bırakılan kutu varsayılan yazıyı kullanır.</div></div></div>
+
+<form method="post">
+    <div class="row g-3">
+        @foreach (var grup in gruplar)
+        {
+            <div class="col-xl-6">
+                <div class="card h-100">
+                    <div class="card-header">@VarsayilanMetinler.Gruplar.GetValueOrDefault(grup.Key, grup.Key)</div>
+                    <div class="card-body d-grid gap-3">
+                        @foreach (var (anahtar, varsayilan) in grup)
+                        {
+                            var guncel = Icerik.Metin(anahtar);
+                            var degistirilmis = guncel != varsayilan;
+                            <div>
+                                <label class="form-label small d-flex justify-content-between" for="@anahtar">
+                                    <code class="text-muted">@anahtar</code>
+                                    @if (degistirilmis) { <span class="durum durum-onaylandi">değiştirildi</span> }
+                                </label>
+                                @if (varsayilan.Length > 70)
+                                {
+                                    <textarea class="form-control form-control-sm" id="@anahtar" name="metinler[@anahtar]" rows="2" placeholder="@varsayilan">@(degistirilmis ? guncel : "")</textarea>
+                                }
+                                else
+                                {
+                                    <input class="form-control form-control-sm" id="@anahtar" name="metinler[@anahtar]" value="@(degistirilmis ? guncel : "")" placeholder="@varsayilan" />
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="position-sticky bottom-0 py-3 text-end"><button class="btn btn-primary btn-lg"><i class="bi bi-check2 me-1"></i>Metinleri kaydet</button></div>
+</form>

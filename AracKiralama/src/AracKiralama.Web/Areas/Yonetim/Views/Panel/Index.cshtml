@@ -1,0 +1,84 @@
+@* GÖSTERGE PANELİ. Rakamlar: Servisler/RaporServisi.cs → PanelVerileriAsync · Grafikler: wwwroot/js/grafikler.js *@
+@model PanelVerileri
+@using System.Text.Json
+@{
+    ViewData["Title"] = "Gösterge Paneli";
+    var degisim = Model.GecenAyAyniDonemGelir == 0 ? 0 : (double)((Model.BuAyGelir - Model.GecenAyAyniDonemGelir) / Model.GecenAyAyniDonemGelir);
+    var kartlar = new[]
+    {
+        new GostergeKarti { Baslik = "Bu ayın geliri", Deger = Bicim.Para(Model.BuAyGelir), Ikon = "bi-graph-up-arrow", Renk = "ana", Aciklama = $"Geçen ayın aynı dönemine göre %{degisim * 100:0}", Link = "/Yonetim/Raporlar" },
+        new GostergeKarti { Baslik = "Doluluk oranı", Deger = $"%{Model.DolulukOrani * 100:0}", Ikon = "bi-speedometer2", Renk = "mavi", Aciklama = $"{Model.KiradakiArac} / {Model.ToplamArac} araç kirada", Link = "/Yonetim/Takvim" },
+        new GostergeKarti { Baslik = "Onay bekleyen", Deger = Model.BekleyenTalep.ToString(), Ikon = "bi-hourglass-split", Renk = "turuncu", Aciklama = "rezervasyon talebi", Link = "/Yonetim/Rezervasyonlar?Durum=OnayBekliyor" },
+        new GostergeKarti { Baslik = "Bakımda", Deger = Model.BakimdakiArac.ToString(), Ikon = "bi-tools", Renk = Model.BakimdakiArac > 0 ? "kirmizi" : "yesil", Aciklama = "araç servis sürecinde", Link = "/Yonetim/Bakim?sadeceAcik=true" },
+    };
+}
+
+<div class="sayfa-baslik">
+    <div><h1>Gösterge Paneli</h1><div class="alt-yazi">@Bicim.Tarih(DateTime.Today), @DateTime.Today.ToString("dddd", Bicim.Tr)</div></div>
+    <div class="d-flex gap-2"><a href="/Yonetim/Takvim" class="btn btn-sade"><i class="bi bi-calendar3-range me-1"></i>Takvim</a><a href="/Yonetim/Araclar/Ekle" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Araç ekle</a></div>
+</div>
+
+@if (Model.Gecikenler.Count > 0)
+{
+    <div class="alert alert-danger d-flex flex-wrap align-items-center gap-2">
+        <i class="bi bi-alarm fs-5"></i><div><b>@Model.Gecikenler.Count kiralama gecikmede.</b> İade tarihi geçtiği halde araç teslim edilmedi.</div>
+        <a href="/Yonetim/Rezervasyonlar?SadeceGeciken=true" class="btn btn-sm btn-danger ms-auto">Görüntüle</a>
+    </div>
+}
+
+<div class="row g-3 mb-4">
+    @foreach (var kart in kartlar) { <div class="col-12 col-sm-6 col-xl-3"><partial name="_GostergeKarti" model="kart" /></div> }
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-xl-8"><div class="card h-100"><div class="card-header">Aylık gelir (son 12 ay)</div><div class="card-body"><div class="grafik-kutusu"><canvas id="aylik-gelir-grafigi"></canvas></div></div></div></div>
+    <div class="col-xl-4"><div class="card h-100"><div class="card-header">Kategoriye göre kiralama</div><div class="card-body"><div class="grafik-kutusu"><canvas id="kategori-grafigi"></canvas></div></div></div></div>
+</div>
+
+<div class="row g-3">
+    @* Üç liste aynı yapıda: başlık, boşsa mesaj, değilse satırlar *@
+    @foreach (var (baslik, liste, buton, aksiyon) in new[]
+    {
+        ("Bugün teslim edilecek", Model.BugunTeslimler, "Teslim et", "TeslimEt"),
+        ("Bugün iade alınacak / geciken", Model.BugunIadeler.Concat(Model.Gecikenler).ToList(), "İade al", "IadeAl"),
+        ("Onay bekleyen talepler", Model.SonTalepler, "İncele", "Detay"),
+    })
+    {
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between">@baslik <span class="badge text-bg-light">@liste.Count</span></div>
+                @if (liste.Count == 0) { <div class="bos-durum py-4"><i class="bi bi-check2-all"></i>Kayıt yok</div> }
+                <ul class="kisa-liste">
+                    @foreach (var r in liste)
+                    {
+                        <li>
+                            <div class="min-w-0 flex-grow-1">
+                                <a href="/Yonetim/Rezervasyonlar/Detay/@r.Id" class="fw-semibold text-reset">@r.Arac!.TamAd</a>
+                                <div class="alt-yazi">@r.Musteri!.TamAd · @Bicim.TarihSaat(aksiyon == "IadeAl" ? r.BitisTarihi : r.BaslangicTarihi)</div>
+                            </div>
+                            <a href="/Yonetim/Rezervasyonlar/@aksiyon/@r.Id" class="btn btn-sm btn-yumusak">@buton</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    }
+    <div class="col-12">
+        <div class="card"><div class="card-header">En çok kiralanan 5 araç</div><div class="card-body">
+            @{ var enYuksek = Model.EnCokKiralananlar.Count == 0 ? 1 : Model.EnCokKiralananlar.Max(x => x.Deger); }
+            @foreach (var n in Model.EnCokKiralananlar)
+            {
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between small mb-1"><b>@n.Etiket</b><span class="text-muted">@n.Deger kiralama</span></div>
+                    <div class="progress"><div class="progress-bar" style="width:@((int)(n.Deger / enYuksek * 100))%"></div></div>
+                </div>
+            }
+        </div></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="application/json" id="grafik-verisi">@Html.Raw(JsonSerializer.Serialize(new { aylikGelir = Model.AylikGelir, kategoriler = Model.KategoriDagilimi }))</script>
+    <script src="~/lib/chartjs/chart.umd.min.js"></script>
+    <script src="~/js/grafikler.js" asp-append-version="true"></script>
+}

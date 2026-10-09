@@ -3,8 +3,7 @@
 **/*.db
 **/*.db-shm
 **/*.db-wal
-**/uploads/
-**/keys/
+**/anahtarlar/
 tests/
 docs/
 deploy/

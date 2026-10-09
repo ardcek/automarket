@@ -1,0 +1,166 @@
+@* ARAÇ LİSTESİ + FİLTRELER
+   Hangi filtrenin görüneceği: Yönetim → Ayarlar → Araç Listesi
+   Yeni filtre eklemek: FormModelleri/SiteModelleri.cs dosyasının başındaki 3 adımlık tarif.
+   Bir filtre kutusu = name="AracFiltresi'ndeki özellik adı" olan bir form elemanı. *@
+@model AracListesiSayfasi
+@{
+    ViewData["Title"] = Icerik.Metin("araclar.baslik");
+    var f = Model.Filtre;
+    var a = Icerik.Ayarlar;
+}
+
+<div class="zemin-ana border-bottom">
+    <div class="container py-4">
+        <h1 class="h3 mb-1">@Icerik.Metin("araclar.baslik")</h1>
+        <p class="text-muted">
+            @if (f.TarihSecili) { <span><i class="bi bi-calendar-range me-1"></i>@Bicim.TarihSaat(f.Baslangic!.Value) → @Bicim.TarihSaat(f.Bitis!.Value) · <b>@Model.GunSayisi gün</b></span> }
+            else { @Icerik.Metin("araclar.tarih-sec") }
+        </p>
+        <div class="card p-3"><partial name="_AramaFormu" model="(f, Model.Subeler)" /></div>
+    </div>
+</div>
+
+<div class="container py-4">
+    <div class="row g-4">
+        @* ---------------- FİLTRE PANELİ ---------------- *@
+        <aside class="col-lg-3">
+            <form method="get" class="card p-3 filtre-paneli" data-otomatik-gonder>
+                @foreach (var deger in f.TarihDegerleri()) { <input type="hidden" name="@deger.Key" value="@deger.Value" /> }
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <b><i class="bi bi-sliders me-1"></i>@Icerik.Metin("araclar.filtreler")</b>
+                    <a asp-action="Index" asp-all-route-data="f.TarihDegerleri()" class="small">@Icerik.Metin("araclar.temizle")</a>
+                </div>
+
+                @if (a.FiltreArama)
+                {
+                    <div class="filtre-grubu">
+                        <div class="input-group input-group-sm">
+                            <input type="search" name="Arama" value="@f.Arama" class="form-control" placeholder="Marka veya model ara" />
+                            <button class="btn btn-sade" aria-label="Ara"><i class="bi bi-search"></i></button>
+                        </div>
+                    </div>
+                }
+
+                @if (a.FiltreKategori)
+                {
+                    <div class="filtre-grubu">
+                        <div class="kucuk-baslik mb-2">Kategori</div>
+                        <div class="secenekler">
+                            <input type="radio" name="KategoriId" id="k0" value="" checked="@(f.KategoriId == null)" /><label for="k0">Tümü</label>
+                            @foreach (var k in Model.Kategoriler)
+                            {
+                                <input type="radio" name="KategoriId" id="k@(k.Id)" value="@k.Id" checked="@(f.KategoriId == k.Id)" /><label for="k@(k.Id)">@k.Ad</label>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @if (a.FiltreMarka)
+                {
+                    <div class="filtre-grubu">
+                        <div class="kucuk-baslik mb-2">Marka</div>
+                        <select name="MarkaId" class="form-select form-select-sm">
+                            <option value="">Tümü</option>
+                            @foreach (var m in Model.Markalar) { <option value="@m.Id" selected="@(f.MarkaId == m.Id)">@m.Ad</option> }
+                        </select>
+                    </div>
+                }
+
+                @if (a.FiltreVites)
+                {
+                    <div class="filtre-grubu">
+                        <div class="kucuk-baslik mb-2">Vites</div>
+                        <div class="secenekler">
+                            <input type="radio" name="VitesTuruId" id="v0" value="" checked="@(f.VitesTuruId == null)" /><label for="v0">Tümü</label>
+                            @foreach (var v in Model.Vitesler)
+                            {
+                                <input type="radio" name="VitesTuruId" id="v@(v.Id)" value="@v.Id" checked="@(f.VitesTuruId == v.Id)" /><label for="v@(v.Id)">@v.Ad</label>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @if (a.FiltreYakit)
+                {
+                    <div class="filtre-grubu">
+                        <div class="kucuk-baslik mb-2">Yakıt</div>
+                        <select name="YakitTuruId" class="form-select form-select-sm">
+                            <option value="">Tümü</option>
+                            @foreach (var y in Model.Yakitlar) { <option value="@y.Id" selected="@(f.YakitTuruId == y.Id)">@y.Ad</option> }
+                        </select>
+                    </div>
+                }
+
+                @if (a.FiltreKoltuk)
+                {
+                    <div class="filtre-grubu">
+                        <div class="kucuk-baslik mb-2">Koltuk</div>
+                        <div class="secenekler">
+                            @foreach (var (deger, yazi) in new (int?, string)[] { (null, "Tümü"), (5, "5+"), (7, "7+"), (9, "9+") })
+                            {
+                                <input type="radio" name="EnAzKoltuk" id="ko@(deger ?? 0)" value="@deger" checked="@(f.EnAzKoltuk == deger)" /><label for="ko@(deger ?? 0)">@yazi</label>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @if (a.FiltreFiyat)
+                {
+                    <div class="filtre-grubu">
+                        <div class="kucuk-baslik mb-2">Günlük fiyat (₺)</div>
+                        <div class="d-flex gap-2">
+                            <input type="number" name="EnDusukFiyat" value="@f.EnDusukFiyat" class="form-control form-control-sm" placeholder="En az" min="0" step="50" />
+                            <input type="number" name="EnYuksekFiyat" value="@f.EnYuksekFiyat" class="form-control form-control-sm" placeholder="En çok" min="0" step="50" />
+                        </div>
+                    </div>
+                }
+
+                @if (a.FiltreYil)
+                {
+                    <div class="filtre-grubu">
+                        <div class="kucuk-baslik mb-2">Model yılı (en az)</div>
+                        <select name="EnAzYil" class="form-select form-select-sm">
+                            <option value="">Fark etmez</option>
+                            @for (var yil = DateTime.Today.Year; yil >= DateTime.Today.Year - 10; yil--) { <option value="@yil" selected="@(f.EnAzYil == yil)">@yil ve sonrası</option> }
+                        </select>
+                    </div>
+                }
+
+                @if (a.SiralamaGoster)
+                {
+                    <div class="filtre-grubu">
+                        <div class="kucuk-baslik mb-2">Sıralama</div>
+                        <select name="Siralama" class="form-select form-select-sm">
+                            @foreach (var (deger, yazi) in new[] { ("fiyat-artan", "Fiyat (artan)"), ("fiyat-azalan", "Fiyat (azalan)"), ("yeni", "En yeni model"), ("km", "En düşük km"), ("ad", "Marka-model (A→Z)") })
+                            {
+                                <option value="@deger" selected="@(f.Siralama == deger)">@yazi</option>
+                            }
+                        </select>
+                    </div>
+                }
+            </form>
+        </aside>
+
+        @* ---------------- SONUÇLAR ---------------- *@
+        <div class="col-lg-9">
+            <div class="text-muted mb-3"><b class="text-body">@Model.Araclar.ToplamKayit</b> @Icerik.Metin("araclar.bulundu")</div>
+            @if (Model.Araclar.Kayitlar.Count == 0)
+            {
+                <div class="card bos-durum">
+                    <i class="bi bi-car-front"></i>
+                    <h2 class="h5">@Icerik.Metin("araclar.bos-baslik")</h2>
+                    <p>@Icerik.Metin("araclar.bos-metin")</p>
+                    <a asp-action="Index" class="btn btn-yumusak">@Icerik.Metin("araclar.temizle")</a>
+                </div>
+            }
+            <div class="row g-4">
+                @foreach (var arac in Model.Araclar.Kayitlar)
+                {
+                    <div class="col-sm-6 col-xl-4"><partial name="_AracKarti" model="new AracKartiModeli { Arac = arac, Filtre = f, GunSayisi = Model.GunSayisi }" /></div>
+                }
+            </div>
+            @await Html.PartialAsync("_Sayfalama", (Model.Araclar.ToplamSayfa, Model.Araclar.Sayfa, (Func<int, string>)(s => Url.Action("Index", f.Degerler(s))!)))
+        </div>
+    </div>
+</div>

@@ -1,0 +1,24 @@
+@* MÜŞTERİ DETAYI + kara liste *@
+@model Kullanici
+@{ var k = Model; ViewData["Title"] = k.TamAd; }
+<div class="sayfa-baslik">
+    <div><a href="/Yonetim/Musteriler" class="small"><i class="bi bi-arrow-left me-1"></i>Müşteriler</a><h1 class="mt-1">@k.TamAd @if (k.KaraListede) { <span class="durum durum-reddedildi">Kara liste</span> }</h1><div class="alt-yazi">Üyelik: @Bicim.Tarih(k.KayitTarihi)</div></div>
+    <form asp-action="KaraListe" asp-route-id="@k.Id" method="post" class="d-flex gap-2">
+        @if (!k.KaraListede) { <input name="sebep" class="form-control" placeholder="Sebep (isteğe bağlı)" /> }
+        <button class="btn btn-sade @(k.KaraListede ? "" : "text-danger") text-nowrap">@(k.KaraListede ? "Kara listeden çıkar" : "Kara listeye al")</button>
+    </form>
+</div>
+@if (k.KaraListede) { <div class="alert alert-danger">Sebep: @k.KaraListeSebebi — bu müşteri rezervasyon yapamaz.</div> }
+<div class="row g-3">
+    <div class="col-xl-4"><div class="card p-3 small d-grid gap-2">
+        <div><div class="kucuk-baslik">E-posta</div>@k.Email</div>
+        <div><div class="kucuk-baslik">Telefon</div>@(k.PhoneNumber ?? "-")</div>
+        <div><div class="kucuk-baslik">T.C. Kimlik No</div>@(k.TcNo ?? "-")</div>
+        <div><div class="kucuk-baslik">Doğum tarihi</div>@(k.DogumTarihi?.ToString("dd.MM.yyyy") ?? "-")</div>
+        <div><div class="kucuk-baslik">Ehliyet</div>@(k.EhliyetNo ?? "-") · @(k.EhliyetTarihi?.ToString("dd.MM.yyyy") ?? "-")</div>
+    </div></div>
+    <div class="col-xl-8"><div class="card tablo-karti"><div class="card-header">Rezervasyonlar</div><div class="table-responsive"><table class="table table-hover align-middle">
+        <thead><tr><th>Kod</th><th>Araç</th><th>Tarih</th><th>Durum</th><th class="text-end">Tutar</th></tr></thead>
+        <tbody>@foreach (var r in k.Rezervasyonlar.OrderByDescending(r => r.BaslangicTarihi)) { <tr><td><a href="/Yonetim/Rezervasyonlar/Detay/@r.Id" class="rakam">@r.Kod</a></td><td>@r.Arac!.TamAd</td><td class="small text-muted">@Bicim.Tarih(r.BaslangicTarihi)</td><td><partial name="_Durum" model="r" /></td><td class="text-end rakam">@Bicim.Para(r.ToplamTutar)</td></tr> }</tbody>
+    </table></div></div></div>
+</div>

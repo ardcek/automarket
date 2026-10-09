@@ -1,0 +1,50 @@
+@* ARAÇ EKLEME / DÜZENLEME FORMU (Id doluysa düzenleme).
+   Araca yeni alan eklerseniz: Modeller/Arac.cs + FormModelleri/YonetimFormlari.cs (AracFormu) + AracControllerlari.cs (kopyalama) + buraya bir kutu. *@
+@model AracFormu
+@{
+    var duzenleme = Model.Id != null;
+    ViewData["Title"] = duzenleme ? "Aracı düzenle" : "Yeni araç";
+}
+<div class="sayfa-baslik"><div><a href="/Yonetim/Araclar" class="small"><i class="bi bi-arrow-left me-1"></i>Araçlar</a><h1 class="mt-1">@ViewData["Title"]</h1></div></div>
+<form asp-action="@(duzenleme ? "Duzenle" : "Ekle")" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger small" ></div>
+    <div class="row g-3">
+        <div class="col-xl-8">
+            <div class="card mb-3"><div class="card-header">Araç bilgileri</div><div class="card-body row g-3">
+                <div class="col-md-4"><label asp-for="Plaka" class="form-label"></label><input asp-for="Plaka" class="form-control text-uppercase" placeholder="34 ABC 123" /><span asp-validation-for="Plaka"></span></div>
+                <div class="col-md-4"><label asp-for="MarkaId" class="form-label"></label><select asp-for="MarkaId" class="form-select" asp-items="ViewBag.Markalar"></select></div>
+                <div class="col-md-4"><label asp-for="Model" class="form-label"></label><input asp-for="Model" class="form-control" /><span asp-validation-for="Model"></span></div>
+                <div class="col-md-3"><label asp-for="Yil" class="form-label"></label><input asp-for="Yil" class="form-control" /></div>
+                <div class="col-md-3"><label asp-for="KategoriId" class="form-label"></label><select asp-for="KategoriId" class="form-select" asp-items="ViewBag.Kategoriler"></select></div>
+                <div class="col-md-3"><label asp-for="YakitTuruId" class="form-label"></label><select asp-for="YakitTuruId" class="form-select" asp-items="ViewBag.Yakitlar"></select></div>
+                <div class="col-md-3"><label asp-for="VitesTuruId" class="form-label"></label><select asp-for="VitesTuruId" class="form-select" asp-items="ViewBag.Vitesler"></select></div>
+                <div class="col-md-3"><label asp-for="KoltukSayisi" class="form-label"></label><input asp-for="KoltukSayisi" class="form-control" /></div>
+                <div class="col-md-3"><label asp-for="Renk" class="form-label"></label><input asp-for="Renk" class="form-control" /><span asp-validation-for="Renk"></span></div>
+                <div class="col-md-3"><label asp-for="Kilometre" class="form-label"></label><input asp-for="Kilometre" class="form-control" /></div>
+                <div class="col-md-3"><label asp-for="SubeId" class="form-label"></label><select asp-for="SubeId" class="form-select" asp-items="ViewBag.Subeler"></select></div>
+                <div class="col-12"><label asp-for="Aciklama" class="form-label"></label><textarea asp-for="Aciklama" class="form-control" rows="3"></textarea></div>
+            </div></div>
+            <div class="card"><div class="card-header">Fiyat ve durum</div><div class="card-body row g-3">
+                <div class="col-md-4"><label asp-for="GunlukFiyat" class="form-label"></label><input asp-for="GunlukFiyat" class="form-control" step="50" /><span asp-validation-for="GunlukFiyat"></span></div>
+                <div class="col-md-4"><label asp-for="Depozito" class="form-label"></label><input asp-for="Depozito" class="form-control" step="500" placeholder="Kategorinin varsayılanı" /></div>
+                <div class="col-md-4"><label asp-for="Durum" class="form-label"></label><select asp-for="Durum" class="form-select" asp-items="Html.GetEnumSelectList<AracDurumu>()"></select></div>
+                <div class="col-12 form-check form-switch ms-2"><input asp-for="OneCikan" class="form-check-input" role="switch" /><label asp-for="OneCikan" class="form-check-label"></label></div>
+                <div class="col-12 small text-muted">Sürücü yaş / ehliyet şartı aracın kategorisinden gelir (Yönetim → Kategoriler).</div>
+            </div></div>
+        </div>
+        <div class="col-xl-4">
+            <div class="card"><div class="card-header">Görsel</div><div class="card-body">
+                <div class="detay-gorsel mb-3"><img id="onizleme" src="@(Model.GorselAdresi ?? "/img/placeholder.svg")" alt="" /></div>
+                <label asp-for="Gorsel" class="form-label"></label>
+                <input asp-for="Gorsel" type="file" class="form-control" accept="image/png,image/jpeg,image/webp" data-gorsel-onizle="#onizleme" />
+                <span asp-validation-for="Gorsel"></span>
+                <label asp-for="GorselAdresi" class="form-label mt-3"></label>
+                <input asp-for="GorselAdresi" class="form-control form-control-sm" placeholder="/gorsel/12 veya https://..." />
+                <div class="form-text">Ya dosya yükleyin ya da bir görsel adresi yazın.</div>
+            </div></div>
+            <button class="btn btn-primary btn-lg w-100 mt-3"><i class="bi bi-check2 me-1"></i>Kaydet</button>
+        </div>
+    </div>
+</form>
+@section Scripts { <partial name="_FormDogrulama" /> }

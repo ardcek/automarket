@@ -1,0 +1,20 @@
+@* MARKALAR — liste *@
+@model List<Marka>
+@{ ViewData["Title"] = "Markalar"; }
+<div class="sayfa-baslik"><div><h1>Markalar</h1><div class="alt-yazi">Yeni marka eklenince araç formunda ve filtrelerde görünür</div></div><a href="/Yonetim/Markalar/Ekle" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Yeni marka</a></div>
+<div class="card tablo-karti"><div class="table-responsive"><table class="table table-hover align-middle">
+    <thead><tr><th>Logo</th><th>Marka</th><th>Sıra</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var m in Model)
+        {
+            <tr>
+                <td>@if (m.LogoAdresi != null) { <img src="@m.LogoAdresi" alt="" height="28" /> }</td>
+                <td class="fw-semibold">@m.Ad</td><td>@m.Sira</td>
+                <td class="text-end text-nowrap">
+                    <a href="/Yonetim/Markalar/Duzenle/@m.Id" class="btn btn-sm btn-sade" aria-label="Düzenle"><i class="bi bi-pencil"></i></a>
+                    <form asp-action="Sil" asp-route-id="@m.Id" method="post" class="d-inline"><button class="btn btn-sm btn-sade text-danger" data-onay="@m.Ad silinsin mi?" aria-label="Sil"><i class="bi bi-trash"></i></button></form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table></div></div>

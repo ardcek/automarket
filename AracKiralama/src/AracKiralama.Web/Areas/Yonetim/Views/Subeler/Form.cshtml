@@ -1,0 +1,15 @@
+@* ŞUBE FORMU (ekleme ve düzenleme aynı form; Id > 0 ise düzenleme) *@
+@model Sube
+@{ var duzenleme = Model.Id > 0; ViewData["Title"] = duzenleme ? "Şubeyi düzenle" : "Yeni şube"; }
+<div class="sayfa-baslik"><div><a href="/Yonetim/Subeler" class="small"><i class="bi bi-arrow-left me-1"></i>Şubeler</a><h1 class="mt-1">@ViewData["Title"]</h1></div></div>
+<form asp-action="@(duzenleme ? "Duzenle" : "Ekle")" method="post" class="card" style="max-width:720px">
+    <input type="hidden" asp-for="Id" />
+    <div class="card-body row g-3">
+        <div class="col-md-8"><label asp-for="Ad" class="form-label"></label><input asp-for="Ad" class="form-control" /><span asp-validation-for="Ad"></span></div>
+        <div class="col-md-4"><label asp-for="Sehir" class="form-label"></label><input asp-for="Sehir" class="form-control" /><span asp-validation-for="Sehir"></span></div>
+        <div class="col-12"><label asp-for="Adres" class="form-label"></label><input asp-for="Adres" class="form-control" /><span asp-validation-for="Adres"></span></div>
+        <div class="col-md-6"><label asp-for="Telefon" class="form-label"></label><input asp-for="Telefon" class="form-control" /><span asp-validation-for="Telefon"></span></div>
+    </div>
+    <div class="card-body border-top text-end"><a href="/Yonetim/Subeler" class="btn btn-sade">Vazgeç</a> <button class="btn btn-primary">Kaydet</button></div>
+</form>
+@section Scripts { <partial name="_FormDogrulama" /> }

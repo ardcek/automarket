@@ -1,0 +1,39 @@
+@* ARAÇ DETAYI: bilgiler, gelir, son kiralamalar, bakım geçmişi *@
+@model Arac
+@{
+    var a = Model;
+    ViewData["Title"] = a.TamAd;
+    var kiralamalar = (List<Rezervasyon>)ViewBag.SonKiralamalar;
+}
+<div class="sayfa-baslik">
+    <div><a href="/Yonetim/Araclar" class="small"><i class="bi bi-arrow-left me-1"></i>Araçlar</a><h1 class="d-flex align-items-center gap-2 mt-1">@a.TamAd <partial name="_AracDurumu" model="a.Durum" /></h1><div class="alt-yazi"><span class="plaka">@a.Plaka</span> · @a.Sube!.Ad</div></div>
+    <div class="d-flex flex-wrap gap-2">
+        <a href="/Yonetim/Bakim/Ekle?aracId=@a.Id" class="btn btn-sade"><i class="bi bi-tools me-1"></i>Bakım kaydı</a>
+        <a href="/Yonetim/Araclar/Duzenle/@a.Id" class="btn btn-primary"><i class="bi bi-pencil me-1"></i>Düzenle</a>
+        <form asp-action="Sil" asp-route-id="@a.Id" method="post"><button class="btn btn-sade text-danger" data-onay="Araç silinsin mi? Kiralama geçmişi varsa pasife alınır.">Sil</button></form>
+    </div>
+</div>
+<div class="row g-3 mb-3">
+    <div class="col-lg-5"><div class="detay-gorsel"><img src="@(a.GorselAdresi ?? "/img/placeholder.svg")" alt="" /></div></div>
+    <div class="col-lg-7">
+        <div class="row g-3">
+            <div class="col-sm-6">@await Html.PartialAsync("_GostergeKarti", new GostergeKarti { Baslik = "Toplam gelir", Deger = Bicim.Para((decimal)ViewBag.Gelir), Ikon = "bi-cash-stack" })</div>
+            <div class="col-sm-6">@await Html.PartialAsync("_GostergeKarti", new GostergeKarti { Baslik = "Kilometre", Deger = Bicim.Sayi(a.Kilometre), Ikon = "bi-speedometer", Renk = "turuncu" })</div>
+            <div class="col-12"><div class="card p-3"><div class="row g-3 small">
+                @foreach (var (etiket, deger) in new[] { ("Kategori", a.Kategori!.Ad), ("Model yılı", a.Yil.ToString()), ("Vites / Yakıt", $"{a.VitesTuru?.Ad} / {a.YakitTuru?.Ad}"), ("Koltuk / Renk", $"{a.KoltukSayisi} / {a.Renk}"), ("Günlük", Bicim.Para(a.GunlukFiyat)), ("Depozito", Bicim.Para(a.Depozito)), ("Öne çıkan", a.OneCikan ? "Evet" : "Hayır") })
+                {
+                    <div class="col-6 col-md-3"><div class="kucuk-baslik">@etiket</div>@deger</div>
+                }
+            </div></div></div>
+        </div>
+    </div>
+</div>
+<div class="row g-3">
+    <div class="col-xl-8"><div class="card tablo-karti"><div class="card-header">Son kiralamalar</div><div class="table-responsive"><table class="table table-hover align-middle">
+        <thead><tr><th>Kod</th><th>Müşteri</th><th>Tarih</th><th>Durum</th><th class="text-end">Tutar</th></tr></thead>
+        <tbody>@foreach (var r in kiralamalar) { <tr><td><a href="/Yonetim/Rezervasyonlar/Detay/@r.Id" class="rakam">@r.Kod</a></td><td>@r.Musteri!.TamAd</td><td class="small text-muted">@Bicim.Tarih(r.BaslangicTarihi) – @Bicim.Tarih(r.BitisTarihi)</td><td><partial name="_Durum" model="r" /></td><td class="text-end rakam">@Bicim.Para(r.ToplamTutar)</td></tr> }</tbody>
+    </table></div></div></div>
+    <div class="col-xl-4"><div class="card"><div class="card-header">Bakım geçmişi</div><ul class="kisa-liste">
+        @foreach (var b in a.Bakimlar.OrderByDescending(b => b.BaslangicTarihi)) { <li><div class="flex-grow-1"><b class="small">@b.Tur.Ad()</b><div class="alt-yazi">@Bicim.Tarih(b.BaslangicTarihi) · @Bicim.Sayi(b.Kilometre) km</div></div><span class="small rakam">@Bicim.Para(b.Maliyet)</span></li> }
+    </ul></div></div>
+</div>

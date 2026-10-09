@@ -1,0 +1,21 @@
+@* EK HİZMETLER — liste *@
+@model List<Ekstra>
+@{ ViewData["Title"] = "Ek Hizmetler"; }
+<div class="sayfa-baslik"><div><h1>Ek Hizmetler</h1><div class="alt-yazi">Rezervasyona eklenebilen günlük ücretli hizmetler</div></div><a href="/Yonetim/Ekstralar/Ekle" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Yeni hizmet</a></div>
+<div class="card tablo-karti"><div class="table-responsive"><table class="table table-hover align-middle">
+    <thead><tr><th>Hizmet</th><th class="text-end">Günlük</th><th>Durum</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var e in Model)
+        {
+            <tr class="@(e.Aktif ? "" : "opacity-50")">
+                <td><i class="bi @e.Ikon metin-ana me-2"></i><b>@e.Ad</b><div class="small text-muted">@e.Aciklama</div></td>
+                <td class="text-end rakam fw-semibold">@Bicim.Para(e.GunlukFiyat)</td>
+                <td>@(e.Aktif ? "Aktif" : "Pasif")</td>
+                <td class="text-end text-nowrap">
+                    <a href="/Yonetim/Ekstralar/Duzenle/@e.Id" class="btn btn-sm btn-sade" aria-label="Düzenle"><i class="bi bi-pencil"></i></a>
+                    <form asp-action="Sil" asp-route-id="@e.Id" method="post" class="d-inline"><button class="btn btn-sm btn-sade text-danger" data-onay="@e.Ad silinsin mi?" aria-label="Sil"><i class="bi bi-trash"></i></button></form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table></div></div>

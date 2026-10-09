@@ -1,0 +1,19 @@
+@* ARAÇ TESLİMİ: kilometre ve yakıt kaydedilir, araç "Kirada" olur. *@
+@model TeslimFormu
+@{ var r = Model.Rezervasyon!; ViewData["Title"] = "Teslim"; }
+<div class="sayfa-baslik"><div><a href="/Yonetim/Rezervasyonlar/Detay/@r.Id" class="small"><i class="bi bi-arrow-left me-1"></i>@r.Kod</a><h1 class="mt-1">Aracı teslim et</h1><div class="alt-yazi">@r.Musteri!.TamAd · @r.Arac!.TamAd <span class="plaka">@r.Arac.Plaka</span></div></div></div>
+<form asp-action="TeslimEt" method="post" class="card" style="max-width:640px">
+    <input type="hidden" asp-for="RezervasyonId" />
+    <div class="card-body row g-3">
+        <div asp-validation-summary="ModelOnly" class="text-danger small col-12"></div>
+        <div class="col-md-6"><label asp-for="TeslimKm" class="form-label"></label><input asp-for="TeslimKm" class="form-control" /><div class="form-text">Kayıtlı: @Bicim.Sayi(r.Arac.Kilometre) km</div></div>
+        <div class="col-md-6"><label asp-for="TeslimYakit" class="form-label"></label><select asp-for="TeslimYakit" class="form-select" asp-items="Html.GetEnumSelectList<YakitSeviyesi>()"></select></div>
+        <div class="col-12 kart-sade p-3 small">
+            <b>Teslim kontrol listesi</b>
+            <div class="form-check"><input class="form-check-input" type="checkbox" id="k1" required /><label class="form-check-label" for="k1">Kimlik ve ehliyet aslı görüldü</label></div>
+            <div class="form-check"><input class="form-check-input" type="checkbox" id="k2" required /><label class="form-check-label" for="k2">Depozito (@Bicim.Para(r.Depozito)) alındı</label></div>
+            <div class="form-check"><input class="form-check-input" type="checkbox" id="k3" required /><label class="form-check-label" for="k3">Araç çevresi müşteriyle kontrol edildi</label></div>
+        </div>
+    </div>
+    <div class="card-body border-top text-end"><a href="/Yonetim/Rezervasyonlar/Detay/@r.Id" class="btn btn-sade">Vazgeç</a> <button class="btn btn-primary"><i class="bi bi-key me-1"></i>Teslim et</button></div>
+</form>

@@ -1,0 +1,107 @@
+@* REZERVASYON DETAYI: üstteki butonlar o anki duruma göre değişir (Onayla / Teslim et / İade al / İptal).
+   Butonların arkasındaki kurallar: Servisler/RezervasyonServisi.cs *@
+@model Rezervasyon
+@{
+    var r = Model;
+    ViewData["Title"] = r.Kod;
+    var tahminiGecikme = (decimal)ViewBag.TahminiGecikme;
+}
+<div class="sayfa-baslik">
+    <div>
+        <a href="/Yonetim/Rezervasyonlar" class="small"><i class="bi bi-arrow-left me-1"></i>Rezervasyonlar</a>
+        <h1 class="d-flex align-items-center gap-2 mt-1">@r.Kod <partial name="_Durum" model="r" /></h1>
+        <div class="alt-yazi">Oluşturulma: @Bicim.TarihSaat(r.OlusturmaTarihi)@(r.IslemYapan != null ? " · Son işlem: " + r.IslemYapan.TamAd : "")</div>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        @if (r.Durum == RezervasyonDurumu.OnayBekliyor)
+        {
+            <form asp-action="Onayla" asp-route-id="@r.Id" method="post"><button class="btn btn-primary"><i class="bi bi-check2 me-1"></i>Onayla</button></form>
+            <button class="btn btn-sade text-danger" data-bs-toggle="modal" data-bs-target="#reddet">Reddet</button>
+        }
+        @if (r.Durum == RezervasyonDurumu.Onaylandi) { <a href="/Yonetim/Rezervasyonlar/TeslimEt/@r.Id" class="btn btn-primary"><i class="bi bi-key me-1"></i>Teslim et</a> }
+        @if (r.Durum == RezervasyonDurumu.Kirada) { <a href="/Yonetim/Rezervasyonlar/IadeAl/@r.Id" class="btn btn-primary"><i class="bi bi-box-arrow-in-down-left me-1"></i>İade al</a> }
+        @if (r.IptalEdilebilir)
+        {
+            <form asp-action="IptalEt" asp-route-id="@r.Id" method="post"><button class="btn btn-sade" data-onay="Rezervasyon iptal edilsin mi?">İptal et</button></form>
+        }
+        @if (r.Durum != RezervasyonDurumu.OnayBekliyor && r.Durum != RezervasyonDurumu.Reddedildi) { <a href="/Yonetim/Rezervasyonlar/Sozlesme/@r.Id" target="_blank" class="btn btn-sade"><i class="bi bi-file-earmark-pdf me-1"></i>Sözleşme</a> }
+    </div>
+</div>
+
+@if (r.DurumAciklamasi != null && (r.Durum == RezervasyonDurumu.IptalEdildi || r.Durum == RezervasyonDurumu.Reddedildi)) { <div class="alert alert-secondary">@r.DurumAciklamasi</div> }
+@if (tahminiGecikme > 0) { <div class="alert alert-danger"><i class="bi bi-alarm me-1"></i>Araç @Bicim.TarihSaat(r.BitisTarihi) tarihinde iade edilmeliydi. Şu an iade alınırsa gecikme ücreti: <b>@Bicim.Para(tahminiGecikme)</b></div> }
+
+<div class="row g-3">
+    <div class="col-xl-8">
+        <div class="row g-3">
+            <div class="col-md-6"><div class="card h-100 p-3">
+                <div class="kucuk-baslik mb-2">Araç</div>
+                <div class="d-flex gap-3"><img src="@r.Arac!.GorselAdresi" alt="" class="kucuk-gorsel" style="width:110px;height:72px" /><div><a href="/Yonetim/Araclar/Detay/@r.AracId" class="fw-bold text-reset">@r.Arac.TamAd</a><div class="mt-1"><span class="plaka">@r.Arac.Plaka</span></div></div></div>
+            </div></div>
+            <div class="col-md-6"><div class="card h-100 p-3">
+                <div class="kucuk-baslik mb-2">Müşteri</div>
+                <a href="/Yonetim/Musteriler/Detay/@r.MusteriId" class="fw-bold text-reset">@r.Musteri!.TamAd</a> @if (r.Musteri.KaraListede) { <span class="durum durum-reddedildi">Kara liste</span> }
+                <div class="small text-muted">@r.Musteri.Email · @r.Musteri.PhoneNumber</div>
+                <div class="small text-muted">Ehliyet: @r.Musteri.EhliyetNo · @r.Musteri.EhliyetTarihi?.ToString("dd.MM.yyyy")</div>
+            </div></div>
+
+            <div class="col-md-6"><div class="card h-100 p-3">
+                <div class="kucuk-baslik mb-2">Süreç</div>
+                <div class="small d-grid gap-2">
+                    <div><b>Alış:</b> @r.AlisSube!.Ad · @Bicim.TarihSaat(r.BaslangicTarihi)</div>
+                    <div><b>Teslim edildi:</b> @Bicim.TarihSaat(r.TeslimTarihi) @(r.TeslimKm != null ? $"· {Bicim.Sayi(r.TeslimKm.Value)} km · Yakıt {r.TeslimYakit?.Ad()}" : "")</div>
+                    <div><b>İade:</b> @r.IadeSube!.Ad · @Bicim.TarihSaat(r.BitisTarihi)</div>
+                    <div><b>İade edildi:</b> @Bicim.TarihSaat(r.IadeTarihi) @(r.IadeKm != null ? $"· {Bicim.Sayi(r.IadeKm.Value)} km · Yakıt {r.IadeYakit?.Ad()}" : "")</div>
+                    @if (!string.IsNullOrWhiteSpace(r.Not)) { <div><b>Not:</b> @r.Not</div> }
+                    @foreach (var h in r.Hasarlar) { <div class="text-danger"><b>Hasar:</b> @h.Aciklama — @Bicim.Para(h.Tutar)</div> }
+                </div>
+            </div></div>
+            <div class="col-md-6"><div class="card h-100 p-3">
+                <div class="kucuk-baslik mb-2">Ücret dökümü</div>
+                <ul class="dokum">
+                    <li><span>@r.GunSayisi gün × @Bicim.Para(r.GunlukFiyat)</span><span>@Bicim.Para(r.KiraTutari)</span></li>
+                    @if (r.Indirim > 0) { <li class="indirim"><span>İndirim</span><span>− @Bicim.Para(r.Indirim)</span></li> }
+                    @foreach (var e in r.Ekstralar) { <li><span>@e.Ekstra!.Ad</span><span>@Bicim.Para(e.Tutar)</span></li> }
+                    @foreach (var (ad, tutar) in new[] { ("Tek yön", r.TekYonUcreti), ("Geç iade", r.GecikmeUcreti), ("Eksik yakıt", r.YakitUcreti), ("Hasar", r.HasarUcreti), ("İptal ücreti", r.IptalUcreti) })
+                    {
+                        if (tutar > 0) { <li><span>@ad</span><span>@Bicim.Para(tutar)</span></li> }
+                    }
+                    <li class="toplam"><span>Toplam</span><span>@Bicim.Para(r.ToplamTutar)</span></li>
+                </ul>
+                <div class="small text-muted">Depozito: @Bicim.Para(r.Depozito)</div>
+            </div></div>
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between">Ödemeler <span class="small @(r.KalanTutar > 0 ? "text-danger" : "text-success")">@(r.KalanTutar > 0 ? "Kalan " + Bicim.Para(r.KalanTutar) : "Ödendi")</span></div>
+            <ul class="kisa-liste">
+                @foreach (var o in r.Odemeler.OrderBy(o => o.Tarih))
+                {
+                    <li><div class="flex-grow-1"><b class="small">@o.Tur.Ad()</b><div class="alt-yazi">@Bicim.TarihSaat(o.Tarih) · @o.Yontem.Ad()</div></div><span class="rakam fw-semibold">@Bicim.Para(o.Tutar)</span></li>
+                }
+            </ul>
+            @if (r.Durum != RezervasyonDurumu.Reddedildi)
+            {
+                <form asp-action="OdemeEkle" asp-route-id="@r.Id" method="post" class="card-body border-top row g-2">
+                    <div class="col-6"><input name="tutar" type="number" step="0.01" min="1" class="form-control form-control-sm" value="@Math.Max(0, r.KalanTutar).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)" aria-label="Tutar" required /></div>
+                    <div class="col-6"><select name="yontem" class="form-select form-select-sm" asp-items="Html.GetEnumSelectList<OdemeYontemi>()"></select></div>
+                    <div class="col-12"><select name="tur" class="form-select form-select-sm" asp-items="Html.GetEnumSelectList<OdemeTuru>()"></select></div>
+                    <div class="col-12"><input name="not" class="form-control form-control-sm" placeholder="Not (isteğe bağlı)" /></div>
+                    <div class="col-12 d-grid"><button class="btn btn-sm btn-primary">Ödemeyi kaydet</button></div>
+                </form>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="reddet" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <form asp-action="Reddet" asp-route-id="@r.Id" method="post" class="modal-content">
+            <div class="modal-header"><h2 class="h5 m-0">Talebi reddet</h2><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body"><label class="form-label">Müşteriye gösterilecek sebep</label><textarea name="sebep" class="form-control" rows="3"></textarea></div>
+            <div class="modal-footer"><button type="button" class="btn btn-sade" data-bs-dismiss="modal">Vazgeç</button><button class="btn btn-danger">Reddet</button></div>
+        </form>
+    </div>
+</div>
