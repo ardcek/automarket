@@ -10,10 +10,12 @@ WORKDIR /src
 
 # Önce sadece proje dosyası kopyalanır → paketler değişmedikçe "restore" adımı önbellekten gelir (hızlı build).
 COPY src/AracKiralama.Web/AracKiralama.Web.csproj src/AracKiralama.Web/
-RUN dotnet restore src/AracKiralama.Web/AracKiralama.Web.csproj
+RUN dotnet restore src/AracKiralama.Web/AracKiralama.Web.csproj -r linux-x64
 
 COPY src/ src/
-RUN dotnet publish src/AracKiralama.Web/AracKiralama.Web.csproj -c Release -o /app/publish --no-restore
+# ReadyToRun: kod önceden makine koduna derlenir → zayıf (ücretsiz) sunucuda uygulama daha hızlı açılır.
+RUN dotnet publish src/AracKiralama.Web/AracKiralama.Web.csproj -c Release -r linux-x64 --self-contained false \
+    -p:PublishReadyToRun=true -o /app/publish --no-restore
 
 # ---------- 2. Aşama: çalışma imajı (sadece çalışma zamanı, SDK yok → küçük imaj) ----------
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final

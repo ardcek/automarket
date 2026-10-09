@@ -95,7 +95,9 @@ CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("tr-TR");
 // ---------- Veritabanını oluştur + örnek verileri yükle ----------
 using (var scope = app.Services.CreateScope())
 {
+    var timer = System.Diagnostics.Stopwatch.StartNew();
     await DbSeeder.SeedAsync(scope.ServiceProvider);
+    app.Logger.LogInformation("Veritabanı hazır ({Ms} ms).", timer.ElapsedMilliseconds);
 }
 
 app.UseForwardedHeaders();   // en başta olmalı

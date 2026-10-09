@@ -436,6 +436,18 @@ Ziyaretçi ──► ardcek.com/automarket/  (Hostinger)
 | 🔄 Veriler sıfırlanır | Ücretsiz planda kalıcı disk yok. Sunucu her yeniden başladığında (uyku, yeni yayın) veritabanı **örnek verilerle baştan oluşur.** Demo için avantajdır; ama sitede yaptığınız değişiklikler kalıcı değildir. |
 | 🕒 Saat dilimi | Sunucu Türkiye saatiyle çalışır (`TZ=Europe/Istanbul`), "bugün teslim / gecikmiş" listeleri doğru görünür. |
 
+#### Sunucunun hiç uyumamasını sağlamak (önerilir, ücretsiz)
+
+Render, 15 dakika boyunca **hiç istek gelmezse** sunucuyu uyutur. Ücretsiz bir "ping" servisi her 10 dakikada bir siteye uğrarsa sunucu hep uyanık kalır ve "SERVICE WAKING UP" ekranı hiç görünmez. (Render'ın ücretsiz planı ayda 750 saat verir; tek servis 7/24 açık kalsa bile ~744 saat eder, yeter.)
+
+1. https://cron-job.org adresine gidin → ücretsiz hesap açın (veya https://uptimerobot.com).
+2. **Create cronjob** (UptimeRobot'ta **Add New Monitor → HTTP(s)**):
+   - **URL:** `https://rota-arac-kiralama.onrender.com/health`
+   - **Sıklık:** her **10 dakikada** bir
+3. Kaydedin. Birkaç dakika sonra geçmiş listesinde `200 OK` görmelisiniz.
+
+> `/health` adresi çok hafiftir (sadece "Healthy" yazar), sunucuyu yormaz.
+
 ### 12.3. İlk kurulum (bir kere yapılır — yaklaşık 15 dakika)
 
 **Adım 1 — Render'da servisi oluşturun**

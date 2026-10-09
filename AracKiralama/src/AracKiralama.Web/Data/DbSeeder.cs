@@ -19,6 +19,7 @@ namespace AracKiralama.Web.Data;
 public static class DbSeeder
 {
     public const string DemoPassword = "Rota123!";
+    private static string? _demoPasswordHash;
 
     public static async Task SeedAsync(IServiceProvider services)
     {
@@ -291,7 +292,11 @@ public static class DbSeeder
             LicenseIssueDate = birthDate.AddYears(licenseAge).AddDays(rnd.Next(0, 200)),
             CreatedAt = DateTime.Now.AddDays(-rnd.Next(30, 400)),
         };
-        var result = await um.CreateAsync(user, DemoPassword);
+        // Şifre hash'leme (PBKDF2) bilerek yavaş bir işlemdir. Bütün demo hesapların şifresi aynı olduğu için
+        // bir kez hash'leyip hepsine veriyoruz; zayıf sunucularda açılışı ciddi hızlandırır.
+        // (Gerçek kullanıcılar kayıt olurken her şifre ayrı ve tuzlu olarak hash'lenir.)
+        user.PasswordHash = _demoPasswordHash ??= um.PasswordHasher.HashPassword(user, DemoPassword);
+        var result = await um.CreateAsync(user);
         if (!result.Succeeded)
             throw new InvalidOperationException("Seed kullanıcısı oluşturulamadı: " + string.Join(", ", result.Errors.Select(e => e.Description)));
         await um.AddToRoleAsync(user, role);
