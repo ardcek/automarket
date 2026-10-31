@@ -112,7 +112,8 @@ public static class VarsayilanMetinler
         ["hesap.kayit-baslik"] = "Hesap oluştur",
         ["hesap.kayit-yan-baslik"] = "Dakikalar içinde yola çıkın.",
         ["hesap.kayit-yan-metin"] = "Üyelik ücretsizdir. Ehliyet bilgilerinizi bir kez girin, sonraki rezervasyonlarınız tek tık.",
-        ["hesap.kayit-kapali"] = "Şu anda yeni üye kaydı alınmamaktadır.",
+        ["hesap.kayit-kapali"] = "Üyelik sistemi çok yakında açılacak. Şu anda yeni üye kaydı alınmamaktadır.",
+        ["hesap.giris-kapali"] = "Üye girişi çok yakında açılacak. Şu anda giriş yapılamamaktadır.",
 
         // ---- Hesabım ----
         ["profil.merhaba"] = "Merhaba",

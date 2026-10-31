@@ -67,19 +67,19 @@ public static class OrnekVeriler
         vt.Sayfalar.AddRange(
             new Sayfa
             {
-                Baslik = "Hakkımızda", Adres = "hakkimizda", Sira = 1, MenudeGoster = true,
+                Baslik = "Hakkımızda", Adres = "hakkimizda", Sira = 1, MenudeGoster = true, Aktif = false,
                 Icerik = "{firma}, Türkiye'nin önemli havalimanlarında ve şehir merkezlerinde hizmet veren bir araç kiralama markasıdır.\n\n" +
                          "Ekonomik sınıftan lüks segmente, ticari araçlardan 9 kişilik minibüslere kadar geniş bir filoyla hizmet veriyoruz.\n\n" +
                          "## Neden biz?\n- Şeffaf fiyat: tüm ücretler en baştan gösterilir\n- Esnek iade: farklı şubeye bırakabilirsiniz\n- 7/24 yol yardımı",
             },
             new Sayfa
             {
-                Baslik = "İletişim", Adres = "iletisim", Sira = 2, MenudeGoster = true, IletisimKartlari = true,
+                Baslik = "İletişim", Adres = "iletisim", Sira = 2, MenudeGoster = true, IletisimKartlari = true, Aktif = false,
                 Icerik = "Rezervasyon, fatura veya kurumsal kiralama talepleriniz için bize ulaşın.",
             },
             new Sayfa
             {
-                Baslik = "Kiralama Koşulları", Adres = "kiralama-kosullari", Sira = 3,
+                Baslik = "Kiralama Koşulları", Adres = "kiralama-kosullari", Sira = 3, Aktif = false,
                 Icerik = "Aşağıdaki oranlar sistem ayarlarından otomatik gelir.\n\n" +
                          "- Başlayan her 24 saat 1 gün olarak ücretlendirilir.\n" +
                          "- {haftalik-gun} gün ve üzeri kiralamalarda {haftalik-indirim}, {aylik-gun} gün ve üzeri kiralamalarda {aylik-indirim} indirim uygulanır.\n" +
@@ -91,7 +91,7 @@ public static class OrnekVeriler
             },
             new Sayfa
             {
-                Baslik = "KVKK Aydınlatma Metni", Adres = "kvkk", Sira = 4,
+                Baslik = "KVKK Aydınlatma Metni", Adres = "kvkk", Sira = 4, Aktif = false,
                 Icerik = "6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında, veri sorumlusu olarak {firma} kişisel verilerinizi aşağıdaki çerçevede işler.\n\n" +
                          "## İşlenen veriler\nAd, soyad, T.C. kimlik numarası, iletişim bilgileri, doğum tarihi, ehliyet bilgileri ve kiralama geçmişi.\n\n" +
                          "## Haklarınız\nVerilerinize erişme, düzeltme ve silinmesini talep etme hakkına sahipsiniz. Talepleriniz için: {eposta}\n\n" +

@@ -86,7 +86,17 @@ public class SiteAyarlari
     [Ayar("Rezervasyon", "Yeni rezervasyon alınsın")] public bool RezervasyonaAcik { get; set; } = true;
     [Ayar("Rezervasyon", "Talepler otomatik onaylansın", Aciklama = "Açıksa müşteri talebi personel onayı beklemeden 'Onaylandı' olur")] public bool OtomatikOnay { get; set; }
     [Ayar("Rezervasyon", "En uzun kiralama (gün)")] public int EnUzunKiralama { get; set; } = 90;
-    [Ayar("Rezervasyon", "Yeni üye kaydı açık")] public bool UyeKaydiAcik { get; set; } = true;
+
+    // ---------------- SUNUM (hocanın gördüğü site) ----------------
+    // Bu haftaki sunumda site "temsili" çalışır: sayfalar görünür ama müşteri
+    // giriş / kayıt yapamaz. Hepsi Yönetim → Ayarlar → Sunum'dan tek tıkla açılır.
+    // Varsayılanlar bilerek "kapalı": sunucu yeniden başlasa da sunum görünümü korunur.
+    [Ayar("Sunum", "Üye girişi açık", Aciklama = "Kapalıyken giriş formu görünür ama müşteriler giriş yapamaz. Admin ve personel her zaman girebilir.")]
+    public bool UyeGirisiAcik { get; set; } = false;
+    [Ayar("Sunum", "Yeni üye kaydı açık", Aciklama = "Kapalıyken kayıt formu görünür ama gönderilince kayıt yapılmaz, uyarı çıkar.")]
+    public bool UyeKaydiAcik { get; set; } = false;
+    [Ayar("Sunum", "Giriş sayfasında demo hesapları göster")] public bool DemoHesaplariGoster { get; set; } = false;
+    [Ayar("Sunum", "Alt bilgide API linkini göster")] public bool ApiLinkiniGoster { get; set; } = false;
 
     // ---------------- ARAÇ LİSTESİ (filtreler ve sıralamalar) ----------------
     [Ayar("Araç Listesi", "Sayfa başına araç")] public int SayfaBasinaArac { get; set; } = 12;

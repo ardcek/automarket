@@ -1,5 +1,8 @@
 @* ALT BİLGİ (footer). Firma bilgileri Ayarlar'dan, yazılar Site Metinleri'nden, linkler Sayfalar'dan. *@
-@{ var a = Icerik.Ayarlar; }
+@{
+    var a = Icerik.Ayarlar;
+    var kurumsalSayfalar = Icerik.Sayfalar.Where(s => s.AltBilgideGoster).ToList();   // yayında sayfa yoksa "Kurumsal" sütunu hiç çizilmez
+}
 <footer class="alt-bilgi">
     <div class="container">
         <div class="row g-4">
@@ -20,16 +23,19 @@
                     @if (a.SubeleriGoster) { <li><a href="/#subeler">@Icerik.Metin("menu.subeler")</a></li> }
                 </ul>
             </div>
-            <div class="col-6 col-lg-2">
-                <h6 class="mb-3">@Icerik.Metin("altbilgi.kurumsal")</h6>
-                <ul class="list-unstyled small d-grid gap-2">
-                    @foreach (var sayfa in Icerik.Sayfalar.Where(s => s.AltBilgideGoster))
-                    {
-                        <li><a href="/Sayfa/@sayfa.Adres">@sayfa.Baslik</a></li>
-                    }
-                </ul>
-            </div>
-            <div class="col-lg-4">
+            @if (kurumsalSayfalar.Count > 0)
+            {
+                <div class="col-6 col-lg-2">
+                    <h6 class="mb-3">@Icerik.Metin("altbilgi.kurumsal")</h6>
+                    <ul class="list-unstyled small d-grid gap-2">
+                        @foreach (var sayfa in kurumsalSayfalar)
+                        {
+                            <li><a href="/Sayfa/@sayfa.Adres">@sayfa.Baslik</a></li>
+                        }
+                    </ul>
+                </div>
+            }
+            <div class="@(kurumsalSayfalar.Count > 0 ? "col-lg-4" : "col-6 col-lg-6")">
                 <h6 class="mb-3">@Icerik.Metin("altbilgi.iletisim")</h6>
                 <ul class="list-unstyled small d-grid gap-2">
                     <li><i class="bi bi-telephone me-2"></i>@a.Telefon</li>
@@ -41,7 +47,7 @@
         </div>
         <div class="en-alt d-flex flex-wrap justify-content-between gap-2">
             <span>© @DateTime.Now.Year @a.FirmaAdi · @Icerik.Metin("altbilgi.telif")</span>
-            <a href="/swagger" target="_blank"><i class="bi bi-braces me-1"></i>API</a>
+            @if (a.ApiLinkiniGoster) { <a href="/swagger" target="_blank"><i class="bi bi-braces me-1"></i>API</a> }
         </div>
     </div>
 </footer>

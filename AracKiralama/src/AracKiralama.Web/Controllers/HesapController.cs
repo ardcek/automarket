@@ -5,6 +5,7 @@
 // ============================================================================
 using AracKiralama.FormModelleri;
 using AracKiralama.Modeller;
+using AracKiralama.Servisler;
 using AracKiralama.Yardimcilar;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -17,12 +18,14 @@ public class HesapController : TemelController
     private readonly SignInManager<Kullanici> _girisYonetici;
     private readonly UserManager<Kullanici> _kullanicilar;
     private readonly SiteAyarlari _ayarlar;
+    private readonly IcerikServisi _icerik;
 
-    public HesapController(SignInManager<Kullanici> girisYonetici, UserManager<Kullanici> kullanicilar, SiteAyarlari ayarlar)
+    public HesapController(SignInManager<Kullanici> girisYonetici, UserManager<Kullanici> kullanicilar, SiteAyarlari ayarlar, IcerikServisi icerik)
     {
         _girisYonetici = girisYonetici;
         _kullanicilar = kullanicilar;
         _ayarlar = ayarlar;
+        _icerik = icerik;
     }
 
     [HttpGet]
@@ -32,6 +35,14 @@ public class HesapController : TemelController
     public async Task<IActionResult> Giris(GirisFormu form)
     {
         if (!ModelState.IsValid) return View(form);
+
+        // Sunum modu: üye girişi kapalıyken yalnızca admin ve personel girebilir (yönetim paneli için).
+        // Müşteriye (ya da sistemde olmayan bir e-postaya) aynı "yakında açılacak" uyarısı gösterilir.
+        if (!_ayarlar.UyeGirisiAcik && !await PersonelMiAsync(form.Eposta))
+        {
+            ModelState.AddModelError("", _icerik.Metin("hesap.giris-kapali"));
+            return View(form);
+        }
 
         var sonuc = await _girisYonetici.PasswordSignInAsync(form.Eposta, form.Sifre, form.BeniHatirla, lockoutOnFailure: false);
         if (!sonuc.Succeeded)
@@ -56,7 +67,12 @@ public class HesapController : TemelController
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Kayit(KayitFormu form)
     {
-        if (!_ayarlar.UyeKaydiAcik) ModelState.AddModelError("", "Şu anda yeni üye kaydı alınmamaktadır.");
+        // Sunum modu: kayıt kapalıyken form görünür ama gönderilince kayıt yapılmaz.
+        if (!_ayarlar.UyeKaydiAcik)
+        {
+            ModelState.AddModelError("", _icerik.Metin("hesap.kayit-kapali"));
+            return View(form);
+        }
         if (!ModelState.IsValid) return View(form);
 
         var kullanici = new Kullanici { UserName = form.Eposta, Email = form.Eposta, Ad = form.Ad.Trim(), Soyad = form.Soyad.Trim(), PhoneNumber = form.Telefon };
@@ -84,4 +100,12 @@ public class HesapController : TemelController
     }
 
     public IActionResult ErisimEngellendi() => View();
+
+    /// <summary>Bu e-posta bir admin ya da personele mi ait? (Sunum modunda giriş izni için)</summary>
+    private async Task<bool> PersonelMiAsync(string eposta)
+    {
+        var kullanici = await _kullanicilar.FindByEmailAsync(eposta);
+        if (kullanici == null) return false;
+        return await _kullanicilar.IsInRoleAsync(kullanici, Roller.Admin) || await _kullanicilar.IsInRoleAsync(kullanici, Roller.Personel);
+    }
 }

@@ -22,19 +22,24 @@ var builder = WebApplication.CreateBuilder(args);
 
 // ---------------------------------------------------------------------------
 // 1) VERİTABANI
-// ConnectionStrings:PostgreSql doluysa PostgreSQL (canlı site, Neon) kullanılır,
-// boşsa bilgisayarda kurulum gerektirmeyen SQLite dosyası (arackiralama.db).
+// İki veritabanı var:
+//   • SQLite (arackiralama.db) : bilgisayardaki tek dosyalık veritabanı, örnek verilerle dolu.
+//   • Neon (PostgreSQL)        : buluttaki gerçek veritabanı. Adresi ConnectionStrings:PostgreSql'den gelir.
+// Sayfaların hangisinden okuyacağını appsettings.json → VeriTabani:SayfalarNeredenOkusun belirler:
+//   "Ornek" → sayfalar SQLite'tan okur; Neon'a bağlanılır, tablolar oluşturulur ama boş kalır (bu hafta).
+//   "Neon"  → sayfalar Neon'dan okur (Neon adresi doluysa).
 // ---------------------------------------------------------------------------
 var veriKlasoru = Environment.GetEnvironmentVariable("DATA_DIR") ?? builder.Environment.ContentRootPath;
 Directory.CreateDirectory(veriKlasoru);
 var postgreBaglantisi = PostgreBaglantisi.Duzenle(builder.Configuration.GetConnectionString("PostgreSql"));
+var sayfalarNeondan = builder.Configuration["VeriTabani:SayfalarNeredenOkusun"] == "Neon" && !string.IsNullOrWhiteSpace(postgreBaglantisi);
 
 // PostgreSQL'in tarih kuralını SQLite ile aynı yapar (yerel saatli tarihler sorunsuz kaydedilsin).
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 builder.Services.AddDbContext<VeriTabani>(secenek =>
 {
-    if (!string.IsNullOrWhiteSpace(postgreBaglantisi)) secenek.UseNpgsql(postgreBaglantisi);
+    if (sayfalarNeondan) secenek.UseNpgsql(postgreBaglantisi);
     else secenek.UseSqlite($"Data Source={Path.Combine(veriKlasoru, "arackiralama.db")}");
 });
 
@@ -112,8 +117,13 @@ using (var kapsam = app.Services.CreateScope())
 {
     var sure = System.Diagnostics.Stopwatch.StartNew();
     await OrnekVeriler.YukleAsync(kapsam.ServiceProvider);
-    app.Logger.LogInformation("Veritabanı hazır ({Tur}, {Ms} ms).", string.IsNullOrWhiteSpace(postgreBaglantisi) ? "SQLite" : "PostgreSQL", sure.ElapsedMilliseconds);
+    app.Logger.LogInformation("Sayfaların veritabanı hazır ({Tur}, {Ms} ms).", sayfalarNeondan ? "PostgreSQL / Neon" : "SQLite / örnek veri", sure.ElapsedMilliseconds);
 }
+
+// Neon adresi varsa ama sayfalar henüz örnek veriden okunuyorsa: Neon'a bağlan, tabloları oluştur (veri yazılmaz).
+// Arka planda çalışır; internet yoksa site beklemeden açılır, loga sadece uyarı düşer.
+if (!string.IsNullOrWhiteSpace(postgreBaglantisi) && !sayfalarNeondan)
+    _ = Task.Run(() => NeonBaglantisi.TablolariHazirlaAsync(postgreBaglantisi, app.Logger));
 
 // ---------------------------------------------------------------------------
 // 6) İSTEK HATTI: her istek bu sırayla bu adımlardan geçer
