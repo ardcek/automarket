@@ -19,6 +19,17 @@ GEREKENLER
 
 KURULUM (bir kere)
 ------------------
+EN KOLAYI (USB ile): USB'yi takın, USB'deki KUR.bat dosyasına çift tıklayın. İnternet gerekmez.
+   Proje        → Masaüstü\automarket\AracKiralama\
+   Yapay zekâ   → C:\Users\<kullanıcı adı>\rota-yapay-zeka\   (~9 GB, 5-10 dakika)
+   (Yapay zekâ dosyaları bilerek masaüstüne konmaz: masaüstü OneDrive'a bağlıysa 9 GB'ı
+   buluta yüklemeye çalışır. BASLAT.bat onları orada kendisi bulur.)
+Kurulum bitince site kendiliğinden başlar. Sonraki açılışlarda:
+   Masaüstü\automarket\AracKiralama\yapay-zeka\BASLAT.bat
+Masaüstündeki automarket git ile indirildiyse KUR.bat projeye dokunmaz, sadece yapay zekâ
+dosyalarını kurar: o zaman da aynı BASLAT.bat yapay zekâyla birlikte açılır.
+
+Elle kurmak isterseniz:
 1. Zip'i bilgisayara kopyalayın. USB ile taşıyorsanız USB exFAT ya da NTFS biçiminde olmalı:
    FAT32 biçimli USB 4 GB'tan büyük dosyayı almaz.
 2. Zip internetten indirildiyse önce: zip'e sağ tıklayın → Özellikler → alttaki
@@ -65,6 +76,9 @@ bellekte kalmaz.
 
 SIK SORUNLAR
 ------------
+- "Derleme başarısız oldu": USB'yi takın, USB'deki TESHIS.bat'a çift tıklayın. USB'ye
+  teshis-<BİLGİSAYAR ADI>.txt dosyası yazılır; bu dosyayı ekibe gösterin.
+  Sık sebepler: diskte yer kalmaması (en az 12 GB), antivirüsün dosyaları kilitlemesi.
 - Pencere hemen kapanıyor ya da ".NET bulunamadı" yazıyor: zip eksik çıkarılmış olabilir.
   Zip'i yeniden "Tümünü ayıkla" ile C:\Rota'ya çıkarın.
 - "Yol çok uzun" hatası: zip'i daha kısa bir yola çıkarın (C:\Rota).

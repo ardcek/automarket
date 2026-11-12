@@ -190,5 +190,6 @@ if (-not $ZipYok) {
 Baslik "HAZIR"
 Write-Host "Klasör: $kok  ($(GB $klasorBoyutu))"
 if (-not $ZipYok) { Write-Host "Zip:    $zipYolu  ($(GB (Get-Item $zipYolu).Length))" }
-Write-Host "Başka bilgisayarda: zip'i C:\Rota gibi kısa bir klasöre çıkarın → BASLAT.bat (ayrıntı: KURULUM-OKU.txt)" -ForegroundColor Green
+Write-Host "USB için (exFAT / NTFS): zip + yapay-zeka\paket\KUR.bat + paket\TESHIS.bat + klasördeki KURULUM-OKU.txt" -ForegroundColor Green
+Write-Host "Başka bilgisayarda: USB'deki KUR.bat → proje Masaüstü\automarket'e, yapay zekâ C:\Users\<ad>\rota-yapay-zeka'ya" -ForegroundColor Green
 Write-Host ("Süre: {0} dk {1} sn" -f [int][Math]::Floor($saat.Elapsed.TotalMinutes), $saat.Elapsed.Seconds)

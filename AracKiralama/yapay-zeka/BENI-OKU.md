@@ -50,8 +50,13 @@ Zip'i alan bilgisayarda hiçbir şey kurmak ve internet gerekmez.
 1. Bu bilgisayarda, internetle, bir kere: `HAZIRLA.bat -Hedef C:\Users\<ad>\rota-yapay-zeka` (taşınabilir .NET de insin).
 2. `PAKETLE.bat -Ad Rota-Hafta4` → `C:\Users\<ad>\Rota-Hafta4\` klasörü ve `C:\Users\<ad>\Rota-Hafta4.zip` (iki modelle ~9,5 GB).
    `-SadeceKucuk` ile sadece küçük model girer: ~3,5 GB, FAT32 USB'ye de sığar.
-3. Diğer bilgisayarda: zip'e sağ tık → **Tümünü ayıkla** → `C:\Rota` → `C:\Rota\BASLAT.bat`.
-   Paketin kökündeki `KURULUM-OKU.txt` adım adım anlatır.
+3. USB'ye (exFAT ya da NTFS) koyun: büyük zip, `paket\KUR.bat`, `paket\TESHIS.bat` ve paketin kökündeki `KURULUM-OKU.txt`.
+   (İsteğe bağlı `automarket.zip`: sadece proje. Varsa KUR.bat projeyi ondan açar; haftalık güncellemede sadece bunu değiştirmek yeter.)
+4. Diğer bilgisayarda: USB'deki `KUR.bat`'a çift tık (internetsiz). Proje `Masaüstü\automarket\AracKiralama\`,
+   yapay zekâ dosyaları `C:\Users\<ad>\rota-yapay-zeka\` klasörüne kurulur; sonra her seferinde
+   `Masaüstü\automarket\AracKiralama\yapay-zeka\BASLAT.bat`.
+   `BASLAT.bat` yapay zekâ dosyalarını önce kendi klasöründe, yoksa `C:\Users\<ad>\rota-yapay-zeka` ve `C:\rota-yapay-zeka`'da arar.
+5. "Derleme başarısız" olursa: o bilgisayarda USB'deki `TESHIS.bat` → USB'ye `teshis-<bilgisayar>.txt` yazar (Windows, disk, antivirüs, .NET bilgisi ve derleme çıktısı).
 
 Paket OneDrive / Masaüstü dışında kurulur: içine koyulursa OneDrive ~10 GB'ı buluta yüklemeye çalışır.
 

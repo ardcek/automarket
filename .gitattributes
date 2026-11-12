@@ -1,0 +1,5 @@
+# Windows betikleri her bilgisayarda Windows satır sonuyla (CRLF) çıksın.
+# Git ayarı farklı bir bilgisayarda LF ile inen .bat dosyalarında cmd "goto" etiketlerini şaşırabiliyor.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf

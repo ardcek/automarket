@@ -13,20 +13,37 @@ title Rota Arac Kiralama - Yapay Zeka Asistani
 set "KOK=%~dp0"
 set "PROJE=%KOK%..\src\AracKiralama.Web"
 
-rem ---- .NET: USB'deki tasinabilir surum varsa o kullanilir ----
-if exist "%KOK%araclar\dotnet\dotnet.exe" (
-    set "DOTNET_ROOT=%KOK%araclar\dotnet"
-    set "PATH=%KOK%araclar\dotnet;%PATH%"
+rem ---- Yapay zeka dosyalari (motor, modeller, araclar) nerede? ----
+rem Once bu klasor; yoksa YapayZeka__Klasor degiskeni, C:\Users\<ad>\rota-yapay-zeka, C:\rota-yapay-zeka.
+rem (~9 GB; proje Masaustu/OneDrive'daysa disarida durmalari daha iyi: KUR.bat oraya kurar.)
+set "YZ="
+if exist "%KOK%modeller\*.gguf" set "YZ=%KOK:~0,-1%"
+if not defined YZ if defined YapayZeka__Klasor if exist "%YapayZeka__Klasor%\modeller\*.gguf" set "YZ=%YapayZeka__Klasor%"
+if not defined YZ if exist "%USERPROFILE%\rota-yapay-zeka\modeller\*.gguf" set "YZ=%USERPROFILE%\rota-yapay-zeka"
+if not defined YZ if exist "C:\rota-yapay-zeka\modeller\*.gguf" set "YZ=C:\rota-yapay-zeka"
+if defined YZ set "YapayZeka__Klasor=%YZ%"
+if defined YZ echo Yapay zeka dosyalari: %YZ%
+if not defined YZ echo Yapay zeka dosyalari bulunamadi: site acilir ama asistan "kurulu degil" der. USB'deki KUR.bat'i calistirin.
+if not defined YZ set "YZ=%KOK:~0,-1%"
+
+rem ---- .NET: tasinabilir surum varsa o kullanilir; bilgisayardaki baska .NET / Visual Studio ayarlari karismasin ----
+if exist "%YZ%\araclar\dotnet\dotnet.exe" (
+    set "DOTNET_ROOT=%YZ%\araclar\dotnet"
+    set "PATH=%YZ%\araclar\dotnet;%PATH%"
+    set "MSBuildSDKsPath="
+    set "MSBuildExtensionsPath="
+    set "MSBUILD_EXE_PATH="
+    set "DOTNET_HOST_PATH="
 )
 where dotnet >nul 2>nul
 if errorlevel 1 (
-    echo .NET bulunamadi. Internetli bir bilgisayarda HAZIRLA.bat calistirin ya da .NET 10 SDK kurun.
+    echo .NET bulunamadi. USB'deki KUR.bat'i calistirin ya da .NET 10 SDK kurun.
     pause
     exit /b 1
 )
 
-rem ---- Paketler USB'den (internetsiz derleme) ----
-if exist "%KOK%araclar\nuget" set "NUGET_PACKAGES=%KOK%araclar\nuget"
+rem ---- Paketler yapay zeka klasorunden (internetsiz derleme) ----
+if exist "%YZ%\araclar\nuget" set "NUGET_PACKAGES=%YZ%\araclar\nuget"
 set DOTNET_CLI_TELEMETRY_OPTOUT=1
 set DOTNET_NOLOGO=1
 set DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
