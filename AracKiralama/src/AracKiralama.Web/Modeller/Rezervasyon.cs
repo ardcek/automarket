@@ -36,6 +36,8 @@ public class Rezervasyon
     public decimal GunlukFiyat { get; set; }
     public decimal KiraTutari { get; set; }          // gün × günlük fiyat
     public decimal Indirim { get; set; }
+    [System.ComponentModel.DataAnnotations.MaxLength(120)]
+    public string? IndirimAciklamasi { get; set; }   // "Uzun dönem indirimi", "Öğretmen indirimi" (sözleşmede yazar)
     public decimal EkstraTutari { get; set; }
     public decimal TekYonUcreti { get; set; }
     public decimal GecikmeUcreti { get; set; }

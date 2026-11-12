@@ -52,7 +52,12 @@ public class MusterilerController : YonetimController
     {
         var kullanici = await _vt.Users.Include(k => k.Rezervasyonlar).ThenInclude(r => r.Arac).ThenInclude(a => a!.Marka)
             .AsNoTracking().FirstOrDefaultAsync(k => k.Id == id);
-        return kullanici == null ? NotFound() : View(kullanici);
+        if (kullanici == null) return NotFound();
+
+        // Panelden eklenen bilgiler (Meslek vb.): SELECT a."Ad", d."Deger" FROM "MusteriAlanDegerleri" d JOIN "MusteriAlanlari" a ... WHERE d."KullaniciId" = @id
+        ViewBag.MusteriBilgileri = await _vt.MusteriAlanDegerleri.Where(d => d.KullaniciId == id)
+            .OrderBy(d => d.Alan!.Sira).Select(d => new KeyValuePair<string, string>(d.Alan!.Ad, d.Deger)).ToListAsync();
+        return View(kullanici);
     }
 
     [HttpPost, ValidateAntiForgeryToken]

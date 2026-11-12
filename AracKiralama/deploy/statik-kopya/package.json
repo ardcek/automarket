@@ -1,0 +1,7 @@
+{
+  "name": "rota-statik-kopya",
+  "private": true,
+  "type": "module",
+  "description": "ardcek.com/haftaN için sitenin sunucusuz kopyasını üretir ve test eder",
+  "dependencies": { "sql.js": "1.12.0", "puppeteer-core": "23.11.1" }
+}

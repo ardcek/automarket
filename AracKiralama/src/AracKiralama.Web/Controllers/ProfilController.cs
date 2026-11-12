@@ -21,13 +21,16 @@ public class ProfilController : TemelController
     private readonly UserManager<Kullanici> _kullanicilar;
     private readonly RezervasyonServisi _rezervasyonlar;
     private readonly SozlesmeServisi _sozlesme;
+    private readonly MusteriBilgisiServisi _musteriBilgileri;
 
-    public ProfilController(VeriTabani vt, UserManager<Kullanici> kullanicilar, RezervasyonServisi rezervasyonlar, SozlesmeServisi sozlesme)
+    public ProfilController(VeriTabani vt, UserManager<Kullanici> kullanicilar, RezervasyonServisi rezervasyonlar, SozlesmeServisi sozlesme,
+        MusteriBilgisiServisi musteriBilgileri)
     {
         _vt = vt;
         _kullanicilar = kullanicilar;
         _rezervasyonlar = rezervasyonlar;
         _sozlesme = sozlesme;
+        _musteriBilgileri = musteriBilgileri;
     }
 
     public async Task<IActionResult> Index()
@@ -57,6 +60,9 @@ public class ProfilController : TemelController
         {
             Ad = k.Ad, Soyad = k.Soyad, Eposta = k.Email, Telefon = k.PhoneNumber, TcNo = k.TcNo,
             DogumTarihi = k.DogumTarihi, EhliyetNo = k.EhliyetNo, EhliyetTarihi = k.EhliyetTarihi, DonusAdresi = donusAdresi,
+            // Panelden eklenen bilgiler (Meslek vb.) ve müşterinin kayıtlı cevapları
+            Alanlar = await _musteriBilgileri.AlanlarAsync(),
+            Alan = (await _musteriBilgileri.DegerlerAsync(k.Id)).ToDictionary(d => d.Key, d => (string?)d.Value),
         });
     }
 
@@ -68,6 +74,8 @@ public class ProfilController : TemelController
 
         var k = await _kullanicilar.GetUserAsync(User);
         if (k == null) return Challenge();
+        form.Alanlar = await _musteriBilgileri.AlanlarAsync();
+        foreach (var hata in MusteriBilgisiServisi.Hatalar(form.Alanlar, form.Alan)) ModelState.AddModelError("", hata);
         if (!ModelState.IsValid) { form.Eposta = k.Email; return View(form); }
 
         k.Ad = form.Ad.Trim();
@@ -78,6 +86,7 @@ public class ProfilController : TemelController
         k.EhliyetNo = form.EhliyetNo;
         k.EhliyetTarihi = form.EhliyetTarihi;
         await _kullanicilar.UpdateAsync(k);
+        await _musteriBilgileri.KaydetAsync(k.Id, form.Alanlar, form.Alan);   // Meslek vb. cevaplar
 
         Basarili("Profil bilgileriniz güncellendi.");
         if (!string.IsNullOrEmpty(form.DonusAdresi) && Url.IsLocalUrl(form.DonusAdresi)) return Redirect(form.DonusAdresi);

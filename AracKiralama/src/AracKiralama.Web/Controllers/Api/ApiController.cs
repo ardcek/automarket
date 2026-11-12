@@ -39,6 +39,8 @@ public class FiyatIstegi
     public int AlisSubeId { get; set; }
     public int IadeSubeId { get; set; }
     public List<int>? EkstraIdleri { get; set; }
+    /// <summary>Ziyaretçinin seçtiği müşteri bilgileri (kampanya için): { "1": "Öğretmen" }</summary>
+    public Dictionary<int, string?>? Mu { get; set; }
 }
 
 public class FiyatCevabi
@@ -58,13 +60,15 @@ public class ApiController : ControllerBase
     private readonly MusaitlikServisi _musaitlik;
     private readonly RezervasyonServisi _rezervasyonlar;
     private readonly SiteAyarlari _ayarlar;
+    private readonly KampanyaServisi _kampanyalar;
 
-    public ApiController(VeriTabani vt, MusaitlikServisi musaitlik, RezervasyonServisi rezervasyonlar, SiteAyarlari ayarlar)
+    public ApiController(VeriTabani vt, MusaitlikServisi musaitlik, RezervasyonServisi rezervasyonlar, SiteAyarlari ayarlar, KampanyaServisi kampanyalar)
     {
         _vt = vt;
         _musaitlik = musaitlik;
         _rezervasyonlar = rezervasyonlar;
         _ayarlar = ayarlar;
+        _kampanyalar = kampanyalar;
     }
 
     [HttpGet("araclar")]
@@ -96,7 +100,9 @@ public class ApiController : ControllerBase
 
         try
         {
-            var (_, teklif) = await _rezervasyonlar.TeklifAsync(istek.AracId, istek.Baslangic, istek.Bitis, istek.EkstraIdleri ?? new(), istek.AlisSubeId, istek.IadeSubeId);
+            // Kampanya: giriş yapmış müşteride profilindeki bilgiler, ziyaretçide ekranda seçtikleri (Mesleğiniz vb.)
+            var kampanyalar = await _kampanyalar.BaglamAsync(User, istek.Mu, istek.Baslangic);
+            var (_, teklif) = await _rezervasyonlar.TeklifAsync(istek.AracId, istek.Baslangic, istek.Bitis, istek.EkstraIdleri ?? new(), istek.AlisSubeId, istek.IadeSubeId, kampanyalar);
             cevap.Teklif = teklif;
             cevap.ToplamYazi = Bicim.Para(teklif.Toplam);
             cevap.DepozitoYazi = Bicim.Para(teklif.Depozito);

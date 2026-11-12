@@ -28,6 +28,14 @@
                 {
                     <div class="col-6 col-md-3"><div class="ozellik-kutusu"><i class="bi @ikon"></i><div class="etiket-yazi">@etiket</div><div class="deger">@deger</div></div></div>
                 }
+                @* Panelden eklenen özellikler (Yönetim → Filtreler ve Özellikler → "detayda göster") *@
+                @foreach (var oz in Model.Ozellikler)
+                {
+                    var kayit = a.OzellikDegerleri.FirstOrDefault(d => d.OzellikId == oz.Id);
+                    var yazi = oz.Tur == OzellikTuru.EvetHayir ? (kayit?.Deger == "true" ? "Var" : "Yok") : kayit?.Gosterim;
+                    if (string.IsNullOrEmpty(yazi)) continue;   // bu araç için değer girilmemiş
+                    <div class="col-6 col-md-3"><div class="ozellik-kutusu"><i class="bi @oz.Ikon"></i><div class="etiket-yazi">@oz.Ad</div><div class="deger">@yazi</div></div></div>
+                }
             </div>
 
             <div class="card">
@@ -69,6 +77,24 @@
                         </div>
                     </div>
 
+                    @* Kampanya varsa "Mesleğiniz" gibi seçimler (Yönetim → Kampanyalar). Değişince canlı fiyat yeniden hesaplanır.
+                       Giriş yapmış müşteride profilindeki bilgi kullanılır, burada sorulmaz. *@
+                    @if (!Model.Kampanya.ProfildenMi)
+                    {
+                        foreach (var alan in Model.KampanyaAlanlari)
+                        {
+                            var secili = Model.Kampanya.MusteriDegerleri.GetValueOrDefault(alan.Id);
+                            <div class="mb-3">
+                                <label class="form-label small" for="mu-@alan.Id"><i class="bi bi-percent me-1"></i>@alan.Ad</label>
+                                <select name="Mu[@alan.Id]" id="mu-@alan.Id" class="form-select form-select-sm">
+                                    <option value="">@Icerik.Metin("araclar.indirim-sec")</option>
+                                    @if (alan.Tur == OzellikTuru.EvetHayir) { <option value="true" selected="@(secili == "true")">Evet</option> }
+                                    else { foreach (var secenek in alan.SecenekListesi) { <option value="@secenek" selected="@(secili == secenek)">@secenek</option> } }
+                                </select>
+                            </div>
+                        }
+                    }
+
                     <div class="kucuk-baslik mb-2">@Icerik.Metin("araclar.ekstralar")</div>
                     <div class="d-grid gap-2 mb-3">
                         @foreach (var e in Model.Ekstralar.Take(4))
@@ -95,7 +121,7 @@
         <div class="row g-4">
             @foreach (var b in Model.Benzerler)
             {
-                <div class="col-sm-6 col-lg-3"><partial name="_AracKarti" model="new AracKartiModeli { Arac = b, Filtre = Model.Filtre }" /></div>
+                <div class="col-sm-6 col-lg-3"><partial name="_AracKarti" model="new AracKartiModeli { Arac = b, Filtre = Model.Filtre, Kampanya = Model.Kampanya }" /></div>
             }
         </div>
     }

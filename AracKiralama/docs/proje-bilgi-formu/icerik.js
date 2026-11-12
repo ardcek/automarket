@@ -1,0 +1,230 @@
+// PROJE BİLGİ FORMU — Rota Rent a Car (Grup 14) için doldurulacak metinler.
+// Yazım kuralları:  "metin"            → normal paragraf (**kalın** parçalar desteklenir)
+//                   { m: "metin" }      → madde işaretli paragraf
+//                   { b: "metin" }      → kalın alt başlık
+//                   { k: "metin" }      → küçük, italik not
+module.exports = {
+  grupNo: '14',
+  baslik: 'Rota Rent a Car: Web Tabanlı Araç Kiralama Otomasyonu',
+  lider: { no: 'm255036001', ad: 'Mehmet Arda Çekiç' },
+  katilimcilar: [
+    { no: 'm255035059', ad: 'Azra Ardıç' },
+    { no: 'm255036077', ad: 'Esra Ağlar' },
+    { no: 'm265035083', ad: 'Ömer Faruk Çelik' },
+  ],
+
+  // ───────────────────────────────── ULUSAL KAZANIM ve PROJENİN ÖNEMİ
+  ulusalKazanim: [
+    'Araç kiralama; turizm, iş seyahatleri ve kurumların geçici araç ihtiyacıyla doğrudan ilişkili bir hizmet sektörüdür. Türkiye\'de büyük kiralama markalarının (Garenta, Avis, Enterprise, Sixt, Europcar vb.) gelişmiş web siteleri ve kendi kurumsal yazılımları bulunmaktadır. Projenin ön çalışmasında yapılan gözlemlere göre ise küçük ve orta ölçekli yerel kiralama firmaları rezervasyonları çoğunlukla telefon ve anlık mesajlaşma uygulamaları üzerinden almakta; araçların doluluk durumunu, ödemeleri, gecikmeleri ve hasarları Excel tablolarında ya da defterde takip etmektedir. Bu durum aşağıdaki sorunlara yol açmaktadır:',
+    { m: 'Aynı aracın aynı tarihler için iki farklı müşteriye verilmesi (çift rezervasyon),' },
+    { m: 'Kira bedeli, uzun kiralama indirimi, geç iade ücreti ve eksik yakıt bedelinin elle hesaplanmasından kaynaklanan hatalar ve müşteri itirazları,' },
+    { m: 'Sürücü yaşı ve ehliyet süresi gibi kiralama şartlarının gözden kaçması,' },
+    { m: 'Web sitesindeki bir yazıyı, fiyat kuralını ya da arama filtresini değiştirmek için her seferinde yazılımcıya ihtiyaç duyulması,' },
+    { m: 'Yöneticinin günlük durumu (bugün teslim edilecek ve iade alınacak araçlar, gelir, gecikmeler) tek bakışta görememesi.' },
+    'Ekim 2026\'da altı emsal sitenin 15 ölçüte göre incelendiği ön çalışma (Proje Öneri ve Emsal Analizi Raporu), büyük markaların müşteri tarafında olgun çözümler sunduğunu; ancak bu çözümlerin küçük bir firmanın erişebileceği maliyette ve yapıda olmadığını göstermiştir. Rota Rent a Car projesi, müşteriye açık web sitesini ve şube personelinin kullanacağı yönetim (otomasyon) sistemini aynı uygulama ve aynı veritabanı üzerinde birleştiren, yerli ve tamamen Türkçe bir yazılım ürünü geliştirmektedir. Projeden beklenen ulusal kazanımlar şunlardır:',
+    { m: '**Yerli ve Türkçe yazılım ürünü:** Sınıf, tablo, alan ve adres (URL) adları dahil kodun tamamı Türkçedir. Ürünün bakımı ve geliştirilmesi Türkçe konuşan geliştiriciler tarafından kolayca sürdürülebilecek; meslek yüksekokullarında örnek proje olarak kullanılabilecektir.' },
+    { m: '**KOBİ\'lerin düşük maliyetle dijitalleşmesi:** Uygulama lisans ücreti gerektirmeyen açık teknolojilerle (.NET, PostgreSQL, SQLite) geliştirilmekte; Docker ile paketlenerek ücretsiz katmanı olan bulut servislerinde ya da firmanın kendi sunucusunda çalıştırılabilmektedir. Bu yaklaşım, On İkinci Kalkınma Planı\'nın (2024–2028) ana temalarından "yeşil ve dijital dönüşümle rekabetçi üretim" ve KOBİ\'lerin dijitalleşmesine verilen öncelikle örtüşmektedir.' },
+    { m: '**Dışa ve yazılımcıya bağımlılığın azalması:** Hazır kiralama yazılımları genellikle aylık abonelik ücretiyle ve firmanın verisinin üçüncü tarafların sunucularında tutulduğu bir modelle sunulmaktadır. Projede geliştirilen "koda dokunmadan yönetim" modeliyle firma; site metinlerini, fiyat oranlarını, arama filtrelerini, araç özelliklerini ve kampanyaları yönetim panelinden kendisi değiştirebilecektir.' },
+    { m: '**Veri egemenliği ve KVKK uyumu:** Arayüz kütüphaneleri uygulamanın içinde barındırılmakta; harici CDN, reklam veya izleme betiği kullanılmamaktadır. Böylece ziyaretçi verileri üçüncü taraflara aktarılmamaktadır. Veritabanı bağlantı bilgisi koda yazılmayıp ortam değişkeninden okunduğu için veritabanı, 6698 sayılı Kişisel Verilerin Korunması Kanunu\'nun yurt dışına aktarıma ilişkin hükümleri (m. 9) gerektirdiğinde kod değiştirilmeden yurt içindeki bir sunucuya taşınabilecektir.' },
+    { m: '**Hizmet kalitesi ve tüketici güveni:** Fiyatın kira bedeli, indirim, ek hizmetler, tek yön ücreti ve depozito olarak satır satır gösterilmesi, sürücü şartlarının rezervasyon anında otomatik denetlenmesi ve çift rezervasyonun veritabanı işlemiyle (transaction) engellenmesi; hatalı tahsilatı ve müşteri şikâyetlerini azaltacaktır.' },
+    { m: '**Nitelikli insan kaynağı:** Proje, dört ön lisans öğrencisinin sektörde yaygın kullanılan teknolojilerle (C#, ASP.NET Core, SQL, bulut veritabanı, Git, Docker) gereksinim analizinden canlı yayına kadar uçtan uca bir yazılım projesi yürütmesini sağlamaktadır.' },
+    'Sonuç olarak proje, büyük markaların kurumsal yazılımlarına erişimi olmayan küçük ve orta ölçekli kiralama firmaları için düşük maliyetli, yerli ve uygulanabilir bir dijital dönüşüm aracı ortaya koymayı amaçlamaktadır.',
+  ],
+
+  // ───────────────────────────────── AMAÇ VE HEDEFLER
+  amac: [
+    { r: '**Amaç.** Projenin amacı, bir araç kiralama firmasının müşteriye açık web sitesini ve şube personelinin kullanacağı yönetim (otomasyon) sistemini tek bir uygulama olarak geliştirmek; kiralama sürecindeki iş kurallarının sistem tarafından otomatik uygulanmasını ve sitenin yazılım bilgisi olmayan bir yönetici tarafından koda dokunmadan yönetilebilmesini sağlamaktır. Sistem C# dili ve ASP.NET Core MVC çatısıyla geliştirilmekte, ilişkisel bir veritabanı (geliştirmede SQLite, canlıda PostgreSQL) kullanmakta ve internet üzerinde yayınlanmaktadır.' },
+    { r: '**Hedefler.** Amaca ulaşmak için belirlenen ölçülebilir hedefler ve ilgili iş paketleri (İP) aşağıdadır. İlk dört hedefe ulaşılmış, çıktıları haftalık olarak teslim edilmiştir.' },
+    { m: '**H1 (İP1):** Türkiye\'de faaliyet gösteren 6 araç kiralama sitesinin 15 ölçüte göre karşılaştırılması; kullanıcı rollerinin (ziyaretçi, müşteri, personel, yönetici) ve iş kurallarının yazılı hâle getirilmesi. **(Tamamlandı)**' },
+    { m: '**H2 (İP2):** Araçların en az 8 filtre ve 5 sıralama seçeneğiyle listelendiği bir araç listesi ile fiyatın kira bedeli, uzun kiralama indirimi, ek hizmetler, tek yön ücreti ve depozito olarak satır satır gösterildiği araç detay sayfasının geliştirilmesi. **(Tamamlandı)**' },
+    { m: '**H3 (İP2):** Veritabanının Entity Framework Core ile C# sınıflarından (code-first) üretilmesi ve bulutta çalışan bir PostgreSQL veritabanına (Neon) bağlanması; bağlantı bilgisinin hiçbir kod dosyasına yazılmaması. **(Tamamlandı: 23 tablo, 22 ilişki)**' },
+    { m: '**H4 (İP3):** Yönetim panelinden, kod değiştirmeden araçlara yeni özellik ve filtre eklenebilmesi (Seçim listesi, Sayı, Var / Yok ve Serbest yazı olmak üzere 4 tür). **(Tamamlandı: 25 tablo, 24 ilişki; 11 filtre senaryosunun 11\'inde site ve SQL sonucu aynı)**' },
+    { m: '**H5 (İP4):** Rezervasyonun 3 adımda tamamlanması; aynı araç için çakışan tarihlerde ikinci bir rezervasyonun onaylanamaması (çift rezervasyon sayısı: 0) ve yaş / ehliyet yılı şartlarının her rezervasyonda otomatik denetlenmesi.' },
+    { m: '**H6 (İP5):** Bir rezervasyonun talepten kapanışa kadar (onay, teslim, iade, ödeme) yönetim panelinden yürütülebilmesi; geç iade ve eksik yakıt ücretlerinin otomatik hesaplanması; kiralama sözleşmesinin PDF, raporların Excel olarak alınabilmesi.' },
+    { m: '**H7 (İP6):** Firma adı, renkler, site metinleri, içerik sayfaları, kampanyalar ve filtrelerin yönetim panelinden, kaydetmeden önce canlı önizlemeyle görülerek değiştirilebilmesi.' },
+    { m: '**H8 (İP7):** İş kurallarının (fiyat, müsaitlik, rezervasyon durumları, kampanyalar) otomatik testlerle doğrulanması ve testlerin tamamının geçmesi; uygulamanın HTTPS ile internette yayında olması; OWASP Top 10 (2021) risklerine karşı önlemlerin alınması; kullanılabilirlik çalışmasında SUS puanının en az 68 olması.' },
+    { r: '**Kapsam dışı.** Gerçek sanal POS ile kredi kartı tahsilatı (ödemeler kayıt olarak tutulur), mobil uygulama (site mobil uyumludur) ve çoklu dil desteği proje kapsamı dışındadır.' },
+  ],
+
+  // ───────────────────────────────── YÖNTEM
+  yontem: [
+    'Proje, çevik (agile) yazılım geliştirme yaklaşımıyla, her hafta çalışan ve test edilmiş bir parçanın teslim edildiği kısa döngüler (iterasyonlar) hâlinde yürütülmektedir (Beck vd., 2001; Schwaber ve Sutherland, 2020). Her haftanın sonunda o haftanın çıktısı danışmana sunulmakta, alınan geri bildirim bir sonraki haftanın planına eklenmektedir. Kullanılan yöntemler aşağıda iş paketleriyle ilişkilendirilerek açıklanmıştır.',
+    { b: '1. Ön çalışma ve gereksinim analizi (İP1)' },
+    'Projeye başlamadan önce Türkiye\'de faaliyet gösteren altı araç kiralama sitesi (Garenta, Yolcu360, Avis, Enterprise, Sixt, Europcar); ana sayfa düzeni, arama formu, araç listeleme, rezervasyon akışı, fiyat şeffaflığı ve kullanıcı deneyimi açısından incelenmiş ve 15 ölçütlü bir karşılaştırma tablosu hazırlanmıştır (emsal analizi). Bu ön çalışmadan; kullanıcı rolleri, kapsam içi ve kapsam dışı konular, sistemin otomatik uygulayacağı iş kuralları (gün hesabı, uzun kiralama indirimi, tek yön ücreti, geç iade ve eksik yakıt ücreti, iptal kuralı, sürücü şartları) ve rezervasyon durumları çıkarılmıştır.',
+    { b: '2. Mimari tasarım (İP1–İP2)' },
+    'Uygulama, Model-View-Controller (MVC) desenine (Krasner ve Pope, 1988) dayanan ASP.NET Core MVC çatısıyla ve katmanlı mimariyle geliştirilmektedir: sunum katmanı (Razor sayfaları), controller katmanı, iş kuralı (servis) katmanı ve veri erişim katmanı. İş kuralları servis katmanı yaklaşımına (Fowler, 2002) uygun olarak tek bir yerde toplanmakta; web sayfaları ve REST API aynı servisleri kullandığı için bir kural her yerde aynı şekilde uygulanmaktadır. Yönetim paneli ayrı bir alan (Area) olarak düzenlenmiştir.',
+    { b: '3. Veritabanı tasarımı (İP2–İP3)' },
+    'Veritabanı ilişkisel modele (Codd, 1970) göre tasarlanmış; varlıklar ve aralarındaki ilişkiler varlık-ilişki (ER) diyagramıyla (Chen, 1976) modellenmiştir. Tablolar Entity Framework Core\'un code-first yaklaşımıyla C# sınıflarından otomatik üretilmektedir; aynı model geliştirmede SQLite, canlıda PostgreSQL (Neon) üzerinde çalışmaktadır. Araçlara yönetim panelinden yeni özellik eklenebilmesi için Varlık-Nitelik-Değer (Entity-Attribute-Value, EAV) modeli (Nadkarni vd., 1999) uygulanmıştır: özelliğin tanımı AracOzellikleri, araçlardaki değeri AracOzellikDegerleri tablosunda tutulmakta; bileşik birincil anahtar (AracId + OzellikId) ve basamaklı silme (cascade) ile veri bütünlüğü korunmaktadır. Böylece yeni bir özellik için tabloya sütun eklemek, yani kodu değiştirmek gerekmemektedir.',
+    { b: '4. İş kuralları ve veri tutarlılığı (İP4–İP5)' },
+    'Rezervasyon onayı bir veritabanı işlemi (transaction) içinde yapılmakta; onay anında aracın müsaitliği yeniden kontrol edilmekte ve aynı araca gelen çakışan diğer talepler otomatik reddedilmektedir. Bu yaklaşım, işlemlerin bölünmezlik ve yalıtım (ACID) ilkelerine (Haerder ve Reuter, 1983) dayanır. Rezervasyonlar Onay Bekliyor, Onaylandı, Kirada, Tamamlandı, İptal Edildi ve Reddedildi durumları arasında yalnızca izin verilen geçişlerle ilerlemektedir. Rezervasyon anındaki fiyatlar rezervasyona kopyalanarak sonradan yapılan fiyat değişikliklerinin eski kayıtları etkilemesi önlenmekte; iade tarihi geçtiği hâlde dönmeyen araçlar arka planda çalışan bir servis tarafından saatte bir tespit edilip gecikmiş olarak işaretlenmektedir.',
+    { b: '5. Arayüz tasarımı (İP1–İP6)' },
+    'Arayüz Bootstrap 5.3 ile mobil uyumlu (responsive) olarak geliştirilmekte ve açık / koyu tema seçeneği sunmaktadır. Tasarımda Nielsen\'in (1994) kullanılabilirlik ilkeleri (sistem durumunun görünürlüğü, hata önleme, tutarlılık vb.) ve WCAG 2.2 erişilebilirlik yönergeleri (W3C, 2023) esas alınmaktadır. Filtreler adres çubuğuna yazıldığı için arama sonuçları bağlantı olarak paylaşılabilmektedir.',
+    { b: '6. Güvenlik (tüm iş paketleri)' },
+    'Güvenlik önlemleri OWASP Top 10 (OWASP, 2021) listesine göre planlanmıştır: parolalar ASP.NET Core Identity ile PBKDF2 (Moriarty vd., 2017) özeti olarak saklanmakta, yönetim paneli rol bazlı yetkilendirmeyle korunmakta, formlarda sahte istek (CSRF) jetonu kullanılmakta, sorgular EF Core ile parametreli çalıştırılmakta, İçerik Güvenliği Politikası (CSP) başlığıyla yalnızca sitenin kendi betikleri çalıştırılmakta ve canlı ortamda HTTPS zorunlu tutulmaktadır (HSTS). Yüklenen görsellerin türü dosya uzantısına değil dosyanın imzasına bakılarak doğrulanmaktadır. Kişisel verilerin işlenmesinde 6698 sayılı KVKK esas alınmaktadır.',
+    { b: '7. Test ve doğrulama (her iş paketinde; İP7\'de tamamlanır)' },
+    'İş kuralları servis katmanında toplandığından arayüzden bağımsız olarak test edilebilmektedir. Otomatik testler xUnit ile yazılmakta ve her test bellekte oluşturulan boş bir SQLite veritabanında çalışmaktadır; testler, birim ve entegrasyon testlerinden oluşan test piramidi yaklaşımıyla (Cohn, 2009) düzenlenmiştir. Test grupları: fiyat hesabı, müsaitlik, rezervasyon durum geçişleri, sürücü şartları, iade ücretleri, iptal kuralı, kampanyalar ve veritabanı uyumu. Her hafta sonunda müşteri, personel ve yönetici rolleriyle uçtan uca kabul testleri yapılmaktadır. Veritabanını ilgilendiren özelliklerde sitenin gösterdiği sonuç, aynı soruyu doğrudan SQL ile soran sorgunun sonucuyla karşılaştırılmaktadır (4. haftada 11 filtre senaryosunun 11\'inde sonuçlar aynı çıkmıştır). Yazılım kalitesi ISO/IEC 25010 kalite modelinin (ISO/IEC, 2011) işlevsel uygunluk, kullanılabilirlik ve güvenlik özellikleri açısından değerlendirilmektedir.',
+    { b: '8. Ölçme ve değerlendirme (değişkenler ve istatistiksel yöntem)' },
+    'Projenin araştırma boyutunu, geliştirilen sistemin kullanılabilirliğinin ve iş kurallarını doğru uygulayıp uygulamadığının ölçülmesi oluşturmaktadır. Ölçümler, değişkenler ve kullanılacak istatistiksel yöntemler şunlardır:',
+    { m: '**Kullanılabilirlik çalışması (İP7):** Bölümden en az 10 gönüllü öğrenciye üç görev verilecektir: belirli tarihlerde müsait bir SUV bulmak, sonuçları filtrelerle daraltmak ve rezervasyon talebi oluşturmak. Bağımsız değişken görev türü; bağımlı değişkenler görev tamamlama oranı (%), görev süresi (saniye) ve Sistem Kullanılabilirlik Ölçeği (SUS; Brooke, 1996) puanıdır. Sonuçlar betimsel istatistiklerle (ortalama, standart sapma, yüzde) raporlanacak; SUS ortalamasının literatürde ortalama kabul edilen 68 puanın (Sauro, 2011) üzerinde olması hedeflenmektedir.' },
+    { m: '**Hesap doğruluğu (İP4–İP6):** Fiyat, indirim, geç iade ve eksik yakıt hesaplarında sistemin ürettiği tutarlar, aynı senaryolar için elle hesaplanan beklenen değerlerle karşılaştırılacaktır. Başarı ölçütü %100 uyumdur.' },
+    { m: '**Veri tutarlılığı (İP4):** Çakışan tarihlere eş zamanlı gönderilen onay isteklerinde oluşan çift rezervasyon sayısı ölçülecektir. Beklenen değer 0\'dır.' },
+    { b: '9. Yayın ve sürekli teslim (İP2, İP7)' },
+    'Uygulama çok aşamalı bir Dockerfile ile paketlenmekte (Merkel, 2014); GitHub\'daki ana dala gönderilen her değişiklik Render.com tarafından otomatik derlenip yayınlanmaktadır (sürekli teslim; Humble ve Farley, 2010). Canlı veritabanı Neon üzerinde PostgreSQL\'dir; bağlantı bilgisi koda değil, sunucunun ortam değişkenine yazılmaktadır. Uygulama automarket.ardcek.com adresinde HTTPS ile yayındadır ve /health uç noktasıyla sağlık kontrolü yapılmaktadır.',
+    { b: 'Ön çalışma ve fizibilite' },
+    'Emsal analizi ve teknoloji seçimi Ekim 2026\'da tamamlanmış, sonuçları Proje Öneri ve Emsal Analizi Raporu\'nda sunulmuştur. Geçen haftalarda tamamlanan İP1–İP3 (ana sayfa, müşteri sayfaları, Neon bağlantısı ve panelden özellik / filtre ekleme), seçilen mimari ve teknolojilerin proje süresinde uygulanabilir olduğunu göstermiştir.',
+  ],
+
+  // ───────────────────────────────── İŞ-ZAMAN ÇİZELGESİ
+  // [İP no, adı ve hedefleri, kim(ler), zaman aralığı, başarı ölçütü ve katkı]
+  isPaketleri: [
+    ['1',
+      ['**Emsal analizi, gereksinimler ve ana sayfa tasarımı.**', '6 emsal sitenin incelenmesi; kullanıcı rolleri ve iş kurallarının belirlenmesi; ana sayfanın tasarlanması.'],
+      ['**M. Arda Çekiç:** emsal analizi, iskelet, yayın', '**Azra Ardıç:** giriş alanı, arama formu, tema', '**Esra Ağlar:** kategori ve araç kartları', '**Ömer F. Çelik:** menü, alt bilgi, şubeler, test'],
+      ['1. hafta', '(Ekim 2026)', '**Tamamlandı**'],
+      ['6 site 15 ölçütle karşılaştırıldı; ana sayfa ardcek.com/hafta1 adresinde yayında, telefonda ve masaüstünde sorunsuz.', '**Katkı:** Kapsamı ve kuralları belirler.']],
+    ['2',
+      ['**Müşteri sayfaları ve veritabanı bağlantısı.**', 'Araç listesi, araç detayı ve anlık fiyat dökümü, giriş ve üye ol formları; veritabanının Neon PostgreSQL\'e bağlanması.'],
+      ['**M. Arda Çekiç:** veritabanı, Neon, fiyat hesabı', '**Azra Ardıç:** araç listesi ve filtreler', '**Esra Ağlar:** formlar, doğrulama, araç detayı', '**Ömer F. Çelik:** testler ve rapor'],
+      ['2.–3. hafta', '(Ekim–Kasım 2026)', '**Tamamlandı**'],
+      ['8 filtre, 5 sıralama, 47 araç sayfası; Neon\'da 23 tablo ve 22 ilişki oluşturuldu; bağlantı bilgisi kodda yok.', '**Katkı:** Sistemin veri temelini kurar.']],
+    ['3',
+      ['**Panelden araç özelliği ve filtre ekleme.**', 'Kod değiştirmeden yeni özellik tanımlama (4 tür), değerlerin toplu girilmesi; sitede filtre, kart ve detayda gösterim.'],
+      ['**M. Arda Çekiç:** EAV tabloları, ilişkiler, Neon', '**Azra Ardıç:** filtre kutuları, sorgular, kart', '**Esra Ağlar:** özellik ve değer formları', '**Ömer F. Çelik:** test, Neon karşılaştırması'],
+      ['4. hafta', '(Kasım 2026)', '**Tamamlandı**'],
+      ['4 özellik türü çalışıyor; 11 filtre senaryosunun 11\'inde site ve SQL sonucu aynı; Neon\'da 25 tablo, 24 ilişki.', '**Katkı:** Yeni filtreler kodsuz eklenir.']],
+    ['4',
+      ['**Üyelik, müşteri hesabı ve rezervasyon.**', 'Gerçek giriş / kayıt ve roller; profil (ehliyet bilgileri); 3 adımlı rezervasyon; müsaitlik, sürücü şartı ve iptal kuralları; sayfaların Neon\'dan okunması.'],
+      ['**Esra Ağlar:** rezervasyon sihirbazı, profil', '**M. Arda Çekiç:** rezervasyon servisleri, Neon', '**Azra Ardıç:** arama ve detay bağlantısı', '**Ömer F. Çelik:** birim ve entegrasyon testleri'],
+      ['5.–6. hafta', '(Kasım 2026)'],
+      ['Eş zamanlı onay testinde çift rezervasyon 0; şartı sağlamayan müşteri engelleniyor; rezervasyon testlerinin tamamı geçiyor.', '**Katkı:** Kiralamayı hayata geçirir.']],
+    ['5',
+      ['**Şube operasyonları ve raporlama.**', 'Talep onayı, teslim ve iade; otomatik geç iade ve yakıt ücreti; ödeme, bakım, hasar kayıtları; gösterge paneli; PDF sözleşme ve Excel rapor.'],
+      ['**Esra Ağlar:** onay, teslim / iade, ödeme, hasar', '**M. Arda Çekiç:** ücretler, gecikme kontrolü', '**Ömer F. Çelik:** raporlar, PDF sözleşme, Excel', '**Azra Ardıç:** gösterge paneli, doluluk takvimi'],
+      ['7.–8. hafta', '(Aralık 2026)'],
+      ['Rezervasyon talepten "Tamamlandı"ya kadar panelden yürütülüyor; ücretler elle hesaplananla %100 aynı.', '**Katkı:** Şubenin işini dijitale taşır.']],
+    ['6',
+      ['**Koda dokunmadan yönetim, kampanyalar ve yorumlar.**', 'Site Düzenleyici (canlı önizleme), içerik sayfaları (Hakkımızda, İletişim, Koşullar, KVKK), kampanyalar ve müşteri bilgileri, müşteri yorumları.'],
+      ['**Ömer F. Çelik:** ayarlar ve içerik sayfaları', '**Azra Ardıç:** Site Düzenleyici, canlı önizleme', '**M. Arda Çekiç:** kampanya kuralları', '**Esra Ağlar:** müşteri bilgileri, yorumlar'],
+      ['9.–10. hafta', '(Aralık 2026)'],
+      ['Metinler, sayfalar, kampanyalar ve filtreler kodsuz değiştirilebiliyor; kampanya indirimi fiyat dökümünde ayrı satır.', '**Katkı:** Yazılımcıya bağımlılığı azaltır.']],
+    ['7',
+      ['**API, güvenlik, test ve canlıya alma.**', 'REST API ve Swagger; OWASP Top 10 kontrolleri; otomatik testler; kullanılabilirlik çalışması (SUS); Docker ile Render\'da yayın.'],
+      ['**Ömer F. Çelik:** REST API, Swagger, test planı', '**M. Arda Çekiç:** Docker, Render, güvenlik', '**Azra Ardıç:** erişilebilirlik, SUS çalışması', '**Esra Ağlar:** kabul testi senaryoları'],
+      ['11.–12. hafta', '(Aralık 2026 –', 'Ocak 2027)'],
+      ['Otomatik testlerin tamamı geçiyor; 3 rolün kabul testleri tamam; SUS ≥ 68; canlı sitede HTTPS ve /health çalışıyor.', '**Katkı:** Ürünü kullanıma hazırlar.']],
+  ],
+  isPaketiNotu: 'Haftalar, ilk teslimin yapıldığı Ekim 2026 haftasından (1. hafta) itibaren sayılmıştır. İP1–İP3 tamamlanmış olup çıktıları ardcek.com/hafta1, ardcek.com/hafta3 ve ardcek.com/hafta4 adreslerindedir.',
+
+  // ───────────────────────────────── RİSK YÖNETİMİ TABLOSU  [İP no, risk, B planı]
+  riskler: [
+    ['Tümü', 'Sürenin yetmemesi ya da bir ekip üyesinin hastalık, sınav yoğunluğu gibi nedenlerle işini yetiştirememesi.',
+      'Özellikler "zorunlu" ve "isteğe bağlı" olarak önceliklendirilmiştir; önce zorunlular bitirilir. Türkçe adlandırma, dosya başı açıklamaları, kod haritası ve geliştirici rehberi sayesinde bir üyenin işi başka bir üye tarafından devralınabilir.'],
+    ['2, 4, 7', 'Ücretsiz bulut servislerinde (Render, Neon) kesinti, yavaş açılma (uyku modu), kota aşımı ya da ücretsiz katman koşullarının değişmesi.',
+      'Uygulama SQLite ile kurulumsuz ve internetsiz de çalışabilmektedir; sunumlar için yerel çalıştırma yedeği hazır tutulur. Bağlantı bilgisi ortam değişkeninden okunduğu için başka bir PostgreSQL sağlayıcısına kod değiştirmeden geçilebilir. /health uç noktasına düzenli istek gönderilerek uyku modu önlenir.'],
+    ['4, 5', 'Eş zamanlı işlemlerde çift rezervasyon ya da tutarsız veri oluşması.',
+      'Onay, veritabanı işlemi (transaction) içinde müsaitlik yeniden kontrol edilerek yapılır; çakışan bekleyen talepler otomatik reddedilir. Senaryo her değişiklikte otomatik testlerle denetlenir. Hata hâlinde rezervasyon "Onay Bekliyor" durumunda kalır, veri bozulmaz.'],
+    ['2, 4, 7', 'Veritabanı bağlantı bilgisinin, parolaların ya da kişisel verilerin sızması.',
+      'Bağlantı bilgisi ve parolalar koda ve Git\'e yazılmaz (geliştirici bilgisayarında user-secrets, sunucuda ortam değişkeni). Sızma şüphesinde veritabanı parolası hemen yenilenir. Projede gerçek müşteri verisi kullanılmaz; tüm kayıtlar örnek veridir.'],
+    ['5, 6', 'Ücret ve indirim hesaplarında (geç iade, eksik yakıt, kampanya) hata yapılması.',
+      'Her kural için birim testi yazılır; beklenen değerler elle hesaplanıp karşılaştırılır. Rezervasyon anındaki fiyat rezervasyona kopyalandığı için sonradan yapılan fiyat değişiklikleri eski kayıtları etkilemez.'],
+    ['3, 6', 'Değerlendirme sırasında yeni özellik, filtre ya da kural istenmesi (kapsam değişikliği).',
+      'Yeni filtre ve özellikler panelden kod yazmadan eklenebilmektedir. Kod gerektiren istekler için "yeni filtre / yeni alan / yeni ayar nasıl eklenir" tarifleri geliştirici rehberinde hazırdır.'],
+    ['7', 'Sunumun yapılacağı laboratuvarda internet bağlantısı olmaması.',
+      'Arayüz kütüphaneleri (Bootstrap, ikonlar, yazı tipi, grafik kütüphanesi) uygulamanın içinde barındırıldığından site internetsiz de eksiksiz çalışır; proje USB bellekte taşınır ve yerelde SQLite ile açılır.'],
+  ],
+
+  // ───────────────────────────────── ARAŞTIRMA OLANAKLARI TABLOSU  [altyapı, kullanım amacı]
+  olanaklar: [
+    ['Konya Teknik Üniversitesi bilgisayar laboratuvarı (masaüstü bilgisayarlar, projeksiyon)', 'Haftalık sunumlar ve canlı gösterim; uygulamanın internetsiz (yerel) çalıştırılması ve denenmesi.'],
+    ['Ekip üyelerinin kişisel dizüstü bilgisayarları', 'Kodlama, otomatik testlerin çalıştırılması, raporların hazırlanması.'],
+    ['Ücretsiz geliştirme araçları: .NET 10 SDK, Visual Studio 2026 / Visual Studio Code, Git', 'Kodlama, derleme, hata ayıklama ve sürüm kontrolü.'],
+    ['GitHub (kod deposu)', 'Ekip çalışması ve değişiklik geçmişi; her gönderimde canlı yayının otomatik başlatılması.'],
+    ['Neon (bulut PostgreSQL 18, ücretsiz katman, Frankfurt bölgesi)', 'Canlı veritabanı: tabloların ve ilişkilerin oluşturulması, SQL sorgularıyla doğrulama.'],
+    ['Render.com (ücretsiz katman, Docker) ve ekibe ait ardcek.com alan adı', 'Uygulamanın HTTPS ile yayınlanması (automarket.ardcek.com) ve haftalık teslimlerin paylaşılması (ardcek.com/haftaN).'],
+    ['cron-job.org (zamanlanmış istek servisi)', 'Sağlık kontrolü adresine düzenli istek göndererek ücretsiz sunucunun uyku moduna geçmesini önleme.'],
+  ],
+
+  // ───────────────────────────────── ÇIKTILAR (mevcut 3 satırın 2. ve 3. sütunu)
+  ciktilar: [
+    [['1) Proje Öneri ve Emsal Analizi Raporu (6 site, 15 ölçüt).', '2) Haftalık teknik raporlar (ana sayfa; sayfalar ve veritabanı bağlantısı; araç özellikleri ve yeni tablolar; sonraki haftalar).', '3) Dönem sonu proje raporu ve kullanılabilirlik çalışması (SUS) bulguları.', '4) Hedef: bulguların bir öğrenci kongresinde bildiri olarak sunulması.'],
+      ['1–3: 0–6 ay', '4: 6–12 ay']],
+    [['1) **Ürün (çalışan prototip):** Rota Rent a Car web uygulaması ve yönetim paneli (automarket.ardcek.com).', '2) **Veri tabanı ve belgeleme:** ilişkisel veritabanı şeması ve ilişki diyagramı, REST API (Swagger) belgesi, kod haritası ve geliştirici rehberi.', '3) **Telife konu olan eser:** uygulamanın kaynak kodu (5846 sayılı FSEK kapsamında bilgisayar programı).', '4) Hedef: pilot firma uygulaması ve öğrenci girişimi (start-up).'],
+      ['1–3: 0–6 ay', '4: 6–18 ay']],
+    [['Ön lisans projesi olduğundan tez çıktısı öngörülmemektedir.', 'Proje boyunca 4 öğrenci, gereksinim analizinden canlı yayına kadar uçtan uca yazılım geliştirme deneyimi kazanmaktadır. Hazırlanan geliştirici rehberi ve kod haritası, sonraki dönem öğrencilerinin projelerinde örnek olarak kullanılabilecektir.'],
+      ['0–6 ay']],
+  ],
+
+  // ───────────────────────────────── ETKİLER (mevcut 4 satırın 2. ve 3. sütunu)
+  etkiler: [
+    [['Müşterinin toplam fiyatın nasıl oluştuğunu rezervasyondan önce satır satır görmesiyle fiyat şeffaflığı ve tüketici güveni artar; çift rezervasyon ve hatalı tahsilattan doğan mağduriyetler önlenir.', 'İzleme betiği içermeyen arayüz sayesinde ziyaretçilerin kişisel verileri üçüncü taraflara aktarılmaz; mobil uyumlu ve koyu temalı arayüz farklı kullanıcıların erişimini kolaylaştırır.', '**Hedef kitle:** küçük ve orta ölçekli kiralama firmaları ve müşterileri (turistler, iş seyahatindeki kişiler).'],
+      ['Prototip: 0–6 ay', 'Pilot kullanım: 6–12 ay']],
+    [['Bölümde web tabanlı otomasyon projeleri için Türkçe kodlu ve belgelenmiş bir örnek proje oluşur; EAV ile "koda dokunmadan genişletilebilen veri modeli" derslerde örnek olarak kullanılabilir.', '4 öğrencinin C#, ASP.NET Core, SQL, bulut ve sürüm kontrolü yetkinliği artar (nitelikli yazılım geliştirici adayı).', 'Pilot firmayla yapılacak çalışma üniversite-sanayi işbirliğine zemin hazırlar.'],
+      ['0–6 ay', 'İşbirliği: 6–12 ay']],
+    [['Lisans ücreti olmayan ve ücretsiz katmanlı bulut servisleriyle çalışabilen çözüm, küçük firmaların dijitalleşme maliyetini düşürür; yurt dışı kaynaklı, abonelik ücretli hazır yazılımlara yerli bir alternatif sunar (ithal ikamesi).', 'Otomatik ücret hesapları, tahsil edilemeyen geç iade ve yakıt ücretlerinden doğan gelir kaybını azaltır.', 'Ürünün girişime dönüşmesi hâlinde kurulum ve destek hizmetleriyle istihdam sağlanabilir.'],
+      ['6–12 ay', 'Girişim: 12–24 ay']],
+    [['**Siber güvenlik:** OWASP Top 10 risklerine karşı alınan önlemler (parola özeti, CSRF jetonu, parametreli sorgu, CSP, HTTPS / HSTS) küçük firmaların siber saldırılara karşı korunmasına katkı sağlar.', '**Ekonomik güvenlik ve veri yerelliği:** Firmanın müşteri ve finans verileri kendi kontrolündeki veritabanında tutulur; veritabanı, KVKK gerektirdiğinde kod değiştirilmeden yurt içindeki bir sunucuya taşınabilir.'],
+      ['0–6 ay']],
+  ],
+
+  // ───────────────────────────────── SANAYİ İŞBİRLİĞİ YOL HARİTASI
+  yolHaritasi: [
+    'Projenin çıktısı olan yazılımın ticarileştirilmesi ve sanayi işbirliğine taşınması için aşağıdaki adımlar planlanmaktadır:',
+    { r: '**1. Pilot uygulama (6–12 ay):** Prototip tamamlandıktan sonra Konya\'daki 2–3 küçük ölçekli kiralama firmasıyla görüşülerek ihtiyaçlar doğrulanacak, bir firmaya ücretsiz pilot kullanım önerilecektir. Pilot süresince toplanan geri bildirimlerle ürün iyileştirilecektir.' },
+    { r: '**2. Girişimcilik eğitimi (6–12 ay):** Ekip üyelerinin, KOSGEB Girişimcilik Destek Programı\'na başvuru için gerekli olan KOSGEB Uygulamalı Girişimcilik Eğitimi\'ni tamamlaması planlanmaktadır.' },
+    { r: '**3. TÜBİTAK 1512 BİGG (12–18 ay):** Çok sayıda firmanın aynı altyapıyı birbirinden bağımsız kullanabileceği (çok kiracılı), abonelik tabanlı bir bulut hizmeti iş fikriyle TÜBİTAK 1512 Girişimcilik Destek Programı\'na (BİGG – Bireysel Genç Girişim) başvurulması hedeflenmektedir. Programın 1. aşamasında iş fikri iş planına dönüştürülecek; 2. aşamada şirket kurularak hibe desteğiyle ürün pazara hazırlanacaktır.' },
+    { r: '**4. Ürün geliştirme işbirlikleri (18–24 ay):** Pilot firmayla TÜBİTAK 1505 Üniversite-Sanayi İşbirliği Destek Programı ya da firmanın TÜBİTAK 1507 KOBİ Ar-Ge Başlangıç Destek Programı kapsamında sanal POS ile çevrim içi ödeme, e-Fatura / e-Arşiv entegrasyonu ve HGS geçiş / trafik cezası takibi gibi modüllerin geliştirilmesi planlanmaktadır.' },
+    { r: '**5. Şirketleşme ve yaygınlaştırma:** Kurulacak şirketin bir teknoloji geliştirme bölgesinde (teknokent) faaliyet göstermesi değerlendirilecek; Mevlana Kalkınma Ajansı\'nın KOBİ\'lere yönelik destek çağrıları takip edilecektir.' },
+  ],
+
+  // ───────────────────────────────── PAYLAŞIM VE YAYILIM TABLOSU  [etkinlik, paydaş, zaman]
+  paylasim: [
+    ['**Web sitesi:** Haftalık teslimlerin ve raporların ardcek.com/haftaN adreslerinde, canlı uygulamanın automarket.ardcek.com adresinde yayımlanması', 'Danışman, ders arkadaşları, bölüm öğretim elemanları', 'Her hafta, proje boyunca (12 hafta)'],
+    ['**Toplantı / sunum:** Ders içinde haftalık sunum ve canlı gösterim (sayfalar, yönetim paneli, Neon tabloları)', 'Danışman ve sınıf', 'Her hafta, 10–15 dakika'],
+    ['**Eğitim:** Kod haritası, geliştirici rehberi ve kurulum belgelerinin paylaşılması; alt dönem öğrencilerine kısa bir uygulama atölyesi', 'Bölümün diğer ve sonraki dönem öğrencileri', 'Dönem sonu (Ocak 2027), 1 oturum (2 saat)'],
+    ['**Toplantı:** Yerel kiralama firmalarına tanıtım ve geri bildirim görüşmeleri', 'Konya\'daki küçük ve orta ölçekli kiralama firmaları', 'Proje sonrası 1–3. ay, 2–3 görüşme (birer saat)'],
+    ['**Proje pazarı / kongre:** Üniversitenin proje sergisi ya da proje pazarı etkinliklerine başvuru; öğrenci kongresine bildiri', 'Öğrenciler, akademisyenler, sanayi temsilcileri', '6–12. ay'],
+  ],
+
+  // ───────────────────────────────── BELİRTMEK İSTEDİĞİNİZ DİĞER KONULAR
+  digerKonular: [
+    { r: '**Ders ve danışman.** Konya Teknik Üniversitesi, Bilgisayar Programcılığı, ders kodu 5035354. Danışman: Levent Civcik.' },
+    { b: 'Projenin mevcut durumu' },
+    'İş paketlerinden İP1–İP3 tamamlanmış ve teslim edilmiştir:',
+    { m: 'Ana sayfa: ardcek.com/hafta1' },
+    { m: 'Sayfalar ve veritabanı bağlantısı: ardcek.com/hafta3' },
+    { m: 'Araç özellikleri ve yeni tablolar: ardcek.com/hafta4' },
+    { m: 'Canlı uygulama: https://automarket.ardcek.com' },
+    'Neon\'daki canlı veritabanında 25 tablo ve 24 ilişki oluşturulmuştur; tablolar şu an boştur. Sayfalardaki araç, şube ve rezervasyon kayıtları örnek verilerdir; projede gerçek kişisel veri kullanılmamaktadır.',
+    { b: 'Kullanılan teknolojiler' },
+    'C# 14 / .NET 10, ASP.NET Core MVC, Entity Framework Core 10, SQLite (geliştirme), PostgreSQL 18 (Neon, canlı), ASP.NET Core Identity, Bootstrap 5.3, Chart.js, QuestPDF (PDF sözleşme), ClosedXML (Excel), OpenAPI / Swagger, xUnit, Docker, Render.com, Git / GitHub.',
+    { b: 'Ön çalışma' },
+    'Emsal sitelerin ayrıntılı incelemesi, iş kuralları tablosu, veritabanı tasarımı ve güvenlik önlemleri, Ekim 2026\'da hazırlanan Proje Öneri ve Emsal Analizi Raporu\'nda yer almaktadır.',
+  ],
+
+  // ───────────────────────────────── EK-1: KAYNAKLAR
+  kaynaklar: [
+    'Beck, K. vd. (2001). Manifesto for Agile Software Development. https://agilemanifesto.org',
+    'Brooke, J. (1996). SUS: A "quick and dirty" usability scale. P. W. Jordan, B. Thomas, B. A. Weerdmeester ve I. L. McClelland (Ed.), Usability Evaluation in Industry (s. 189–194). Taylor & Francis.',
+    'Chen, P. P. (1976). The entity-relationship model: Toward a unified view of data. ACM Transactions on Database Systems, 1(1), 9–36.',
+    'Codd, E. F. (1970). A relational model of data for large shared data banks. Communications of the ACM, 13(6), 377–387.',
+    'Cohn, M. (2009). Succeeding with Agile: Software Development Using Scrum. Addison-Wesley.',
+    'Fowler, M. (2002). Patterns of Enterprise Application Architecture. Addison-Wesley.',
+    'Haerder, T. ve Reuter, A. (1983). Principles of transaction-oriented database recovery. ACM Computing Surveys, 15(4), 287–317.',
+    'Humble, J. ve Farley, D. (2010). Continuous Delivery: Reliable Software Releases through Build, Test, and Deployment Automation. Addison-Wesley.',
+    'ISO/IEC (2011). ISO/IEC 25010:2011 Systems and software engineering: Systems and software Quality Requirements and Evaluation (SQuaRE), System and software quality models. ISO.',
+    'Krasner, G. E. ve Pope, S. T. (1988). A cookbook for using the model-view controller user interface paradigm in Smalltalk-80. Journal of Object-Oriented Programming, 1(3), 26–49.',
+    'Merkel, D. (2014). Docker: Lightweight Linux containers for consistent development and deployment. Linux Journal, 2014(239), 2.',
+    'Moriarty, K., Kaliski, B. ve Rusch, A. (2017). PKCS #5: Password-Based Cryptography Specification Version 2.1 (RFC 8018). IETF.',
+    'Nadkarni, P. M., Marenco, L., Chen, R., Skoufos, E., Shepherd, G. ve Miller, P. (1999). Organization of heterogeneous scientific data using the EAV/CR representation. Journal of the American Medical Informatics Association, 6(6), 478–493.',
+    'Nielsen, J. (1994). Enhancing the explanatory power of usability heuristics. Proceedings of the SIGCHI Conference on Human Factors in Computing Systems (CHI \'94), 152–158.',
+    'OWASP Foundation (2021). OWASP Top 10:2021. https://owasp.org/Top10/',
+    'Sauro, J. (2011). A Practical Guide to the System Usability Scale: Background, Benchmarks & Best Practices. Measuring Usability LLC.',
+    'Schwaber, K. ve Sutherland, J. (2020). The Scrum Guide. https://scrumguides.org',
+    'T.C. Cumhurbaşkanlığı Strateji ve Bütçe Başkanlığı (2023). On İkinci Kalkınma Planı (2024–2028). https://www.sbb.gov.tr',
+    'W3C (2023). Web Content Accessibility Guidelines (WCAG) 2.2. https://www.w3.org/TR/WCAG22/',
+    '5846 sayılı Fikir ve Sanat Eserleri Kanunu. Resmî Gazete, 13.12.1951, Sayı: 7981.',
+    '6698 sayılı Kişisel Verilerin Korunması Kanunu. Resmî Gazete, 07.04.2016, Sayı: 29677.',
+    'Microsoft. ASP.NET Core ve Entity Framework Core belgeleri. https://learn.microsoft.com/aspnet/core, https://learn.microsoft.com/ef/core (Erişim: 12.11.2026)',
+    'Rota Rent a Car Proje Ekibi (2026). Proje Öneri ve Emsal Analizi Raporu. Konya Teknik Üniversitesi, Bilgisayar Programcılığı.',
+  ],
+};

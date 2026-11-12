@@ -1,0 +1,66 @@
+@* KAMPANYALAR (KampanyalarController.Index, model: List<Kampanya>)
+   İndirim kuralları listesi. Koşulların özeti Kampanya.KosulOzeti()'nden gelir. *@
+@model List<Kampanya>
+@{
+    ViewData["Title"] = "Kampanyalar ve İndirimler";
+    var alanSayisi = (int)ViewBag.AlanSayisi;
+}
+<div class="sayfa-baslik">
+    <div><h1><i class="bi bi-percent me-2 metin-ana"></i>Kampanyalar ve İndirimler</h1><div class="alt-yazi">Kime, hangi araçta, ne kadar indirim yapılacağını koda dokunmadan belirle.</div></div>
+    <div class="d-flex gap-2">
+        <a href="/Araclar?SadeceIndirimli=true" target="_blank" class="btn btn-sade"><i class="bi bi-box-arrow-up-right me-1"></i>İndirimli araçları aç</a>
+        <a asp-action="Ekle" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Yeni kampanya</a>
+    </div>
+</div>
+
+@* Nasıl kullanılır: hoca "meslek gruplarına göre indirim" derse *@
+<div class="alert alert-primary d-flex gap-3 align-items-start">
+    <i class="bi bi-lightbulb fs-4"></i>
+    <div class="small">
+        <b>Örnek: "Meslek gruplarına göre indirim yapın, filtrede de indirimli araçlar görünsün."</b>
+        <ol class="mb-0 mt-1 ps-3">
+            <li><a href="/Yonetim/MusteriAlanlari/Ekle">Müşteri Bilgileri → Yeni bilgi</a>: Ad <i>Meslek</i>, Tür <i>Seçim listesi</i>, seçenekler <i>Öğrenci, Öğretmen, Doktor…</i></li>
+            <li><b>Yeni kampanya</b>: Ad <i>Öğretmen indirimi</i>, %15, Müşteri bilgisi <i>Meslek: Öğretmen</i>. Diğer meslekler için tekrarla.</li>
+            <li>Araç listesini aç: solda "İndirimler" bölümü çıkar (Mesleğiniz + Sadece indirimli araçlar). Kartlarda rozet görünür.</li>
+        </ol>
+        <div class="mt-1 text-muted">Bu adımları <a href="/Yonetim/YapayZeka">Yapay Zekâ Asistanı</a>'na tek cümleyle de yaptırabilirsin.</div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between"><span>Kampanyalar</span><span class="small text-muted">Birden fazla kampanya uyarsa müşteriye en avantajlı olan uygulanır.</span></div>
+    @if (Model.Count == 0)
+    {
+        <div class="card-body text-muted">
+            Henüz kampanya yok. <a asp-action="Ekle">İlk kampanyayı ekle</a>.
+            @if (alanSayisi == 0) { <span>Mesleğe göre indirim için önce <a href="/Yonetim/MusteriAlanlari/Ekle">"Meslek" bilgisini ekle</a>.</span> }
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead><tr><th>Kampanya</th><th>İndirim</th><th>Kime / hangi araçta</th><th>Durum</th><th class="text-end"></th></tr></thead>
+                <tbody>
+                    @foreach (var k in Model)
+                    {
+                        <tr class="@(k.Aktif ? "" : "opacity-50")">
+                            <td><b>@k.Ad</b><div class="small text-muted">Rozet: @k.Rozet</div></td>
+                            <td><span class="durum durum-musait">@k.OranYazisi</span></td>
+                            <td class="small">@k.KosulOzeti()</td>
+                            <td>
+                                <form asp-action="AcKapat" asp-route-id="@k.Id" method="post">
+                                    <button class="btn btn-sm @(k.Aktif ? "btn-yumusak" : "btn-sade")">@(k.Aktif ? "Yayında" : "Kapalı")</button>
+                                </form>
+                            </td>
+                            <td class="text-end text-nowrap">
+                                <a asp-action="Duzenle" asp-route-id="@k.Id" class="btn btn-sm btn-sade">Düzenle</a>
+                                <form asp-action="Sil" asp-route-id="@k.Id" method="post" class="d-inline"><button class="btn btn-sm btn-sade text-danger" data-onay="&quot;@k.Ad&quot; silinsin mi? Geçmiş rezervasyonlar etkilenmez.">Sil</button></form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

@@ -10,7 +10,7 @@
         <div class="col-md-6"><label asp-for="BaslangicTarihi" class="form-label"></label><input asp-for="BaslangicTarihi" type="datetime-local" class="form-control" value="@Bicim.Kutu(Model.BaslangicTarihi)" /></div>
         <div class="col-md-6"><label asp-for="BitisTarihi" class="form-label"></label><input asp-for="BitisTarihi" type="datetime-local" class="form-control" value="@Bicim.Kutu(Model.BitisTarihi)" /><span asp-validation-for="BitisTarihi"></span></div>
         <div class="col-md-6"><label asp-for="Kilometre" class="form-label"></label><input asp-for="Kilometre" class="form-control" /></div>
-        <div class="col-md-6"><label asp-for="Maliyet" class="form-label"></label><input asp-for="Maliyet" class="form-control" step="50" /></div>
+        <div class="col-md-6"><label asp-for="Maliyet" class="form-label"></label><input asp-for="Maliyet" class="form-control" step="any" /></div>
         <div class="col-12"><label asp-for="Aciklama" class="form-label"></label><textarea asp-for="Aciklama" class="form-control" rows="2"></textarea></div>
     </div>
     <div class="card-body border-top text-end"><a href="/Yonetim/Bakim" class="btn btn-sade">Vazgeç</a> <button class="btn btn-primary">Kaydet</button></div>

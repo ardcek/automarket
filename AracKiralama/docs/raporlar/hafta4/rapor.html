@@ -1,0 +1,1023 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Rota Rent a Car — 4. Hafta Raporu: Araç Özellikleri ve Yeni Tablolar</title>
+<link rel="stylesheet" href="file:///C:/Users/ardce/OneDrive/Desktop/automarket/AracKiralama/src/AracKiralama.Web/wwwroot/lib/inter/inter.css">
+<link rel="stylesheet" href="file:///C:/Users/ardce/OneDrive/Desktop/automarket/AracKiralama/src/AracKiralama.Web/wwwroot/lib/bootstrap-icons/bootstrap-icons.min.css">
+<style>
+  @page { size: A4; margin: 16mm 16mm 18mm 16mm;
+    @bottom-left { content: "Rota Rent a Car · 4. Hafta Raporu"; font: 500 7.5pt Inter, sans-serif; color: #94a3b8; }
+    @bottom-right { content: counter(page); font: 700 8pt Inter, sans-serif; color: #2747d6; }
+  }
+  @page kapak { margin: 0; @bottom-left { content: none; } @bottom-right { content: none; } }
+  :root { --ana:#2747d6; --ana-acik:#eef1fd; --koyu:#0b1230; --zemin:#f5f6fa; --cizgi:#e2e6ef; --yazi:#0f172a; --soluk:#64748b; --yesil:#16a34a; --turuncu:#d97706; --kirmizi:#dc2626; }
+  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  html, body { margin:0; }
+  body { font-family: Inter, "Segoe UI", sans-serif; color: var(--yazi); font-size: 9.6pt; line-height: 1.55; }
+  h1, h2, h3, h4 { letter-spacing: -.02em; line-height: 1.2; }
+  p { margin: 0 0 2.6mm; }
+  ul, ol { margin: 0 0 3mm; padding-left: 5mm; } li { margin-bottom: .8mm; }
+  .sayfa { break-before: page; }
+  .bolum-ust { font-size: 7.5pt; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--ana); margin-bottom: 1.5mm; }
+  h2.baslik { font-size: 21pt; font-weight: 800; margin: 0 0 3mm; }
+  .giris { font-size: 10.6pt; color: #334155; margin-bottom: 6mm; max-width: 168mm; }
+  h3 { font-size: 12.5pt; font-weight: 800; margin: 6mm 0 2mm; }
+  h4 { font-size: 10pt; font-weight: 700; margin: 0 0 1.2mm; }
+  .soluk { color: var(--soluk); }
+  code { font-family: Consolas, monospace; font-size: 8.4pt; background: #eef1f7; padding: .2mm 1.2mm; border-radius: 1mm; color: #1e293b; }
+  figure { margin: 2mm 0 5mm; break-inside: avoid; }
+  figure img { width: 100%; display: block; border-radius: 2.5mm; border: 1px solid var(--cizgi); box-shadow: 0 2mm 6mm rgba(15,23,42,.08); }
+  figcaption { font-size: 7.8pt; color: var(--soluk); margin-top: 1.6mm; }
+  figcaption b { color: var(--yazi); }
+  .kutu { background: var(--ana-acik); border-radius: 3mm; padding: 3.5mm 4.5mm; margin: 3mm 0 5mm; break-inside: avoid; }
+  .kutu.koyu { background: var(--koyu); color: #e2e8f0; } .kutu.koyu b { color: #fff; }
+  .kutu.sari { background: #fff7e6; } .kutu.yesil { background: #ecf8f0; } .kutu.kirmizi { background: #fdf0ef; }
+  .kutu > i.bi { color: var(--ana); margin-right: 1.5mm; }
+  .izgara-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .izgara-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3.5mm; }
+  .izgara-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; }
+  .kart { border: 1px solid var(--cizgi); border-radius: 3mm; padding: 3.5mm 4mm; background: #fff; break-inside: avoid; }
+  .kart .ikon { width: 9mm; height: 9mm; border-radius: 2.5mm; background: var(--ana-acik); color: var(--ana); display: inline-flex; align-items: center; justify-content: center; font-size: 12pt; margin-bottom: 2mm; }
+  .kart p { margin: 0; font-size: 8.8pt; color: #334155; }
+  table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 8.3pt; margin: 2mm 0 5mm; border: 1px solid var(--cizgi); border-radius: 2.5mm; overflow: hidden; }
+  th { background: var(--koyu); color: #fff; text-align: left; padding: 1.8mm 2.5mm; font-weight: 600; }
+  td { padding: 1.6mm 2.5mm; border-top: 1px solid var(--cizgi); vertical-align: top; }
+  tr:nth-child(even) td { background: #f8fafc; }
+  tr { break-inside: avoid; }
+  td.o, th.o { text-align: center; }
+  .etiket { display: inline-block; font-size: 7pt; font-weight: 700; padding: .4mm 2mm; border-radius: 10mm; background: var(--ana-acik); color: var(--ana); margin: 0 1mm 1mm 0; }
+  .etiket.y { background: #e8f7ee; color: #15803d; } .etiket.t { background: #fff3e0; color: #b45309; } .etiket.m { background: #f3e8ff; color: #7e22ce; } .etiket.g { background: #eef1f7; color: #475569; }
+  .rakam { border-radius: 3mm; padding: 4mm; background: var(--zemin); border: 1px solid var(--cizgi); }
+  .rakam strong { display: block; font-size: 20pt; font-weight: 800; color: var(--ana); letter-spacing: -.03em; line-height: 1.1; }
+  .rakam span { font-size: 8pt; color: var(--soluk); }
+  .icindekiler { columns: 2; column-gap: 8mm; font-size: 9.6pt; margin: 0; padding: 0; list-style: none; counter-reset: s; }
+  .icindekiler li { counter-increment: s; padding: 1.5mm 0; border-bottom: 1px dashed var(--cizgi); break-inside: avoid; }
+  .icindekiler li::before { content: counter(s, decimal-leading-zero); font-weight: 800; color: var(--ana); margin-right: 3mm; }
+
+  /* Kod ve terminal */
+  pre { font-family: Consolas, monospace; font-size: 7.9pt; line-height: 1.5; background: var(--koyu); color: #dbe2f0; border-radius: 3mm; padding: 3.5mm 4.5mm; margin: 2mm 0 4mm; white-space: pre-wrap; word-break: break-word; break-inside: avoid; }
+  pre .y { color: #6b7a99; } pre .a { color: #9fb0ff; } pre .s { color: #8fe3b0; } pre .k { color: #f6c177; }
+  .dosya { font-family: Consolas, monospace; font-size: 7.8pt; color: var(--ana); font-weight: 700; margin: 4mm 0 -1mm; }
+  .terminal { background: #0a0f1e; color: #c7d2fe; font-family: Consolas, monospace; font-size: 8pt; border-radius: 3mm; padding: 3.5mm 4.5mm; break-inside: avoid; }
+  .terminal .ok { color: #4ade80; } .terminal .bilgi { color: #7dd3fc; }
+
+  /* Adımlar */
+  .adim { display: grid; grid-template-columns: 9mm 1fr; gap: 3mm; margin-bottom: 3.5mm; break-inside: avoid; }
+  .adim .no { width: 8mm; height: 8mm; border-radius: 50%; background: var(--ana); color: #fff; font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 9pt; }
+  .adim h4 { margin-top: .8mm; }
+  .adim p { margin: 0; font-size: 9pt; color: #334155; }
+
+  /* Bağlantı adresi anatomisi */
+  .adres { font-family: Consolas, monospace; font-size: 9.2pt; background: #fff; border: 1.5px solid var(--ana); border-radius: 3mm; padding: 4mm; line-height: 2.1; break-inside: avoid; }
+  .adres span { white-space: nowrap; }
+  .adres span { padding: .6mm 1mm; border-radius: 1mm; }
+  .p1 { background: #e0e7ff; } .p2 { background: #dcfce7; } .p3 { background: #fee2e2; } .p4 { background: #fef3c7; } .p5 { background: #f3e8ff; } .p6 { background: #cffafe; } .p7 { background: #ffe4e6; }
+  .nokta { display: inline-block; width: 3mm; height: 3mm; border-radius: 1mm; vertical-align: -0.4mm; margin-right: 1.5mm; }
+
+  /* Soru-cevap */
+  .sc { break-inside: avoid; border-left: 3px solid var(--ana); padding: 1mm 0 1mm 4mm; margin-bottom: 2mm; }
+  .sc .s { font-weight: 700; font-size: 9.5pt; margin-bottom: .8mm; }
+  .sc .s b { color: var(--ana); margin-right: 1.5mm; }
+  .sc .c { font-size: 9pt; color: #334155; }
+  .sc-grup { font-size: 8pt; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--soluk); margin: 5mm 0 2.5mm; padding-bottom: 1mm; border-bottom: 1px solid var(--cizgi); break-after: avoid; }
+
+  /* Kişiler */
+  .kisi { border: 1px solid var(--cizgi); border-radius: 3.5mm; padding: 4mm 4.5mm; break-inside: avoid; background: #fff; }
+  .kisi .ust { display: flex; align-items: center; gap: 3mm; margin-bottom: 2.5mm; }
+  .kisi .avatar { width: 11mm; height: 11mm; border-radius: 50%; color: #fff; font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 10.5pt; flex: none; }
+  .kisi .ad { font-weight: 800; font-size: 10.6pt; line-height: 1.2; }
+  .kisi .no { font-size: 7.8pt; color: var(--soluk); }
+  .kisi .rol { font-size: 8.4pt; font-weight: 700; color: var(--ana); margin-bottom: 1.6mm; }
+  .kisi ul { font-size: 8.4pt; margin: 0; padding-left: 4.5mm; }
+  .sor { display:inline-block; background: var(--ana); color:#fff; font-weight:700; font-size:7.2pt; padding:.5mm 2.5mm; border-radius:10mm; }
+  .des { display:inline-block; background: var(--ana-acik); color: var(--ana); font-weight:600; font-size:7.2pt; padding:.5mm 2.5mm; border-radius:10mm; }
+
+  /* Kapak */
+  .kapak { page: kapak; height: 297mm; position: relative; overflow: hidden; color: #fff; padding: 18mm 18mm 16mm;
+    background: radial-gradient(160mm 120mm at -10% 105%, rgba(39,71,214,.75), transparent 60%), radial-gradient(150mm 110mm at 105% -5%, rgba(39,71,214,.5), transparent 60%), #0b1230; display: flex; flex-direction: column; }
+  .kapak .kurum { display: flex; align-items: center; gap: 5mm; }
+  .kapak .logo-kutu { width: 20mm; height: 20mm; background: #fff; border-radius: 4mm; display: flex; align-items: center; justify-content: center; flex: none; padding: 1.2mm; }
+  .kapak .logo-kutu img { width: 100%; height: 100%; object-fit: contain; }
+  .kapak .kurum-ad { font-size: 11pt; font-weight: 800; letter-spacing: .06em; }
+  .kapak .kurum-alt { font-size: 8.5pt; color: rgba(255,255,255,.65); }
+  .kapak .hafta { margin-top: 18mm; display: inline-flex; align-items: center; gap: 2mm; padding: 1.5mm 4mm; border-radius: 20mm; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); font-size: 9pt; font-weight: 600; width: max-content; }
+  .kapak .hafta .nokta2 { width: 2.2mm; height: 2.2mm; border-radius: 50%; background: #34d399; }
+  .kapak h1 { font-size: 36pt; font-weight: 800; letter-spacing: -.035em; margin: 6mm 0 3mm; line-height: 1.05; }
+  .kapak h1 span { color: #9fb0ff; }
+  .kapak .alt { font-size: 12pt; color: rgba(255,255,255,.78); max-width: 155mm; }
+  .kapak .gorseller { margin-top: 8mm; display: grid; grid-template-columns: 1.55fr 1fr; gap: 4mm; align-items: start; }
+  .kapak .gorseller img { width: 100%; border-radius: 3mm; box-shadow: 0 8mm 20mm rgba(0,0,0,.5); display: block; }
+  .kapak .neon-kart { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.15); border-radius: 3mm; padding: 4mm; font-size: 8.6pt; }
+  .kapak .neon-kart b { color: #fff; } .kapak .neon-kart .buyuk { font-size: 22pt; font-weight: 800; color: #9fb0ff; line-height: 1; }
+  .kapak .yeni-tablo { margin-top: 1.5mm; font-family: Consolas, monospace; font-size: 8pt; color: #bbf7d0; background: rgba(52,211,153,.12); border: 1px solid rgba(52,211,153,.35); border-radius: 1.5mm; padding: .8mm 2mm; }
+  .kapak .alt-blok { margin-top: auto; display: grid; grid-template-columns: 1fr auto; gap: 8mm; align-items: end; }
+  .kapak table { border: 0; margin: 0; font-size: 9pt; width: auto; }
+  .kapak td { border: 0; padding: .9mm 6mm .9mm 0; background: none !important; color: #fff; }
+  .kapak td:first-child { color: rgba(255,255,255,.55); font-size: 7.5pt; text-transform: uppercase; letter-spacing: .1em; font-weight: 700; }
+  .kapak .qr { background: #fff; border-radius: 3mm; padding: 2.5mm; text-align: center; color: var(--koyu); }
+  .kapak .qr img { width: 30mm; height: 30mm; display: block; }
+  .kapak .qr div { font-size: 7.5pt; font-weight: 700; margin-top: 1mm; }
+  .yan-yana { display: grid; grid-template-columns: 1.6fr 1fr; gap: 5mm; align-items: start; }
+  svg text { font-family: Inter, sans-serif; }
+  table.sik td { padding: 1.05mm 2.5mm; }
+
+  /* 4. hafta eklemeleri */
+  .etiket.yeni { background: #dcfce7; color: #166534; }
+  tr.yeni td { background: #f0fdf4 !important; }
+  td.grup { background: var(--ana-acik) !important; font-weight: 700; color: var(--ana); }
+  td.grup.yeni-grup { background: #dcfce7 !important; color: #166534; }
+  .dar { max-width: 150mm; margin-left: auto; margin-right: auto; }
+  .kucuk-tablo td, .kucuk-tablo th { font-size: 7.9pt; }
+  .yol { border: 1px solid var(--cizgi); border-radius: 3mm; padding: 3.5mm 4mm; background: #fff; break-inside: avoid; }
+  .yol.secilen { border: 1.5px solid var(--yesil); background: #fbfefc; }
+  .yol h4 { font-size: 10.5pt; }
+  .yol table { font-size: 7.5pt; margin: 2mm 0 2.5mm; }
+  .yol th { padding: 1.2mm 1.8mm; } .yol td { padding: 1.1mm 1.8mm; }
+  .yol td.bos { color: #cbd5e1; }
+  .yol ul { font-size: 8.6pt; margin: 0; padding-left: 4.5mm; }
+  .arti { color: var(--yesil); font-weight: 700; } .eksi { color: var(--kirmizi); font-weight: 700; }
+  .resim-cifti { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; align-items: start; }
+  .ortala { text-align: center; }
+  .ok-isareti { color: var(--yesil); font-weight: 800; }
+  .sik-tablo td, .sik-tablo th { padding: 1.2mm 1.7mm; font-size: 7.5pt; }
+  .kart h4 .bi { color: var(--ana); margin-right: 1.2mm; }
+</style>
+</head>
+<body>
+
+<!-- ================================================== KAPAK -->
+<section class="kapak">
+  <div class="kurum">
+    <div class="logo-kutu"><img src="g/ktun-logo.png" alt=""></div>
+    <div>
+      <div class="kurum-ad">KONYA TEKNİK ÜNİVERSİTESİ</div>
+      <div class="kurum-alt">Bilgisayar Programcılığı · Ders Kodu 5035354</div>
+    </div>
+  </div>
+  <div class="hafta"><span class="nokta2"></span> 4. Hafta Teslimi · Kasım 2026</div>
+  <h1>Araç Özellikleri ve<br><span>Yeni Tablolar</span></h1>
+  <div class="alt">Bu hafta araçlara, kod yazmadan yönetim panelinden yeni bilgiler (kasa tipi, bagaj hacmi, geri görüş kamerası…) eklenebilmesini ve bu bilgilerin araç listesinde kendiliğinden filtreye dönüşmesini sağladık. Bunun için veritabanına iki yeni tablo tasarladık ve Neon'daki yapıyı güncelledik.</div>
+  <div class="gorseller">
+    <img src="g/s-detay.jpg" alt="">
+    <div class="neon-kart">
+      <div style="font-size:7.5pt;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.6);font-weight:700">Veritabanı · Neon</div>
+      <div class="buyuk" style="margin-top:3mm">25 tablo</div>
+      <div style="margin-top:1mm">PostgreSQL 18.6 · Frankfurt</div>
+      <div style="margin-top:4mm;color:rgba(255,255,255,.7)">Bu hafta eklenen:</div>
+      <div class="yeni-tablo">AracOzellikleri</div>
+      <div class="yeni-tablo">AracOzellikDegerleri</div>
+      <div style="margin-top:4mm;font-family:Consolas,monospace;font-size:7.4pt;color:#4ade80">Neon bağlantısı kuruldu:<br>25 tablo hazır, toplam 0 satır.</div>
+    </div>
+  </div>
+  <div class="alt-blok">
+    <table>
+      <tr><td>Hazırlayanlar</td><td>Mehmet Arda Çekiç · Azra Ardıç · Esra Ağlar · Ömer Faruk Çelik</td></tr>
+      <tr><td>Danışman</td><td>Levent Civcik</td></tr>
+      <tr><td>Adres</td><td><b>ardcek.com/hafta4</b></td></tr>
+    </table>
+    <div class="qr"><img src="g/qr.svg" alt="QR"><div>Telefonla okut, aç</div></div>
+  </div>
+</section>
+
+<!-- ================================================== BİR BAKIŞTA -->
+<section class="sayfa">
+  <div class="bolum-ust">Bir bakışta</div>
+  <h2 class="baslik">Bu hafta ne teslim ediyoruz?</h2>
+  <p class="giris">Geçen hafta sitenin önemli sayfalarını tamamlamış ve Neon'daki PostgreSQL veritabanımızı bağlamıştık. Bu hafta sistemi daha esnek hale getirdik: araçlara yeni bir bilgi eklemek için artık kodu değiştirmek gerekmiyor. Yönetici özelliği panelden tanımlıyor, araçların değerlerini giriyor; özellik araç listesinde <b>filtre</b>, araç kartında ve detay sayfasında <b>bilgi</b> olarak hemen görünüyor.</p>
+
+  <div class="izgara-4" style="margin-bottom:6mm">
+    <div class="rakam"><strong>2</strong><span>yeni tablo: AracOzellikleri, AracOzellikDegerleri</span></div>
+    <div class="rakam"><strong>4</strong><span>özellik türü: seçim, sayı, var / yok, yazı</span></div>
+    <div class="rakam"><strong>25</strong><span>tablo Neon'da (geçen hafta 23)</span></div>
+    <div class="rakam"><strong>24</strong><span>tablolar arası ilişki (geçen hafta 22)</span></div>
+  </div>
+
+  <div class="izgara-2">
+    <div class="kutu yesil" style="margin:0"><b><i class="bi bi-check2-circle"></i> Hazır olanlar</b>
+      <ul style="margin:2mm 0 0">
+        <li>Yönetim panelinde <b>Filtreler ve Özellikler</b> ekranı</li>
+        <li>Yeni özellik formu (4 tür) ve doğrulamaları</li>
+        <li>Bütün araçların değerlerini tek tabloda girme ekranı</li>
+        <li>Araç formunda "Ek özellikler" alanları</li>
+        <li>Araç listesinde yeni filtreler, kartta ve detayda gösterim</li>
+        <li>Neon'da 2 yeni tablo, anahtarları ve ilişkileri</li>
+      </ul>
+    </div>
+    <div class="kutu sari" style="margin:0"><b><i class="bi bi-hourglass-split" style="color:var(--turuncu)"></i> Bilerek sonraya bıraktıklarımız</b>
+      <ul style="margin:2mm 0 0">
+        <li>Verilerin Neon'a yüklenmesi ve sayfaların oradan okuması</li>
+        <li>Üyeliğin ve girişin gerçekten çalışması</li>
+        <li>Rezervasyon</li>
+        <li>Hakkımızda, İletişim, Kiralama Koşulları, KVKK sayfaları</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="kutu koyu">
+    <b><i class="bi bi-info-circle" style="color:#9fb0ff"></i> Önemli: şu an hangi veri nerede?</b><br>
+    Neon'daki veritabanı <b>bağlı, 25 tablosu hazır, ama boş</b> (toplam 0 satır). Rapordaki ekran görüntülerinde gördüğünüz üç örnek özelliği (<b>Kasa tipi, Bagaj hacmi, Geri görüş kamerası</b>) ve değerlerini, sistemi denemek için bilgisayarımızdaki örnek veritabanına (SQLite) panelden girdik. Sayfalar Neon'a geçirildiğinde aynı ekranlar aynı kodla Neon'daki tablolara yazacak.
+  </div>
+
+  <h3>İçindekiler</h3>
+  <ol class="icindekiler">
+    <li>Bu hafta nasıl çalıştık?</li>
+    <li>Özellik sistemi nasıl kullanılıyor?</li>
+    <li>Nasıl tasarladık? Neden iki tablo?</li>
+    <li>Tabloları nasıl oluşturduk?</li>
+    <li>Veritabanına nasıl bağlandık?</li>
+    <li>Neon'u nasıl güncelledik? (23 → 25)</li>
+    <li>Filtre nasıl çalışıyor? (LINQ → SQL)</li>
+    <li>Neon'daki 25 tablo ve ilişkiler</li>
+    <li>Hocaya canlı gösterim</li>
+    <li>Soru – cevap</li>
+    <li>Kim ne yaptı?</li>
+    <li>Sözlük ve kaynakça</li>
+  </ol>
+</section>
+
+<!-- ================================================== SÜREÇ -->
+<section class="sayfa">
+  <div class="bolum-ust">01 · Süreç</div>
+  <h2 class="baslik">Bu hafta nasıl çalıştık?</h2>
+  <p class="giris">İşe bir soruyla başladık: <i>"Hocamız yarın 'araçlara bagaj hacmi ekleyin, ona göre filtrelensin' derse ne yaparız?"</i> Bu soruya her seferinde kod yazarak değil, bir kere kurulan genel bir sistemle cevap vermek istedik.</p>
+
+  <div class="adim"><div class="no">1</div><div><h4>İhtiyacı belirledik</h4><p>Yeni bir bilgi için <code>Araclar</code> tablosuna sütun eklemek; C# sınıfını, araç formunu, listeyi, filtreyi ve detay sayfasını tek tek değiştirip sistemi yeniden yayınlamak demekti. Bunun yerine yeni bilgileri <b>yönetim panelinden eklenebilir</b> yapmaya karar verdik.</p></div></div>
+  <div class="adim"><div class="no">2</div><div><h4>Tabloları tasarladık</h4><p>Bilginin <b>tanımını</b> ve araçlardaki <b>değerlerini</b> iki ayrı tabloda tutan bir yapı çizdik: <code>AracOzellikleri</code> ve <code>AracOzellikDegerleri</code>. Anahtarları, ilişkileri ve silme kurallarını belirledik (bölüm 03).</p></div></div>
+  <div class="adim"><div class="no">3</div><div><h4>C# sınıflarını yazdık, tabloları EF Core üretti</h4><p><code>Modeller/AracOzelligi.cs</code> dosyasına iki sınıf ve özellik türlerini yazdık, <code>VeriTabani.cs</code>'e iki tabloyu ve ilişkilerini ekledik. Tabloların SQL'ini Entity Framework Core bu sınıflardan kendisi üretti (bölüm 04).</p></div></div>
+  <div class="adim"><div class="no">4</div><div><h4>Yönetim ekranlarını yaptık</h4><p>Yeni özellik formu, bütün araçların değerlerini tek tabloda girme ekranı ve araç formunda "Ek özellikler" alanları.</p></div></div>
+  <div class="adim"><div class="no">5</div><div><h4>Siteye bağladık</h4><p>Araç listesinde türe göre çizilen filtre kutuları (açılır liste, en az – en çok, var / yok, arama), araç kartında ve detay sayfasında gösterim.</p></div></div>
+  <div class="adim"><div class="no">6</div><div><h4>Neon'u güncelledik</h4><p>Neon'daki tabloların boş olduğunu kontrol ettik ve tabloları güncel yapıyla yeniden oluşturduk: <b>23 → 25 tablo, 22 → 24 ilişki</b>, eski tabloların sütunları birebir aynı (bölüm 06).</p></div></div>
+  <div class="adim"><div class="no">7</div><div><h4>Test ettik</h4><p>Üç örnek özellik ve 47 araçla 11 farklı filtre durumunda, sitede bulunan araç sayısını aynı koşulları doğrudan SQL ile sayarak karşılaştırdık. <b>11 durumun hepsinde sonuç birebir aynı</b> çıktı (bölüm 07).</p></div></div>
+
+  <div class="kutu"><i class="bi bi-lightbulb"></i><b>Kazancımız ne?</b> "Şu bilgiyi de ekleyin" isteği artık bir programcı işi değil, bir yönetici işi: kod değişmeden, sistem yeniden yayınlanmadan, yönetim panelinden birkaç dakikada yapılabiliyor.</div>
+</section>
+
+<!-- ================================================== KULLANIM 1 -->
+<section class="sayfa">
+  <div class="bolum-ust">02 · Kullanım</div>
+  <h2 class="baslik">Özellik sistemi nasıl kullanılıyor?</h2>
+  <p class="giris">Yönetim paneli → <b>Filtreler ve Özellikler</b>. Üç adım var: özelliği tanımla, araçların değerlerini gir, sitede gör.</p>
+
+  <h3 style="margin-top:0"><span class="etiket">Adım 1</span> Özelliği tanımla</h3>
+  <figure><img src="g/p-form-secim.jpg" alt=""><figcaption><b>Yeni özellik / filtre formu.</b> Örnek: "Kasa tipi", türü <i>Seçim listesi</i>, seçenekler her satıra bir tane. Sağda özelliğin nerede görüneceği seçiliyor.</figcaption></figure>
+
+  <table>
+    <tr><th style="width:17%">Tür</th><th style="width:25%">Örnek</th><th>Formda ek alan</th><th>Sitedeki filtre</th><th>Kartta / detayda</th></tr>
+    <tr><td><b>Seçim listesi</b></td><td>Kasa tipi: Sedan, Hatchback, SUV, Coupe, Ticari</td><td>Seçenekler</td><td>Açılır liste</td><td>"Sedan"</td></tr>
+    <tr><td><b>Sayı</b></td><td>Bagaj hacmi (lt)</td><td>Birim: lt, kg, km…</td><td>En az – en çok kutuları</td><td>"510 lt"</td></tr>
+    <tr><td><b>Var / Yok</b></td><td>Geri görüş kamerası</td><td>—</td><td>Fark etmez / Var / Yok</td><td>Detayda "Var" / "Yok"</td></tr>
+    <tr><td><b>Serbest yazı</b></td><td>Lastik markası</td><td>—</td><td>İçinde arama</td><td>Yazının kendisi</td></tr>
+  </table>
+
+  <div class="izgara-2">
+    <div class="kutu" style="margin:0"><b>Nerede görünsün?</b><br>Dört düğme: <i>araç listesinde filtre olarak</i>, <i>araç kartında</i>, <i>araç detayında</i> ve <i>yayında</i>. "Yayında" kapatılan özellik silinmez, sadece hiçbir yerde görünmez. <b>Sıra</b> küçük olan önce gelir.</div>
+    <div class="kutu yesil" style="margin:0"><b>Doğrulamalar</b>
+      <ul style="margin:1mm 0 0;font-size:8.8pt">
+        <li>Özellik adı zorunlu, en fazla 60 karakter.</li>
+        <li>Seçim listesinde en az bir seçenek olmalı; aynı seçenek iki kez yazılırsa bir kez kaydedilir.</li>
+        <li>Sayılar hem <code>1250.5</code> hem <code>1.250,5</code> yazımıyla doğru okunur.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================== KULLANIM 2 -->
+<section class="sayfa">
+  <h3 style="margin-top:0"><span class="etiket">Adım 2</span> Araçların değerlerini gir</h3>
+  <p>Özellik kaydedilince bütün araçların alt alta sıralandığı tablo açılıyor. Her aracın değeri yazılıp bir kez <b>Değerleri kaydet</b>'e basılıyor. Kutunun türü özelliğin türüne göre değişiyor: sayı kutusu, açılır liste ya da Var / Yok listesi. Boş bırakılan aracın değeri silinir; o araç bu filtrede çıkmaz.</p>
+  <figure class="dar"><img src="g/p-degerler.jpg" alt=""><figcaption><b>Değerleri gir ekranı.</b> Bagaj hacmi (Sayı türü, birimi lt). 47 aracın değeri tek ekranda giriliyor.</figcaption></figure>
+
+  <div class="yan-yana" style="grid-template-columns: 1.25fr 1fr; align-items:center">
+    <figure style="margin:0"><img src="g/p-arac-formu.png" alt=""><figcaption><b>Araç formunda "Ek özellikler".</b> Tek bir aracı düzenlerken aynı değerler buradan da değiştirilebiliyor.</figcaption></figure>
+    <p style="font-size:8.8pt;margin:0">Araç formu, panelden eklenen özellikleri kendisi tanıyor: yeni bir özellik eklendiğinde forma yeni bir kutu <b>kod değişmeden</b> geliyor. Kutunun adı <code>Ozellikler[3]</code> gibi; köşeli parantezdeki sayı özelliğin numarası.</p>
+  </div>
+
+  <figure style="margin-top:5mm"><img src="g/p-liste.jpg" alt=""><figcaption><b>Eklenen özellikler.</b> Türü, nerede göründüğü ve kaç araçta dolu olduğu. Geri görüş kamerası 23 / 47: kamerası olmayan araç için satır tutulmuyor (bölüm 03).</figcaption></figure>
+</section>
+
+<!-- ================================================== KULLANIM 3 -->
+<section class="sayfa">
+  <h3 style="margin-top:0"><span class="etiket">Adım 3</span> Sitede sonuç</h3>
+  <p>Kaydedilen özellik araç listesinin filtre panelinde hemen çıkıyor. Aşağıda üç filtre birlikte seçildi: <b>Kasa tipi = Sedan</b>, <b>Bagaj hacmi en az 500 lt</b>, <b>Geri görüş kamerası = Var</b>. 47 araçtan bu üç koşulu birden sağlayan 7 araç kaldı.</p>
+  <figure><img src="g/s-suzulmus.jpg" alt=""><figcaption><b>Süzülmüş araç listesi.</b> Solda en altta üç yeni filtre. "Araç kartında göster" işaretli olduğu için kartlarda bagaj hacmi de görünüyor. Bu sonucu veren adres: <code>/Araclar?Oz[1]=Sedan&amp;OzEnAz[2]=500&amp;Oz[3]=true</code> (bölüm 07).</figcaption></figure>
+</section>
+
+<section class="sayfa">
+  <figure><img src="g/s-detay.jpg" alt=""><figcaption><b>Araç detayı.</b> Panelden eklenen özellikler, vites, yakıt, koltuk ve renk gibi sabit bilgilerin yanına kendiliğinden ekleniyor (Volkswagen Jetta: Sedan, 510 lt, kamera var).</figcaption></figure>
+  <div class="resim-cifti" style="grid-template-columns: 1fr 1fr 1.2fr">
+    <figure style="margin:0"><img src="g/s-yeni-filtreler.png" alt=""><figcaption><b>Yeni filtre kutuları.</b> Türüne göre çiziliyor.</figcaption></figure>
+    <figure style="margin:0"><img src="g/s-kart.png" alt=""><figcaption><b>Araç kartı.</b> Son sırada bagaj hacmi.</figcaption></figure>
+    <div class="kutu" style="margin:0"><b>Kod yazmadan yeni filtre</b><br>Filtre kutuları <code>Views/Araclar/Index.cshtml</code>'de, özellikler tablosundaki her kayıt için <b>türüne bakılarak</b> çiziliyor: Seçim → açılır liste, Sayı → en az / en çok, Var / Yok → üç seçenekli liste, Yazı → arama kutusu. Panelden dördüncü bir özellik eklendiğinde dördüncü kutu kendiliğinden gelir.</div>
+  </div>
+</section>
+
+<!-- ================================================== TASARIM -->
+<section class="sayfa">
+  <div class="bolum-ust">03 · Tasarım</div>
+  <h2 class="baslik">Nasıl tasarladık? Neden iki tablo?</h2>
+  <p class="giris">Araçlara yeni bir bilgi eklemenin iki yolu vardı. İkisini karşılaştırdık ve ikincisini seçtik.</p>
+
+  <div class="izgara-2">
+    <div class="yol">
+      <h4><span class="eksi">Yol 1</span> · Araclar tablosuna sütun eklemek</h4>
+      <table>
+        <tr><th>Id</th><th>Model</th><th>…</th><th>BagajHacmi</th><th>KasaTipi</th><th>Kamera</th></tr>
+        <tr><td>43</td><td>Jetta</td><td>…</td><td>510</td><td>Sedan</td><td>true</td></tr>
+        <tr><td>27</td><td>206</td><td>…</td><td>245</td><td>Hatchback</td><td class="bos">(boş)</td></tr>
+      </table>
+      <ul>
+        <li>Her yeni bilgi = C# sınıfında yeni alan, tabloda yeni sütun, formda, listede, filtrede ve detayda kod değişikliği.</li>
+        <li>Sistem her seferinde yeniden yayınlanmalı; yönetici bunu kendisi yapamaz.</li>
+        <li>Çoğu araçta boş kalan sütunlar birikir.</li>
+      </ul>
+    </div>
+    <div class="yol secilen">
+      <h4><span class="arti">Yol 2</span> · Tanım + değer (seçtiğimiz)</h4>
+      <table>
+        <tr><th colspan="3">AracOzellikleri (tanım)</th></tr>
+        <tr><td>1</td><td>Kasa tipi</td><td>Secim</td></tr>
+        <tr><td>2</td><td>Bagaj hacmi</td><td>Sayi</td></tr>
+      </table>
+      <table>
+        <tr><th>AracId</th><th>OzellikId</th><th>Deger</th></tr>
+        <tr><td>43</td><td>1</td><td>Sedan</td></tr>
+        <tr><td>43</td><td>2</td><td>510</td></tr>
+      </table>
+      <ul>
+        <li>Yeni bilgi = <code>AracOzellikleri</code>'ne <b>bir satır</b>; değerleri = <code>AracOzellikDegerleri</code>'ne satırlar.</li>
+        <li>Tablo yapısı ve kod hiç değişmez; kod bir kere yazıldı, her özellik için çalışır.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="kutu"><b>Bu yöntemin bir adı var: EAV</b> (Entity–Attribute–Value, varlık–özellik–değer). E-ticaret sitelerinde ürün özellikleri (renk, beden, ekran boyutu) çoğunlukla böyle tutulur. <b>Bedeli:</b> değerler tek bir sütunda yazı olarak durduğu için sayı karşılaştırmak zorlaşır ve sorgular biraz uzar. Sayı sorununu ayrı bir <code>SayiDeger</code> sütunuyla çözdük (sonraki sayfa).</div>
+
+  <h3>Tablolar arasındaki ilişki</h3>
+  <svg viewBox="0 0 900 150" width="100%" xmlns="http://www.w3.org/2000/svg">
+    <defs><marker id="ok1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16a34a"/></marker></defs>
+    <rect x="10" y="20" width="230" height="110" rx="12" fill="#0b1230"/>
+    <text x="125" y="58" fill="#fff" font-size="17" font-weight="800" text-anchor="middle">Araclar</text>
+    <text x="125" y="82" fill="#9fb0ff" font-size="11" text-anchor="middle">47 araç (her biri bir satır)</text>
+    <text x="125" y="104" fill="#9fb0ff" font-size="11" text-anchor="middle">anahtar: Id</text>
+    <rect x="335" y="20" width="250" height="110" rx="12" fill="#ecf8f0" stroke="#86efac" stroke-width="1.5"/>
+    <text x="460" y="58" fill="#166534" font-size="16" font-weight="800" text-anchor="middle">AracOzellikDegerleri</text>
+    <text x="460" y="82" fill="#166534" font-size="11" text-anchor="middle">bir araç × bir özellik = bir satır</text>
+    <text x="460" y="104" fill="#166534" font-size="11" text-anchor="middle">anahtar: AracId + OzellikId</text>
+    <rect x="680" y="20" width="210" height="110" rx="12" fill="#ecf8f0" stroke="#86efac" stroke-width="1.5"/>
+    <text x="785" y="58" fill="#166534" font-size="16" font-weight="800" text-anchor="middle">AracOzellikleri</text>
+    <text x="785" y="82" fill="#166534" font-size="11" text-anchor="middle">özelliğin tanımı</text>
+    <text x="785" y="104" fill="#166534" font-size="11" text-anchor="middle">anahtar: Id</text>
+    <g stroke="#16a34a" stroke-width="2" fill="none" marker-end="url(#ok1)"><path d="M335,75 L244,75"/><path d="M585,75 L676,75"/></g>
+    <g font-size="10.5" fill="#475569" text-anchor="middle"><text x="290" y="66">AracId</text><text x="290" y="96">Cascade</text><text x="630" y="66">OzellikId</text><text x="630" y="96">Cascade</text></g>
+  </svg>
+  <p class="soluk" style="font-size:8.2pt;margin-top:1mm">Bir aracın birçok özellik değeri olabilir; bir özelliğin de birçok araçta değeri olabilir. <code>AracOzellikDegerleri</code> bu iki tabloyu birbirine bağlayan <b>ara tablo</b>dur (çoka-çok ilişki). 3. haftadaki <code>RezervasyonEkstralari</code> da aynı mantıkla çalışıyor.</p>
+</section>
+
+<section class="sayfa">
+  <h2 class="baslik">İki tablo, satır satır</h2>
+  <p class="giris">Aşağıdaki satırlar bilgisayarımızdaki deneme veritabanından alındı (Neon'daki tablolar şu an boş).</p>
+
+  <div class="dosya" style="margin-top:0">AracOzellikleri — özelliğin tanımı (11 sütun)</div>
+  <table class="sik-tablo">
+    <tr><th>Id</th><th>Ad</th><th>Tur</th><th>Secenekler</th><th>Birim</th><th>Ikon</th><th class="o">Filtrede<wbr>Goster</th><th class="o">Kartta<wbr>Goster</th><th class="o">Detayda<wbr>Goster</th><th class="o">Sira</th><th class="o">Aktif</th></tr>
+    <tr><td>1</td><td style="white-space:nowrap">Kasa tipi</td><td>Secim</td><td>Sedan|<wbr>Hatchback|<wbr>SUV|<wbr>Coupe|<wbr>Ticari</td><td class="soluk">boş</td><td style="white-space:nowrap">bi-car-front</td><td class="o">✓</td><td class="o">—</td><td class="o">✓</td><td class="o">1</td><td class="o">✓</td></tr>
+    <tr><td>2</td><td style="white-space:nowrap">Bagaj hacmi</td><td>Sayi</td><td class="soluk">boş</td><td>lt</td><td style="white-space:nowrap">bi-suitcase</td><td class="o">✓</td><td class="o">✓</td><td class="o">✓</td><td class="o">2</td><td class="o">✓</td></tr>
+    <tr><td>3</td><td style="white-space:nowrap">Geri görüş kamerası</td><td>EvetHayir</td><td class="soluk">boş</td><td class="soluk">boş</td><td style="white-space:nowrap">bi-camera-video</td><td class="o">✓</td><td class="o">—</td><td class="o">✓</td><td class="o">3</td><td class="o">✓</td></tr>
+  </table>
+
+  <div class="dosya">AracOzellikDegerleri — hangi aracın hangi değeri var (4 sütun)</div>
+  <table class="sik-tablo">
+    <tr><th>AracId</th><th>OzellikId</th><th>Deger</th><th>SayiDeger</th><th>Anlamı</th></tr>
+    <tr><td>43</td><td>1</td><td>Sedan</td><td class="soluk">boş</td><td>Volkswagen Jetta'nın kasa tipi Sedan</td></tr>
+    <tr><td>43</td><td>2</td><td>510</td><td>510</td><td>Jetta'nın bagajı 510 lt</td></tr>
+    <tr><td>43</td><td>3</td><td>true</td><td class="soluk">boş</td><td>Jetta'da geri görüş kamerası var</td></tr>
+    <tr><td>27</td><td>1</td><td>Hatchback</td><td class="soluk">boş</td><td>Peugeot 206'nın kasa tipi Hatchback</td></tr>
+    <tr><td>27</td><td>2</td><td>245</td><td>245</td><td>206'nın bagajı 245 lt</td></tr>
+    <tr><td colspan="5" class="soluk">27 numaralı aracın 3 numaralı özellik için satırı yok → Peugeot 206'da kamera yok.</td></tr>
+  </table>
+
+  <div class="izgara-2">
+    <div class="kart"><h4><i class="bi bi-key"></i>Bileşik anahtar: AracId + OzellikId</h4><p>Bir aracın bir özellikte tek değeri olur. Bu yüzden ayrı bir Id sütunu yerine iki sütunu <b>birlikte</b> birincil anahtar yaptık: (43, 2) çifti tabloda yalnızca bir kez bulunabilir. Aynı araca aynı özellik için ikinci satır yazılmaya çalışılırsa veritabanı izin vermez.</p></div>
+    <div class="kart"><h4><i class="bi bi-trash3"></i>Cascade (zincirleme silme)</h4><p>Araç ya da özellik silinince ona ait değer satırları da veritabanı tarafından silinir; sahipsiz değer kalmaz. 3. haftadaki "kullanılan marka silinemez" (Restrict) kuralının tersi: marka birçok aracın parçasıdır, değer ise sadece o araca ait bir bilgidir.</p></div>
+    <div class="kart"><h4><i class="bi bi-123"></i>SayiDeger: sayılar neden ayrı?</h4><p><code>Deger</code> sütunu yazı. Yazılar harf harf karşılaştırılır: yazı olarak <b>"1050" &lt; "586"</b> çıkar, çünkü "1" &lt; "5". "En az / en çok" filtresinin doğru çalışması için sayının <code>numeric</code> halini <code>SayiDeger</code>'de de tutuyoruz.</p></div>
+    <div class="kart"><h4><i class="bi bi-toggle-on"></i>Var / Yok nasıl saklanıyor?</h4><p>"Var" ise <code>Deger = 'true'</code> olan bir satır; "Yok" ise hiç satır yok. Gereksiz "false" satırları tutmuyoruz. "Yok" filtresi, <code>'true'</code> satırı olmayan araçları getiriyor.</p></div>
+    <div class="kart"><h4><i class="bi bi-fonts"></i>Tür neden yazı olarak saklanıyor?</h4><p><code>Tur</code> sütununda 0, 1, 2 gibi numaralar yerine <code>Secim</code>, <code>Sayi</code>, <code>EvetHayir</code> yazıyor. Tabloya bakan biri kodu okumadan anlıyor; türlerin sırası kodda değişse bile kayıtlar bozulmuyor.</p></div>
+    <div class="kart"><h4><i class="bi bi-lightning-charge"></i>Index</h4><p>EF Core, <code>OzellikId</code> yabancı anahtarına kendiliğinden bir index ekledi (<code>IX_AracOzellikDegerleri_OzellikId</code>). "Bu özelliğin bütün değerleri" sorgusu, tablonun hepsini taramadan hızlı çalışır.</p></div>
+  </div>
+</section>
+
+<!-- ================================================== TABLO OLUŞTURMA -->
+<section class="sayfa">
+  <div class="bolum-ust">04 · Tablolar</div>
+  <h2 class="baslik">Tabloları nasıl oluşturduk?</h2>
+  <p class="giris">3. haftada olduğu gibi <b>code-first</b> yöntemini kullandık: tabloları SQL ile elle yazmadık. Önce C# sınıflarını yazdık, Entity Framework Core bu sınıflara bakıp tabloları kendisi üretti. Dört adımda:</p>
+
+  <div class="dosya" style="margin-top:0">Adım 1 · Modeller/AracOzelligi.cs — bir sınıf = bir tablo, bir alan = bir sütun</div>
+<pre><span class="a">public enum</span> OzellikTuru { Secim, Sayi, EvetHayir, Yazi }        <span class="y">// seçim listesi · sayı · var/yok · yazı</span>
+
+<span class="a">public class</span> AracOzelligi                                       <span class="y">// → AracOzellikleri tablosu</span>
+{
+    <span class="a">public int</span> Id { get; set; }                                 <span class="y">// birincil anahtar, kendiliğinden artar</span>
+    [Required, MaxLength(60)] <span class="a">public string</span> Ad { get; set; }    <span class="y">// "Bagaj hacmi"</span>
+    <span class="a">public</span> OzellikTuru Tur { get; set; }                        <span class="y">// veritabanına "Sayi" diye yazılır</span>
+    [MaxLength(1000)] <span class="a">public string</span>? Secenekler { get; set; }   <span class="y">// "Sedan|Hatchback|SUV" (? = boş olabilir)</span>
+    [MaxLength(20)] <span class="a">public string</span>? Birim { get; set; }          <span class="y">// "lt"</span>
+    [MaxLength(40)] <span class="a">public string</span> Ikon { get; set; } = <span class="s">"bi-tag"</span>;
+    <span class="a">public bool</span> FiltredeGoster { get; set; } = <span class="a">true</span>;
+    <span class="a">public bool</span> KarttaGoster { get; set; }
+    <span class="a">public bool</span> DetaydaGoster { get; set; } = <span class="a">true</span>;
+    <span class="a">public int</span> Sira { get; set; }
+    <span class="a">public bool</span> Aktif { get; set; } = <span class="a">true</span>;
+    <span class="a">public</span> List&lt;AracOzellikDegeri&gt; Degerler { get; set; } = <span class="a">new</span>();  <span class="y">// değerleri (sütun değil)</span>
+}
+
+<span class="a">public class</span> AracOzellikDegeri                                  <span class="y">// → AracOzellikDegerleri tablosu</span>
+{
+    <span class="a">public int</span> AracId { get; set; }                             <span class="y">// hangi araç    → Araclar.Id</span>
+    <span class="a">public int</span> OzellikId { get; set; }                          <span class="y">// hangi özellik → AracOzellikleri.Id</span>
+    [MaxLength(200)] <span class="a">public string</span> Deger { get; set; } = <span class="s">""</span>;    <span class="y">// "510", "Sedan", "true"</span>
+    <span class="a">public decimal</span>? SayiDeger { get; set; }                     <span class="y">// 510 (sadece Sayı türünde dolu)</span>
+}</pre>
+  <p class="soluk" style="font-size:8.2pt;margin-top:-2mm">Kısaltılmış hali. <code>Modeller/Arac.cs</code>'e de aracın değerlerine ulaşmak için bir liste eklendi: <code>List&lt;AracOzellikDegeri&gt; OzellikDegerleri</code>.</p>
+
+  <div class="dosya">Adım 2 · Veri/VeriTabani.cs — iki tabloyu tanıt (DbSet)</div>
+<pre><span class="y">// her DbSet = bir tablo</span>
+<span class="a">public</span> DbSet&lt;AracOzelligi&gt; AracOzellikleri =&gt; Set&lt;AracOzelligi&gt;();
+<span class="a">public</span> DbSet&lt;AracOzellikDegeri&gt; AracOzellikDegerleri =&gt; Set&lt;AracOzellikDegeri&gt;();</pre>
+
+  <div class="dosya">Adım 3 · Veri/VeriTabani.cs → OnModelCreating — anahtar ve ilişkileri anlat</div>
+<pre><span class="y">// Araç özelliği değerleri: bir araç × bir özellik = bir satır (anahtar iki sütundan oluşur).</span>
+<span class="y">// Araç ya da özellik silinirse ona ait değerler de kendiliğinden silinir (Cascade).</span>
+model.Entity&lt;AracOzellikDegeri&gt;().HasKey(x =&gt; <span class="a">new</span> { x.AracId, x.OzellikId });
+model.Entity&lt;AracOzellikDegeri&gt;().HasOne(x =&gt; x.Arac).WithMany(a =&gt; a.OzellikDegerleri)
+     .HasForeignKey(x =&gt; x.AracId).OnDelete(DeleteBehavior.Cascade);
+model.Entity&lt;AracOzellikDegeri&gt;().HasOne(x =&gt; x.Ozellik).WithMany(o =&gt; o.Degerler)
+     .HasForeignKey(x =&gt; x.OzellikId).OnDelete(DeleteBehavior.Cascade);</pre>
+  <p style="font-size:8.8pt"><b>Nasıl okunur?</b> <code>HasKey</code>: anahtar AracId ile OzellikId'nin ikisi birlikte. <code>HasOne(...).WithMany(...)</code>: "her değerin <b>bir</b> aracı var, bir aracın <b>birçok</b> değeri var". <code>OnDelete(Cascade)</code>: araç silinince değerleri de silinsin.</p>
+</section>
+
+<section class="sayfa">
+  <div class="dosya" style="margin-top:0">Adım 4 · EnsureCreated → EF Core'un ürettiği gerçek SQL (PostgreSQL / Neon)</div>
+<pre><span class="a">CREATE TABLE</span> <span class="s">"AracOzellikleri"</span> (
+    <span class="s">"Id"</span> integer <span class="a">GENERATED BY DEFAULT AS IDENTITY</span>,
+    <span class="s">"Ad"</span> character varying(60) <span class="a">NOT NULL</span>,
+    <span class="s">"Tur"</span> character varying(30) <span class="a">NOT NULL</span>,
+    <span class="s">"Secenekler"</span> character varying(1000),
+    <span class="s">"Birim"</span> character varying(20),
+    <span class="s">"Ikon"</span> character varying(40) <span class="a">NOT NULL</span>,
+    <span class="s">"FiltredeGoster"</span> boolean <span class="a">NOT NULL</span>,
+    <span class="s">"KarttaGoster"</span> boolean <span class="a">NOT NULL</span>,
+    <span class="s">"DetaydaGoster"</span> boolean <span class="a">NOT NULL</span>,
+    <span class="s">"Sira"</span> integer <span class="a">NOT NULL</span>,
+    <span class="s">"Aktif"</span> boolean <span class="a">NOT NULL</span>,
+    <span class="a">CONSTRAINT</span> <span class="s">"PK_AracOzellikleri"</span> <span class="a">PRIMARY KEY</span> (<span class="s">"Id"</span>)
+);
+
+<span class="a">CREATE TABLE</span> <span class="s">"AracOzellikDegerleri"</span> (
+    <span class="s">"AracId"</span> integer <span class="a">NOT NULL</span>,
+    <span class="s">"OzellikId"</span> integer <span class="a">NOT NULL</span>,
+    <span class="s">"Deger"</span> character varying(200) <span class="a">NOT NULL</span>,
+    <span class="s">"SayiDeger"</span> numeric,
+    <span class="a">CONSTRAINT</span> <span class="s">"PK_AracOzellikDegerleri"</span> <span class="a">PRIMARY KEY</span> (<span class="s">"AracId"</span>, <span class="s">"OzellikId"</span>),
+    <span class="a">CONSTRAINT</span> <span class="s">"FK_AracOzellikDegerleri_AracOzellikleri_OzellikId"</span> <span class="a">FOREIGN KEY</span> (<span class="s">"OzellikId"</span>)
+        <span class="a">REFERENCES</span> <span class="s">"AracOzellikleri"</span> (<span class="s">"Id"</span>) <span class="a">ON DELETE CASCADE</span>,
+    <span class="a">CONSTRAINT</span> <span class="s">"FK_AracOzellikDegerleri_Araclar_AracId"</span> <span class="a">FOREIGN KEY</span> (<span class="s">"AracId"</span>)
+        <span class="a">REFERENCES</span> <span class="s">"Araclar"</span> (<span class="s">"Id"</span>) <span class="a">ON DELETE CASCADE</span>
+);
+
+<span class="a">CREATE INDEX</span> <span class="s">"IX_AracOzellikDegerleri_OzellikId"</span> <span class="a">ON</span> <span class="s">"AracOzellikDegerleri"</span> (<span class="s">"OzellikId"</span>);</pre>
+  <div class="kutu"><i class="bi bi-terminal"></i><b>Bu SQL'i nereden aldık?</b> EF Core'un komut satırı aracıyla: <code>dotnet ef dbcontext script</code>. Bu komut veritabanına bağlanmadan, modelden üretilecek SQL'i dosyaya yazar. Neon'daki tabloların bu komutlarla birebir aynı olduğunu (sütunlar, türler, anahtarlar, ilişkiler, index) sorguyla kontrol ettik.</div>
+
+  <h3>C# türü → PostgreSQL türü</h3>
+  <table class="sik">
+    <tr><th>C# tarafında</th><th>Neon'da (PostgreSQL)</th><th>Örnek sütun</th></tr>
+    <tr><td><code>int Id</code></td><td>integer GENERATED BY DEFAULT AS IDENTITY</td><td>AracOzellikleri.Id — numara kendiliğinden artar</td></tr>
+    <tr><td><code>string</code> + <code>[Required, MaxLength(60)]</code></td><td>character varying(60) NOT NULL</td><td>Ad</td></tr>
+    <tr><td><code>string?</code> + <code>[MaxLength(20)]</code></td><td>character varying(20) — boş olabilir</td><td>Birim</td></tr>
+    <tr><td><code>enum OzellikTuru</code></td><td>character varying(30)</td><td>Tur ("Sayi")</td></tr>
+    <tr><td><code>bool</code></td><td>boolean</td><td>KarttaGoster</td></tr>
+    <tr><td><code>decimal?</code></td><td>numeric — boş olabilir</td><td>SayiDeger</td></tr>
+    <tr><td><code>HasKey(x =&gt; new { x.AracId, x.OzellikId })</code></td><td>PRIMARY KEY ("AracId", "OzellikId")</td><td>bileşik anahtar</td></tr>
+    <tr><td><code>OnDelete(DeleteBehavior.Cascade)</code></td><td>ON DELETE CASCADE</td><td>iki yabancı anahtar</td></tr>
+  </table>
+  <p class="soluk" style="font-size:8.2pt;margin-top:-2mm">Türün sonundaki <code>?</code> "boş olabilir" demek; soru işareti yoksa sütun <code>NOT NULL</code> olur. Türlerin yazı olarak saklanmasını <code>VeriTabani.cs → ConfigureConventions</code> içindeki tek satır sağlıyor.</p>
+</section>
+
+<section class="sayfa">
+  <h2 class="baslik">Bu hafta eklenen ve değişen dosyalar</h2>
+  <p class="giris">Hepsi <code>src/AracKiralama.Web/</code> klasörünün içinde. Bağlantı dosyalarına (<code>Program.cs</code>'deki adres okuma, <code>NeonBaglantisi.cs</code>) bu hafta dokunulmadı.</p>
+  <table>
+    <tr><th style="width:44%">Dosya</th><th>Ne var?</th></tr>
+    <tr><td colspan="2" class="grup">Veritabanı</td></tr>
+    <tr><td><code>Modeller/AracOzelligi.cs</code> <span class="etiket yeni">YENİ</span></td><td>AracOzelligi, AracOzellikDegeri sınıfları ve OzellikTuru (4 tür); değeri türüne göre temizleyen <code>Temizle</code></td></tr>
+    <tr><td><code>Modeller/Arac.cs</code></td><td>Aracın özellik değerleri listesi (<code>OzellikDegerleri</code>)</td></tr>
+    <tr><td><code>Veri/VeriTabani.cs</code></td><td>2 DbSet, bileşik anahtar, iki Cascade ilişkisi</td></tr>
+    <tr><td colspan="2" class="grup">Yönetim paneli</td></tr>
+    <tr><td><code>Areas/Yonetim/Controllers/OzelliklerController.cs</code> <span class="etiket yeni">YENİ</span></td><td>Özellik listesi, ekle, düzenle, sil, değerleri gir</td></tr>
+    <tr><td><code>Areas/Yonetim/Views/Ozellikler/</code> <span class="etiket yeni">YENİ</span></td><td>Index (liste), Form (ekle / düzenle), Degerler (toplu değer girme)</td></tr>
+    <tr><td><code>FormModelleri/YonetimFormlari.cs</code></td><td>OzellikFormu (form ve doğrulama), OzellikDegerleriSayfasi, araç formunda <code>Ozellikler</code></td></tr>
+    <tr><td><code>Areas/Yonetim/Controllers/AracControllerlari.cs</code></td><td>Araç kaydedilirken "Ek özellikler" değerlerinin yazılması</td></tr>
+    <tr><td><code>Areas/Yonetim/Views/Araclar/Form.cshtml</code></td><td>"Ek özellikler" kartı</td></tr>
+    <tr><td colspan="2" class="grup">Site</td></tr>
+    <tr><td><code>FormModelleri/SiteModelleri.cs</code></td><td>AracFiltresi: <code>Oz</code>, <code>OzEnAz</code>, <code>OzEnCok</code> sözlükleri</td></tr>
+    <tr><td><code>Controllers/AraclarController.cs</code></td><td>Filtre sorguları; detayda gösterilecek özellikler</td></tr>
+    <tr><td><code>Views/Araclar/Index.cshtml</code></td><td>Filtre kutuları (türüne göre)</td></tr>
+    <tr><td><code>Views/Shared/_AracKarti.cshtml</code></td><td>Kartta gösterim ("Araç kartında göster" işaretliyse)</td></tr>
+    <tr><td><code>Views/Araclar/Detay.cshtml</code></td><td>Detayda özellik kutuları</td></tr>
+  </table>
+
+  <div class="kutu"><b>Bir değer nasıl kaydediliyor?</b> "Değerleri kaydet"e basılınca <code>OzelliklerController.Degerler</code> her aracın kutusuna bakıyor: boşsa o aracın satırı silinir (<code>DELETE</code>), satır yoksa eklenir (<code>INSERT</code>), varsa güncellenir (<code>UPDATE</code>). Sayı türünde <code>SayiDeger</code> de aynı anda doldurulur. Hepsi tek bir <code>SaveChangesAsync()</code> ile, tek seferde veritabanına yazılır.</div>
+</section>
+
+<!-- ================================================== BAĞLANTI -->
+<section class="sayfa">
+  <div class="bolum-ust">05 · Bağlantı</div>
+  <h2 class="baslik">Veritabanına nasıl bağlandık?</h2>
+  <p class="giris">Bağlantıyı 3. haftada kurduk; bu hafta iki yeni tablo aynı bağlantı üzerinden eklendi. Bağlantının bütün zinciri şöyle:</p>
+
+  <svg viewBox="0 0 900 128" width="100%" xmlns="http://www.w3.org/2000/svg">
+    <defs><marker id="ok2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2747d6"/></marker></defs>
+    <g font-size="11" text-anchor="middle">
+      <rect x="5" y="15" width="200" height="90" rx="11" fill="#eef1fd" stroke="#c7d2fe"/>
+      <text x="105" y="48" fill="#0b1230" font-size="14" font-weight="800">Bağlantı adresi</text><text x="105" y="70" fill="#475569">bilgisayarda: user-secrets</text><text x="105" y="88" fill="#475569">canlıda: Render ortam değişkeni</text>
+      <rect x="235" y="15" width="200" height="90" rx="11" fill="#fff" stroke="#c7d2fe"/>
+      <text x="335" y="48" fill="#0b1230" font-size="14" font-weight="800">Program.cs</text><text x="335" y="70" fill="#475569">adresi okur</text><text x="335" y="88" fill="#475569">hangi veritabanı? karar verir</text>
+      <rect x="465" y="15" width="200" height="90" rx="11" fill="#fff" stroke="#c7d2fe"/>
+      <text x="565" y="48" fill="#0b1230" font-size="14" font-weight="800">NeonBaglantisi.cs</text><text x="565" y="70" fill="#475569">Npgsql ile bağlanır</text><text x="565" y="88" fill="#475569">EnsureCreated · tabloları sayar</text>
+      <rect x="695" y="15" width="200" height="90" rx="11" fill="#0b1230"/>
+      <text x="795" y="48" fill="#fff" font-size="14" font-weight="800">Neon</text><text x="795" y="70" fill="#9fb0ff">PostgreSQL 18.6 · Frankfurt</text><text x="795" y="88" fill="#9fb0ff">arackiralama · 25 tablo</text>
+    </g>
+    <g stroke="#2747d6" stroke-width="2" fill="none" marker-end="url(#ok2)"><path d="M205,60 L232,60"/><path d="M435,60 L462,60"/><path d="M665,60 L692,60"/></g>
+  </svg>
+
+  <h3>Bağlantı adresinin parçaları</h3>
+  <div class="adres"><span class="p1">postgresql://</span><span class="p2">neondb_owner</span>:<span class="p3">********</span>@<wbr><span class="p4">ep-…-pooler.c-6.eu-central-1.aws.neon.tech</span>/<wbr><span class="p5">arackiralama</span>?<wbr><span class="p6">sslmode=require</span>&amp;<wbr><span class="p7">channel_binding=require</span></div>
+  <table style="margin-top:3mm" class="sik">
+    <tr><th style="width:36%">Parça</th><th>Anlamı</th></tr>
+    <tr><td><span class="nokta p1"></span><code>postgresql://</code></td><td>Bağlantı türü: "bu bir PostgreSQL veritabanı".</td></tr>
+    <tr><td><span class="nokta p2"></span><code>neondb_owner</code></td><td>Veritabanı kullanıcısı (veritabanının sahibi).</td></tr>
+    <tr><td><span class="nokta p3"></span><code>********</code></td><td>Şifre. <b>Gizli</b>; raporda da gösterilmiyor.</td></tr>
+    <tr><td><span class="nokta p4"></span><code>ep-…-pooler…neon.tech</code></td><td>Sunucu adresi. <b>-pooler</b>: bağlantı havuzu üzerinden bağlan. <b>eu-central-1</b>: Frankfurt.</td></tr>
+    <tr><td><span class="nokta p5"></span><code>arackiralama</code></td><td>Bağlanılacak veritabanının adı.</td></tr>
+    <tr><td><span class="nokta p6"></span><code>sslmode=require</code></td><td>Bağlantı mutlaka şifreli (SSL/TLS) olsun.</td></tr>
+    <tr><td><span class="nokta p7"></span><code>channel_binding=require</code></td><td>Şifreli kanalın gerçekten Neon sunucusuyla kurulduğunu doğrular.</td></tr>
+  </table>
+
+  <div class="izgara-3">
+    <div class="kart"><div class="ikon"><i class="bi bi-file-earmark-code"></i></div><h4>appsettings.json</h4><p>Alan var ama <b>boş</b>. GitHub'da görünen tek şey bu boş alan.</p></div>
+    <div class="kart"><div class="ikon"><i class="bi bi-cloud-check"></i></div><h4>Render (canlı sunucu)</h4><p>Environment sayfasında <code>ConnectionStrings__PostgreSql</code> ortam değişkeni.</p></div>
+    <div class="kart"><div class="ikon"><i class="bi bi-laptop"></i></div><h4>Bilgisayarımız</h4><p><code>dotnet user-secrets</code>: proje klasörünün dışında saklanır, GitHub'a gitmez.</p></div>
+  </div>
+</section>
+
+<section class="sayfa">
+  <div class="dosya" style="margin-top:0">Program.cs — adresi oku, hangi veritabanının kullanılacağına karar ver</div>
+<pre><span class="a">var</span> postgreBaglantisi = PostgreBaglantisi.Duzenle(builder.Configuration.GetConnectionString(<span class="s">"PostgreSql"</span>));
+<span class="a">var</span> sayfalarNeondan = builder.Configuration[<span class="s">"VeriTabani:SayfalarNeredenOkusun"</span>] == <span class="s">"Neon"</span>
+                      &amp;&amp; !<span class="a">string</span>.IsNullOrWhiteSpace(postgreBaglantisi);
+
+builder.Services.AddDbContext&lt;VeriTabani&gt;(secenek =&gt;
+{
+    <span class="k">if</span> (sayfalarNeondan) secenek.UseNpgsql(postgreBaglantisi);                 <span class="y">// Neon (PostgreSQL)</span>
+    <span class="k">else</span> secenek.UseSqlite(<span class="s">$"Data Source={...}/arackiralama.db"</span>);            <span class="y">// örnek veri (SQLite)</span>
+});
+
+<span class="y">// Neon adresi varsa: arka planda Neon'a bağlan, tabloları hazırla (veri yazılmaz)</span>
+<span class="k">if</span> (!<span class="a">string</span>.IsNullOrWhiteSpace(postgreBaglantisi) &amp;&amp; !sayfalarNeondan)
+    _ = Task.Run(() =&gt; NeonBaglantisi.TablolariHazirlaAsync(postgreBaglantisi, app.Logger));</pre>
+
+  <div class="dosya">Veri/NeonBaglantisi.cs — bağlan, tabloları oluştur, say</div>
+<pre><span class="a">await using var</span> neon = <span class="a">new</span> VeriTabani(<span class="a">new</span> DbContextOptionsBuilder&lt;VeriTabani&gt;().UseNpgsql(baglantiAdresi).Options);
+<span class="a">var</span> simdiOlustu = <span class="a">await</span> neon.Database.EnsureCreatedAsync();   <span class="y">// tablolar yoksa oluştur, varsa dokunma</span>
+<span class="a">var</span> tablolar = <span class="a">await</span> TablolariListeleAsync(neon);              <span class="y">// SELECT table_name FROM information_schema.tables ...</span>
+logger.LogInformation(<span class="s">"Neon bağlantısı kuruldu: {Sayi} tablo hazır, toplam {Satir} satır."</span>, ...);
+<span class="y">// Neon'a ulaşılamazsa (internet yoksa) site çökmez, sadece uyarı yazılır (try / catch)</span></pre>
+
+  <div class="izgara-2" style="margin-top:4mm">
+    <div class="kutu" style="margin:0"><b>Code-first'ün faydası bu hafta görüldü.</b> İki yeni tablo için bağlantı kodunda <b>tek satır değişmedi</b>. Tabloların ne olduğunu C# sınıfları söylüyor; bağlantı kodu sadece "bu modeli Neon'a uygula" diyor.</div>
+    <div class="kutu" style="margin:0"><b>Kullandığımız paketler</b> (değişmedi)<br><code>Npgsql.EntityFrameworkCore.PostgreSQL</code> 10.0.3 · <code>Microsoft.EntityFrameworkCore.Sqlite</code> 10.0.12 · <code>Microsoft.AspNetCore.Identity.EntityFrameworkCore</code> 10.0.12</div>
+  </div>
+
+  <div class="kutu sari"><b>"API aldık" dememek lazım.</b> Neon'dan aldığımız şey bir API anahtarı değil, <b>bağlantı adresi</b> (connection string). Program bu adresle doğrudan veritabanına bağlanıyor.</div>
+</section>
+
+<!-- ================================================== NEON GÜNCELLEME -->
+<section class="sayfa">
+  <div class="bolum-ust">06 · Neon</div>
+  <h2 class="baslik">Neon'u nasıl güncelledik? (23 → 25)</h2>
+  <p class="giris">Yeni tabloları kodda tanımlamak yetmedi; Neon'da da oluşmaları gerekiyordu.</p>
+
+  <div class="kutu sari"><b><i class="bi bi-exclamation-triangle" style="color:var(--turuncu)"></i> EnsureCreated var olan veritabanına dokunmaz.</b> Uygulamamız açılırken <code>EnsureCreated</code> çalıştırıyor. Bu komut veritabanında <b>hiç tablo yoksa</b> hepsini oluşturur; tablo <b>varsa hiçbir şey yapmaz</b>. Neon'da 3. haftadan kalan 23 tablo olduğu için iki yeni tablo kendiliğinden oluşmadı.</div>
+
+  <div class="izgara-2" style="margin-bottom:5mm">
+    <div class="kart"><h4>Seçenek A · Migration</h4><p>EF Core farkı hesaplar, sadece eksik tabloları ekler. Veriler dururken yapı değiştirmenin doğru yolu; projemiz şu an migration kullanmıyor.</p></div>
+    <div class="kart" style="border:1.5px solid var(--yesil)"><h4>Seçenek B · Boş tabloları yeniden oluşturmak <span class="etiket y">seçtik</span></h4><p>Tablolar boş olduğu için silip yeniden oluşturmak hiçbir veri kaybettirmez. Yeni yapı yine C# sınıflarından gelir.</p></div>
+  </div>
+
+  <div class="adim"><div class="no">1</div><div><h4>Kontrol</h4><p>Her tablonun satır sayısını tek tek saydık: <b>23 tablo, toplam 0 satır</b>. Dolu bir tablo olsaydı burada dururduk.</p></div></div>
+  <div class="adim"><div class="no">2</div><div><h4>Silme</h4><p>23 boş tabloyu tek bir <b>transaction</b> içinde sildik (<code>DROP TABLE … CASCADE</code>): ya hepsi silinir ya hiçbiri.</p></div></div>
+  <div class="adim"><div class="no">3</div><div><h4>Yeniden oluşturma</h4><p>Uygulamayı açtık; <code>NeonBaglantisi.cs</code> Neon'u boş bulunca <code>EnsureCreated</code> tabloları güncel modelden oluşturdu.</p></div></div>
+  <div class="adim"><div class="no">4</div><div><h4>Doğrulama</h4><p>Tablo, sütun, anahtar ve ilişki listesini Neon'dan alıp güncelleme öncesiyle karşılaştırdık. Uygulama yeniden açıldığında kayda şu satır düştü:</p></div></div>
+  <div class="terminal">
+    <span class="bilgi">info:</span> Sayfaların veritabanı hazır (SQLite / örnek veri, 1247 ms).<br>
+    <span class="ok">info: Neon bağlantısı kuruldu: 25 tablo hazır, toplam 0 satır.</span>
+  </div>
+
+  <div class="izgara-2" style="margin-top:5mm;align-items:start">
+    <table style="margin:0">
+      <tr><th>Neon'da</th><th class="o">3. hafta</th><th class="o">4. hafta</th></tr>
+      <tr><td>Tablo</td><td class="o">23</td><td class="o"><b>25</b></td></tr>
+      <tr><td>İlişki (yabancı anahtar)</td><td class="o">22</td><td class="o"><b>24</b></td></tr>
+      <tr><td>Toplam sütun</td><td class="o">217</td><td class="o"><b>232</b> (+11 +4)</td></tr>
+      <tr><td>Satır</td><td class="o">0</td><td class="o">0</td></tr>
+      <tr><td>Eski 23 tablonun sütunları</td><td class="o">—</td><td class="o">aynı <span class="ok-isareti">✓</span></td></tr>
+    </table>
+    <div class="kutu" style="margin:0"><b>Neden <code>CREATE TABLE</code>'ı elle çalıştırmadık?</b> Yapabilirdik; ama o zaman Neon'daki yapı ile koddaki model ayrı ayrı, elle yönetilirdi ve bir gün aralarında fark oluşabilirdi. Tabloları her zaman modelden ürettirerek tek bir doğruluk kaynağımız oluyor: <b>C# sınıfları</b>.</div>
+  </div>
+  <div class="kutu kirmizi"><b>Gerçek bir işletmede ne yapılır?</b> Tablolarda veri olsaydı silemezdik. O zaman migration kullanılır: <code>dotnet ef migrations add AracOzellikleri</code> farkı hesaplar, <code>dotnet ef database update</code> sadece iki yeni tabloyu ekler; veriler yerinde kalır. Veriler Neon'a taşındıktan sonra bu yolu kullanmamız gerekecek.</div>
+</section>
+
+<!-- ================================================== FİLTRE -->
+<section class="sayfa">
+  <div class="bolum-ust">07 · Filtre</div>
+  <h2 class="baslik">Filtre nasıl çalışıyor?</h2>
+  <p class="giris">Seçilen filtreler adres çubuğuna yazılıyor; sunucu adresi okuyup veritabanına bir sorgu gönderiyor.</p>
+
+  <div class="adim"><div class="no">1</div><div><h4>Adres</h4><p><code>/Araclar?Oz[1]=Sedan&amp;OzEnAz[2]=500&amp;Oz[3]=true</code> — <b>Oz[1]=Sedan</b>: Kasa tipi (1) Sedan. <b>OzEnAz[2]=500</b>: Bagaj hacmi (2) en az 500. <b>Oz[3]=true</b>: Geri görüş kamerası (3) var. Köşeli parantezdeki sayı, özelliğin <code>AracOzellikleri</code>'ndeki Id'si.</p></div></div>
+  <div class="adim"><div class="no">2</div><div><h4>Model binding</h4><p>ASP.NET Core bu adresi <code>AracFiltresi</code> sınıfındaki sözlüklere kendisi dolduruyor (<code>FormModelleri/SiteModelleri.cs</code>):</p></div></div>
+<pre><span class="a">public</span> Dictionary&lt;<span class="a">int</span>, <span class="a">string</span>?&gt;? Oz { get; set; }        <span class="y">// seçim, var/yok, yazı  → { 1: "Sedan", 3: "true" }</span>
+<span class="a">public</span> Dictionary&lt;<span class="a">int</span>, <span class="a">decimal</span>?&gt;? OzEnAz { get; set; }   <span class="y">// sayı: en az           → { 2: 500 }</span>
+<span class="a">public</span> Dictionary&lt;<span class="a">int</span>, <span class="a">decimal</span>?&gt;? OzEnCok { get; set; }  <span class="y">// sayı: en çok</span></pre>
+  <div class="adim"><div class="no">3</div><div><h4>LINQ sorgusu (Controllers/AraclarController.cs)</h4><p>Her seçilen özellik için sorguya bir koşul ekleniyor: <i>"bu özellikte şu değere sahip bir satırı olan araçlar"</i>.</p></div></div>
+<pre><span class="k">foreach</span> (<span class="a">var</span> (ozellikId, deger) <span class="k">in</span> filtre.Oz ?? <span class="a">new</span>())
+{
+    <span class="y">// "Yok" seçildiyse: 'true' satırı OLMAYAN araçlar</span>
+    <span class="k">if</span> (tur == OzellikTuru.EvetHayir &amp;&amp; deger == <span class="s">"false"</span>)
+        sorgu = sorgu.Where(a =&gt; !a.OzellikDegerleri.Any(d =&gt; d.OzellikId == ozellikId &amp;&amp; d.Deger == <span class="s">"true"</span>));
+    <span class="y">// Serbest yazı: değerin içinde arama</span>
+    <span class="k">else if</span> (tur == OzellikTuru.Yazi)
+        sorgu = sorgu.Where(a =&gt; a.OzellikDegerleri.Any(d =&gt; d.OzellikId == ozellikId
+                                                         &amp;&amp; d.Deger.ToUpper().Contains(aranan)));
+    <span class="y">// Seçim listesi ve "Var": değeri birebir aynı olan</span>
+    <span class="k">else</span>
+        sorgu = sorgu.Where(a =&gt; a.OzellikDegerleri.Any(d =&gt; d.OzellikId == ozellikId &amp;&amp; d.Deger == deger));
+}
+<span class="y">// Sayı: en az (en çok da aynı, &lt;= ile)</span>
+<span class="k">foreach</span> (<span class="a">var</span> (ozellikId, enAz) <span class="k">in</span> filtre.OzEnAz ?? <span class="a">new</span>())
+    sorgu = sorgu.Where(a =&gt; a.OzellikDegerleri.Any(d =&gt; d.OzellikId == ozellikId &amp;&amp; d.SayiDeger &gt;= enAz));</pre>
+  <div class="adim"><div class="no">4</div><div><h4>SQL karşılığı (sadeleştirilmiş)</h4><p>EF Core <code>Any(...)</code>'yi SQL'de <code>EXISTS</code>'e çeviriyor. Her filtre bir <code>EXISTS</code> daha ekliyor; hepsi <code>AND</code> ile bağlı olduğu için araç bütün koşulları sağlamalı. Gerçek sorguda marka, şube gibi tabloların birleştirmeleri (JOIN), sıralama ve sayfalama da var; aşağıda yalnızca özellik filtresinin mantığı gösteriliyor.</p></div></div>
+<pre><span class="a">SELECT</span> a.* <span class="a">FROM</span> <span class="s">"Araclar"</span> <span class="a">AS</span> a
+<span class="a">WHERE</span> a.<span class="s">"Durum"</span> &lt;&gt; <span class="s">'Pasif'</span>
+  <span class="a">AND EXISTS</span> (<span class="a">SELECT</span> 1 <span class="a">FROM</span> <span class="s">"AracOzellikDegerleri"</span> <span class="a">AS</span> d
+              <span class="a">WHERE</span> d.<span class="s">"AracId"</span> = a.<span class="s">"Id"</span> <span class="a">AND</span> d.<span class="s">"OzellikId"</span> = 1 <span class="a">AND</span> d.<span class="s">"Deger"</span> = <span class="s">'Sedan'</span>)
+  <span class="a">AND EXISTS</span> (<span class="a">SELECT</span> 1 <span class="a">FROM</span> <span class="s">"AracOzellikDegerleri"</span> <span class="a">AS</span> d
+              <span class="a">WHERE</span> d.<span class="s">"AracId"</span> = a.<span class="s">"Id"</span> <span class="a">AND</span> d.<span class="s">"OzellikId"</span> = 2 <span class="a">AND</span> d.<span class="s">"SayiDeger"</span> &gt;= 500)
+  <span class="a">AND EXISTS</span> (<span class="a">SELECT</span> 1 <span class="a">FROM</span> <span class="s">"AracOzellikDegerleri"</span> <span class="a">AS</span> d
+              <span class="a">WHERE</span> d.<span class="s">"AracId"</span> = a.<span class="s">"Id"</span> <span class="a">AND</span> d.<span class="s">"OzellikId"</span> = 3 <span class="a">AND</span> d.<span class="s">"Deger"</span> = <span class="s">'true'</span>);</pre></section>
+
+<section class="sayfa">
+  <h3 style="margin-top:0">Test: site ile SQL aynı sonucu veriyor mu?</h3>
+  <p>Bilgisayarımızdaki deneme veritabanında (47 araç, 3 örnek özellik, 117 değer satırı) 11 farklı durumda iki sayıyı karşılaştırdık: <b>sitenin "… araç bulundu" yazdığı sayı</b> ve <b>aynı koşulların SQL ile doğrudan veritabanında sayılması</b>.</p>
+  <div class="yan-yana" style="grid-template-columns: 1.35fr 1fr">
+    <table style="margin:0">
+      <tr><th>Filtre</th><th class="o">Sitede</th><th class="o">SQL ile</th><th class="o"></th></tr>
+      <tr><td>Filtre yok</td><td class="o">47</td><td class="o">47</td><td class="o ok-isareti">✓</td></tr>
+      <tr><td>Kasa tipi = Sedan</td><td class="o">16</td><td class="o">16</td><td class="o ok-isareti">✓</td></tr>
+      <tr><td>Kasa tipi = Hatchback</td><td class="o">14</td><td class="o">14</td><td class="o ok-isareti">✓</td></tr>
+      <tr><td>Kasa tipi = SUV</td><td class="o">8</td><td class="o">8</td><td class="o ok-isareti">✓</td></tr>
+      <tr><td>Kasa tipi = Coupe</td><td class="o">2</td><td class="o">2</td><td class="o ok-isareti">✓</td></tr>
+      <tr><td>Kasa tipi = Ticari</td><td class="o">7</td><td class="o">7</td><td class="o ok-isareti">✓</td></tr>
+      <tr><td>Bagaj hacmi ≥ 500 lt</td><td class="o">27</td><td class="o">27</td><td class="o ok-isareti">✓</td></tr>
+      <tr><td>Bagaj hacmi 400 – 600 lt</td><td class="o">23</td><td class="o">23</td><td class="o ok-isareti">✓</td></tr>
+      <tr><td>Geri görüş kamerası = Var</td><td class="o">23</td><td class="o">23</td><td class="o ok-isareti">✓</td></tr>
+      <tr><td>Geri görüş kamerası = Yok</td><td class="o">24</td><td class="o">24</td><td class="o ok-isareti">✓</td></tr>
+      <tr><td><b>Sedan + ≥ 500 lt + kamera var</b></td><td class="o"><b>7</b></td><td class="o"><b>7</b></td><td class="o ok-isareti">✓</td></tr>
+    </table>
+    <div>
+      <div class="kutu yesil" style="margin-top:0"><b>11 / 11 aynı.</b> Kasa tiplerinin toplamı 16 + 14 + 8 + 2 + 7 = 47; kamera var + yok = 23 + 24 = 47. Her araç tam bir gruba düşüyor, hiçbiri kaybolmuyor ya da iki kez sayılmıyor.</div>
+      <h4>Son satırdaki 7 araç</h4>
+      <table class="sik" style="margin:0">
+        <tr><th>Araç</th><th class="o">Bagaj</th></tr>
+        <tr><td>Fiat Egea</td><td class="o">520 lt</td></tr>
+        <tr><td>Renault Megane</td><td class="o">503 lt</td></tr>
+        <tr><td>Volkswagen Jetta</td><td class="o">510 lt</td></tr>
+        <tr><td>Renault Talisman</td><td class="o">608 lt</td></tr>
+        <tr><td>Volkswagen Passat</td><td class="o">586 lt</td></tr>
+        <tr><td>Volkswagen Arteon</td><td class="o">563 lt</td></tr>
+        <tr><td>Audi A6</td><td class="o">520 lt</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="kutu" style="margin-top:5mm"><b>"Yok" neden 24?</b> Kamerası olan 23 araç için <code>Deger = 'true'</code> satırı var; diğer 24 aracın bu özellik için hiç satırı yok. "Yok" filtresi <code>NOT EXISTS</code> ile tam bu 24 aracı buluyor. Tanımlanmamış ya da boş bırakılmış değer de "yok" sayılıyor.</div>
+</section>
+
+<!-- ================================================== TABLOLAR -->
+<section class="sayfa">
+  <div class="bolum-ust">08 · Tablolar</div>
+  <h2 class="baslik">Neon'daki 25 tablo</h2>
+  <p class="giris">Aşağıdaki liste Neon'a bağlanılarak çıkarılmış gerçek listedir. Satır sayılarının hepsi şu an 0. Yeşil satırlar bu hafta eklendi; diğerleri 3. haftadakiyle birebir aynı.</p>
+  <div class="izgara-2" style="align-items:start">
+    <table style="margin:0">
+      <tr><th>Tablo</th><th>Ne tutar?</th><th class="o">Sütun</th></tr>
+      <tr><td colspan="3" class="grup yeni-grup">Araç özellikleri (bu hafta)</td></tr>
+      <tr class="yeni"><td><b>AracOzellikleri</b></td><td>Özelliğin tanımı: adı, türü, seçenekleri, birimi, nerede görüneceği</td><td class="o">11</td></tr>
+      <tr class="yeni"><td><b>AracOzellikDegerleri</b></td><td>Aracın o özellikteki değeri</td><td class="o">4</td></tr>
+      <tr><td colspan="3" class="grup">İşletme</td></tr>
+      <tr><td>Araclar</td><td>Araç filosu</td><td class="o">19</td></tr>
+      <tr><td>Rezervasyonlar</td><td>Kiralama talepleri ve kiralamalar</td><td class="o">32</td></tr>
+      <tr><td>RezervasyonEkstralari</td><td>Rezervasyona eklenen ek hizmetler</td><td class="o">4</td></tr>
+      <tr><td>Odemeler</td><td>Alınan ödemeler</td><td class="o">8</td></tr>
+      <tr><td>Hasarlar</td><td>İadede tespit edilen hasarlar</td><td class="o">5</td></tr>
+      <tr><td>Bakimlar</td><td>Araç bakım kayıtları</td><td class="o">9</td></tr>
+      <tr><td colspan="3" class="grup">Tanımlar</td></tr>
+      <tr><td>Markalar</td><td>Audi, Fiat, Ford…</td><td class="o">4</td></tr>
+      <tr><td>Kategoriler</td><td>Ekonomi, SUV… (en az yaş, ehliyet yılı)</td><td class="o">8</td></tr>
+      <tr><td>YakitTurleri</td><td>Benzin, Dizel, LPG…</td><td class="o">3</td></tr>
+      <tr><td>VitesTurleri</td><td>Manuel, Otomatik</td><td class="o">3</td></tr>
+      <tr><td>Subeler</td><td>Şubeler (adres, telefon)</td><td class="o">5</td></tr>
+      <tr><td>Ekstralar</td><td>Ek hizmetler ve günlük fiyatları</td><td class="o">6</td></tr>
+    </table>
+    <table style="margin:0">
+      <tr><th>Tablo</th><th>Ne tutar?</th><th class="o">Sütun</th></tr>
+      <tr><td colspan="3" class="grup">Site içeriği</td></tr>
+      <tr><td>SiteAyarlari</td><td>Firma bilgisi, renkler, fiyat kuralları, filtre ayarları</td><td class="o">49</td></tr>
+      <tr><td>Sayfalar</td><td>Hakkımızda gibi içerik sayfaları</td><td class="o">9</td></tr>
+      <tr><td>Metinler</td><td>Sitedeki yazıların değiştirilmiş hali</td><td class="o">2</td></tr>
+      <tr><td>Gorseller</td><td>Yüklenen resimler</td><td class="o">5</td></tr>
+      <tr><td colspan="3" class="grup">Üyelik (ASP.NET Identity)</td></tr>
+      <tr><td>AspNetUsers</td><td>Kullanıcılar (+ ad, soyad, doğum ve ehliyet tarihi)</td><td class="o">24</td></tr>
+      <tr><td>AspNetRoles</td><td>Roller: Admin, Personel, Müşteri</td><td class="o">4</td></tr>
+      <tr><td>AspNetUserRoles</td><td>Hangi kullanıcı hangi rolde</td><td class="o">2</td></tr>
+      <tr><td>AspNetUserClaims</td><td>Kullanıcıya ek bilgiler</td><td class="o">4</td></tr>
+      <tr><td>AspNetUserLogins</td><td>Dış hesapla giriş (kullanılmıyor)</td><td class="o">4</td></tr>
+      <tr><td>AspNetUserTokens</td><td>Şifre sıfırlama gibi belirteçler</td><td class="o">4</td></tr>
+      <tr><td>AspNetRoleClaims</td><td>Role ek yetkiler</td><td class="o">4</td></tr>
+    </table>
+  </div>
+  <div class="izgara-3" style="margin-top:5mm">
+    <div class="rakam"><strong>18 + 7</strong><span>18 tablo bizim, 7 tablo ASP.NET Identity'nin</span></div>
+    <div class="rakam"><strong>232</strong><span>toplam sütun (geçen hafta 217; +11 +4)</span></div>
+    <div class="rakam"><strong>0</strong><span>satır: tablolar hazır, veriler sonraki adımda</span></div>
+  </div>
+</section>
+
+<section class="sayfa">
+  <h2 class="baslik">Tablolar arası ilişkiler</h2>
+  <p class="giris">Ok, yabancı anahtarın gösterdiği tabloya doğru çizilmiştir. Yeşil kutular bu hafta eklenen iki tablo.</p>
+  <svg viewBox="0 0 900 500" width="100%" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2747d6"/></marker>
+      <marker id="okY" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#16a34a"/></marker>
+    </defs>
+    <g stroke="#2747d6" stroke-width="1.6" fill="none" marker-end="url(#ok)">
+      <path d="M250,170 L195,56"/><path d="M250,180 L195,136"/><path d="M250,196 L195,216"/><path d="M250,206 L195,296"/>
+      <path d="M360,236 L360,318"/>
+      <path d="M335,82 L335,138"/>
+      <path d="M490,198 L422,192"/>
+      <path d="M520,246 L422,340"/>
+      <path d="M690,190 L738,190"/>
+      <path d="M585,82 L585,148"/><path d="M680,56 L738,56"/>
+      <path d="M585,320 L585,248"/>
+      <path d="M680,426 L708,426 L708,232 L684,232"/>
+      <path d="M815,280 L815,222"/><path d="M815,332 L815,368"/>
+    </g>
+    <g stroke="#16a34a" stroke-width="2" fill="none" marker-end="url(#okY)">
+      <path d="M275,420 L275,240"/>
+      <path d="M215,446 L164,446"/>
+    </g>
+    <g font-size="13" font-weight="700" text-anchor="middle">
+      <g fill="#eef1fd" stroke="#c7d2fe"><rect x="20" y="30" width="175" height="52" rx="9"/><rect x="20" y="110" width="175" height="52" rx="9"/><rect x="20" y="190" width="175" height="52" rx="9"/><rect x="20" y="270" width="175" height="52" rx="9"/></g>
+      <text x="107" y="61" fill="#0b1230">Markalar</text><text x="107" y="141" fill="#0b1230">Kategoriler</text><text x="107" y="221" fill="#0b1230">YakitTurleri</text><text x="107" y="301" fill="#0b1230">VitesTurleri</text>
+      <rect x="250" y="30" width="170" height="52" rx="9" fill="#fff" stroke="#c7d2fe"/><text x="335" y="61" fill="#0b1230">Bakimlar</text>
+      <rect x="250" y="140" width="170" height="96" rx="11" fill="#0b1230"/><text x="335" y="184" fill="#fff" font-size="16">Araclar</text><text x="335" y="204" fill="#9fb0ff" font-size="10" font-weight="500">19 sütun</text>
+      <rect x="300" y="320" width="120" height="52" rx="9" fill="#eef1fd" stroke="#c7d2fe"/><text x="360" y="351" fill="#0b1230">Subeler</text>
+      <rect x="490" y="30" width="190" height="52" rx="9" fill="#fff" stroke="#c7d2fe"/><text x="585" y="61" fill="#0b1230" font-size="12">RezervasyonEkstralari</text>
+      <rect x="490" y="150" width="190" height="96" rx="11" fill="#2747d6"/><text x="585" y="194" fill="#fff" font-size="16">Rezervasyonlar</text><text x="585" y="214" fill="#dbe2ff" font-size="10" font-weight="500">32 sütun</text>
+      <rect x="490" y="320" width="190" height="52" rx="9" fill="#fff" stroke="#c7d2fe"/><text x="585" y="351" fill="#0b1230">Odemeler</text>
+      <rect x="490" y="400" width="190" height="52" rx="9" fill="#fff" stroke="#c7d2fe"/><text x="585" y="431" fill="#0b1230">Hasarlar</text>
+      <rect x="740" y="30" width="150" height="52" rx="9" fill="#eef1fd" stroke="#c7d2fe"/><text x="815" y="61" fill="#0b1230">Ekstralar</text>
+      <rect x="740" y="150" width="150" height="72" rx="10" fill="#f3e8ff" stroke="#d8b4fe"/><text x="815" y="186" fill="#581c87">AspNetUsers</text><text x="815" y="204" fill="#7e22ce" font-size="10" font-weight="500">kullanıcılar</text>
+      <rect x="740" y="280" width="150" height="52" rx="9" fill="#f3e8ff" stroke="#d8b4fe"/><text x="815" y="311" fill="#581c87" font-size="12">AspNetUserRoles</text>
+      <rect x="740" y="370" width="150" height="52" rx="9" fill="#f3e8ff" stroke="#d8b4fe"/><text x="815" y="401" fill="#581c87">AspNetRoles</text>
+      <rect x="215" y="420" width="180" height="56" rx="10" fill="#ecf8f0" stroke="#86efac" stroke-width="1.5"/><text x="305" y="445" fill="#166534" font-size="12.5">AracOzellikDegerleri</text><text x="305" y="463" fill="#16a34a" font-size="9.5" font-weight="600">YENİ · 4 sütun</text>
+      <rect x="20" y="420" width="142" height="56" rx="10" fill="#ecf8f0" stroke="#86efac" stroke-width="1.5"/><text x="91" y="445" fill="#166534" font-size="12.5">AracOzellikleri</text><text x="91" y="463" fill="#16a34a" font-size="9.5" font-weight="600">YENİ · 11 sütun</text>
+    </g>
+    <g font-size="10" fill="#64748b">
+      <text x="440" y="185">aracı</text><text x="480" y="292">alış / iade şubesi</text><text x="695" y="182">müşteri</text>
+      <text x="282" y="300" fill="#16a34a">aracı</text><text x="168" y="438" fill="#16a34a">özelliği</text>
+    </g>
+  </svg>
+  <table style="margin-top:4mm">
+    <tr><th>İlişki</th><th>Anlamı</th><th>Silme kuralı</th></tr>
+    <tr class="yeni"><td><b>AracOzellikDegerleri → Araclar</b> <span class="etiket yeni">YENİ</span></td><td>Her değer bir araca ait</td><td>Araç silinirse değerleri de silinir (Cascade)</td></tr>
+    <tr class="yeni"><td><b>AracOzellikDegerleri → AracOzellikleri</b> <span class="etiket yeni">YENİ</span></td><td>Her değer bir özelliğe ait</td><td>Özellik silinirse bütün değerleri silinir (Cascade)</td></tr>
+    <tr><td>Araclar → Markalar, Kategoriler, YakitTurleri, VitesTurleri, Subeler</td><td>Her aracın markası, kategorisi, yakıtı, vitesi ve şubesi var</td><td>Kullanılan tanım silinemez (Restrict)</td></tr>
+    <tr><td>Rezervasyonlar → Araclar, AspNetUsers, Subeler (2 kez)</td><td>Hangi müşteri, hangi aracı, hangi şubeden alıp hangisine bırakacak</td><td>Kiralaması olan araç silinemez</td></tr>
+    <tr><td>RezervasyonEkstralari → Rezervasyonlar, Ekstralar</td><td>Bir rezervasyonda birden çok ek hizmet (çoka-çok)</td><td>—</td></tr>
+    <tr><td>Odemeler, Hasarlar → Rezervasyonlar · Bakimlar → Araclar</td><td>Ödeme, hasar ve bakım kayıtları bir kiralamaya / araca ait</td><td>—</td></tr>
+  </table>
+  <p class="soluk" style="font-size:8pt;margin-top:-2mm">Toplam 24 yabancı anahtar: 15'i bizim tablolarımız arasında (bu hafta +2), 3'ü rezervasyon ve ödemeden kullanıcıya (müşteri, işlemi yapan personel, ödemeyi alan), 6'sı üyelik (AspNet…) tablolarının kendi arasında.</p>
+</section>
+
+<!-- ================================================== CANLI GÖSTERİM -->
+<section class="sayfa">
+  <div class="bolum-ust">09 · Gösterim</div>
+  <h2 class="baslik">Hocaya canlı gösterim</h2>
+  <p class="giris">"Yeni tabloları göster" denirse Neon panelinden, "nasıl çalıştığını göster" denirse sistemin kendisinden gösterebiliriz.</p>
+
+  <div class="adim"><div class="no">1</div><div><h4>Neon paneli → Tables</h4><p>console.neon.tech → projemiz → soldan <b>Tables</b> (veritabanı: <code>arackiralama</code>). 25 tablo listelenir. <code>AracOzellikleri</code> ve <code>AracOzellikDegerleri</code>'ne tıklayınca sütunları ve (şimdilik boş) içerikleri görünür.</p></div></div>
+  <div class="adim"><div class="no">2</div><div><h4>Neon paneli → SQL Editor</h4><p>Aşağıdaki sorguların hepsini Neon'da çalıştırıp sonuçlarını kontrol ettik:</p></div></div>
+<pre><span class="y">-- Tablo sayısı (25)</span>
+<span class="a">SELECT COUNT</span>(*) <span class="a">FROM</span> information_schema.tables <span class="a">WHERE</span> table_schema = <span class="s">'public'</span>;
+
+<span class="y">-- Bu hafta eklenen iki tablonun sütunları ve türleri (15 satır)</span>
+<span class="a">SELECT</span> table_name, column_name, data_type, is_nullable
+<span class="a">FROM</span> information_schema.columns
+<span class="a">WHERE</span> table_name <span class="a">IN</span> (<span class="s">'AracOzellikleri'</span>, <span class="s">'AracOzellikDegerleri'</span>)
+<span class="a">ORDER BY</span> table_name, ordinal_position;
+
+<span class="y">-- Bileşik anahtar ve iki Cascade ilişkisi</span>
+<span class="a">SELECT</span> conname, pg_get_constraintdef(oid) <span class="a">FROM</span> pg_constraint
+<span class="a">WHERE</span> conrelid = <span class="s">'"AracOzellikDegerleri"'</span>::regclass <span class="a">AND</span> contype <span class="a">IN</span> (<span class="s">'p'</span>, <span class="s">'f'</span>);
+
+<span class="y">-- Satır sayıları (şimdilik 0)</span>
+<span class="a">SELECT COUNT</span>(*) <span class="a">FROM</span> <span class="s">"AracOzellikleri"</span>;
+<span class="a">SELECT COUNT</span>(*) <span class="a">FROM</span> <span class="s">"AracOzellikDegerleri"</span>;</pre>
+  <div class="dosya">Üçüncü sorgunun Neon'daki çıktısı</div>
+  <table class="sik-tablo">
+    <tr><th>conname</th><th>pg_get_constraintdef</th></tr>
+    <tr><td>PK_AracOzellikDegerleri</td><td>PRIMARY KEY ("AracId", "OzellikId")</td></tr>
+    <tr><td>FK_AracOzellikDegerleri_AracOzellikleri_OzellikId</td><td>FOREIGN KEY ("OzellikId") REFERENCES "AracOzellikleri"("Id") ON DELETE CASCADE</td></tr>
+    <tr><td>FK_AracOzellikDegerleri_Araclar_AracId</td><td>FOREIGN KEY ("AracId") REFERENCES "Araclar"("Id") ON DELETE CASCADE</td></tr>
+  </table>
+  <div class="kutu sari"><b>Tırnak işaretine dikkat!</b> Tablo adlarımızda büyük harf olduğu için çift tırnakla yazılır: <code>"AracOzellikleri"</code>. Tırnaksız yazılırsa PostgreSQL adı küçük harfe çevirir ve <i>relation "aracozellikleri" does not exist</i> hatası verir.</div>
+
+  <div class="izgara-2">
+    <div class="adim" style="margin:0"><div class="no">3</div><div><h4>Render → Logs</h4><p>Canlı sunucu her açılışında Neon'a bağlanıp tabloları sayıyor. Bu güncellemeden sonraki açılışlarda kayıtta <code>25 tablo hazır, toplam 0 satır</code> satırı görünür.</p></div></div>
+    <div class="adim" style="margin:0"><div class="no">4</div><div><h4>Bilgisayarda canlı deneme (~2 dk)</h4><p><code>dotnet run</code> → Yönetim → Filtreler ve Özellikler → <b>Yeni özellik / filtre</b>: "Bluetooth", türü <i>Var / Yok</i> → birkaç araca "Var" → <b>Araç listesini aç</b>: solda "Bluetooth" filtresi çıkar.</p></div></div>
+  </div>
+
+  <div class="kutu" style="margin-top:4mm"><i class="bi bi-shield-lock"></i><b>Gösterirken:</b> Neon'daki "Connect" penceresini ve Render'daki Environment değerini açmayın; şifre açıkça görünür.</div>
+</section>
+
+<!-- ================================================== SORU CEVAP -->
+<section class="sayfa">
+  <div class="bolum-ust">10 · Hazırlık</div>
+  <h2 class="baslik">Soru – cevap</h2>
+  <p class="giris">Hocamızın bu hafta sorabileceğini düşündüğümüz sorular ve kısa cevapları. Her cevabın ayrıntısı raporun önceki bölümlerinde.</p>
+
+  <div class="sc-grup">Genel</div>
+  <div class="sc"><div class="s"><b>1</b>Bu hafta ne yaptınız?</div><div class="c">Araçlara yönetim panelinden yeni bilgi (özellik) eklenebilmesini sağladık. Eklenen özellik araç listesinde filtre, kartta ve detayda bilgi oluyor. Bunun için iki yeni tablo tasarladık ve Neon'u 25 tabloya güncelledik.</div></div>
+  <div class="sc"><div class="s"><b>2</b>Neden böyle bir şeye ihtiyaç duydunuz?</div><div class="c">Her yeni bilgi için kodu değiştirip sistemi yeniden yayınlamak yerine, yöneticinin kendisi ekleyebilsin diye. "Bagaj hacmine göre filtre" gibi bir istek artık birkaç dakikalık bir panel işi.</div></div>
+  <div class="sc"><div class="s"><b>3</b>Örnek olarak hangi özellikleri eklediniz?</div><div class="c">Kasa tipi (seçim listesi), Bagaj hacmi (sayı, lt) ve Geri görüş kamerası (var / yok). Bilgisayarımızdaki deneme veritabanında 47 aracın hepsine değer girdik.</div></div>
+
+  <div class="sc-grup">Tasarım</div>
+  <div class="sc"><div class="s"><b>4</b>Neden Araclar tablosuna yeni sütunlar eklemediniz?</div><div class="c">Her yeni bilgi için tablo yapısı, C# sınıfı, formlar, liste ve detay sayfası değişir, sistem yeniden yayınlanırdı. Yönetici bunu kendisi yapamazdı ve çoğu araçta boş kalan sütunlar birikirdi.</div></div>
+  <div class="sc"><div class="s"><b>5</b>İki tablo ne tutuyor?</div><div class="c"><code>AracOzellikleri</code> özelliğin tanımını (adı, türü, seçenekleri, birimi, nerede görüneceği), <code>AracOzellikDegerleri</code> hangi aracın o özellikte hangi değere sahip olduğunu tutuyor.</div></div>
+  <div class="sc"><div class="s"><b>6</b>Bu tasarımın bir adı var mı?</div><div class="c">EAV: Entity–Attribute–Value (varlık–özellik–değer). E-ticarette ürün özellikleri genelde böyle tutulur.</div></div>
+  <div class="sc"><div class="s"><b>7</b>EAV'nin dezavantajı ne?</div><div class="c">Değerler tek bir sütunda yazı olarak durduğu için sayı karşılaştırmak ve sorgu yazmak biraz zorlaşır. Sayılar için ayrı bir <code>SayiDeger</code> sütunu ekleyerek çözdük.</div></div>
+  <div class="sc"><div class="s"><b>8</b>Bileşik anahtar nedir, neden kullandınız?</div><div class="c">İki sütunun birlikte birincil anahtar olması: (AracId, OzellikId). Bir aracın bir özellikte tek değeri olabilir; aynı çift ikinci kez yazılamaz.</div></div>
+  <div class="sc"><div class="s"><b>9</b>Cascade ne demek?</div><div class="c">Zincirleme silme: araç ya da özellik silinince ona bağlı değer satırları veritabanı tarafından otomatik silinir. Sahipsiz değer kalmaz.</div></div>
+  <div class="sc"><div class="s"><b>10</b>Markalarda Restrict, burada Cascade. Neden farklı?</div><div class="c">Marka birçok aracın parçası; silinirse araçlar bozulur, bu yüzden kullanılan marka silinemez. Özellik değeri ise sadece o araca ait bir bilgi; araç yoksa değerin de anlamı yok.</div></div>
+  <div class="sc"><div class="s"><b>11</b>SayiDeger sütunu neden var?</div><div class="c">Deger yazı olarak tutuluyor ve yazılar harf harf karşılaştırılıyor: yazı olarak "1050" &lt; "586" çıkar. "En az / en çok" filtresi doğru çalışsın diye sayının numeric halini ayrıca tutuyoruz.</div></div>
+  <div class="sc"><div class="s"><b>12</b>Var / Yok değeri nasıl saklanıyor?</div><div class="c">"Var" ise Deger = 'true' olan bir satır, "Yok" ise hiç satır yok. "Yok" filtresi, 'true' satırı olmayan araçları getiriyor.</div></div>
+  <div class="sc"><div class="s"><b>13</b>Seçim listesinin seçenekleri nerede?</div><div class="c"><code>AracOzellikleri.Secenekler</code> sütununda, dik çizgiyle ayrılmış tek bir yazı olarak: <code>Sedan|Hatchback|SUV|Coupe|Ticari</code>. Formda her satıra bir seçenek yazılıyor.</div></div>
+  <div class="sc"><div class="s"><b>14</b>Tür neden 0, 1, 2 diye değil de yazı olarak saklanıyor?</div><div class="c">"Sayi", "Secim" yazınca tablo kod okumadan anlaşılıyor ve türlerin sırası kodda değişse bile kayıtlar bozulmuyor.</div></div>
+
+  <div class="sc-grup">Tablolar ve code-first</div>
+  <div class="sc"><div class="s"><b>15</b>Yeni tabloları nasıl oluşturdunuz?</div><div class="c">Code-first: C# sınıflarını (AracOzelligi, AracOzellikDegeri) yazdık, <code>VeriTabani.cs</code>'e DbSet ve ilişkileri ekledik. EF Core <code>CREATE TABLE</code> komutlarını üretip Neon'da çalıştırdı.</div></div>
+  <div class="sc"><div class="s"><b>16</b>SQL yazdınız mı?</div><div class="c">Tabloları oluşturmak için hayır. EF Core'un ürettiği SQL'i <code>dotnet ef dbcontext script</code> ile görüp rapora koyduk. Kontrol ve gösterim için SELECT sorguları yazdık.</div></div>
+  <div class="sc"><div class="s"><b>17</b>C# türleri PostgreSQL'de neye dönüşüyor?</div><div class="c"><code>int</code> → integer, <code>string</code> (MaxLength 60) → character varying(60), <code>bool</code> → boolean, <code>decimal?</code> → numeric (boş olabilir), <code>enum</code> → character varying(30).</div></div>
+  <div class="sc"><div class="s"><b>18</b>Index nedir, sizde nerede var?</div><div class="c">Aramayı hızlandıran yapı; kitabın sonundaki dizin gibi. Birincil anahtarlarda ve <code>OzellikId</code> sütununda (<code>IX_AracOzellikDegerleri_OzellikId</code>) var; EF Core kendisi ekledi.</div></div>
+  <div class="sc"><div class="s"><b>19</b>HasKey, HasOne, WithMany ne yapıyor?</div><div class="c">EF Core'a ilişkileri anlatıyor: HasKey anahtarı, HasOne / WithMany "her değerin bir aracı var, bir aracın birçok değeri var" ilişkisini, OnDelete silme kuralını belirliyor.</div></div>
+
+  <div class="sc-grup">Neon ve bağlantı</div>
+  <div class="sc"><div class="s"><b>20</b>Neon'a nasıl bağlanıyorsunuz?</div><div class="c">Neon'un verdiği bağlantı adresiyle. <code>Program.cs</code> adresi okuyor, <code>NeonBaglantisi.cs</code> Npgsql sürücüsüyle bağlanıp tabloları hazırlıyor ve sayıyor.</div></div>
+  <div class="sc"><div class="s"><b>21</b>Bağlantı adresi nerede duruyor?</div><div class="c">Kodda değil: bilgisayarda <code>dotnet user-secrets</code>'ta, canlı sunucuda Render'daki <code>ConnectionStrings__PostgreSql</code> ortam değişkeninde. <code>appsettings.json</code>'daki alan boş.</div></div>
+  <div class="sc"><div class="s"><b>22</b>Bu hafta bağlantı kodunu değiştirdiniz mi?</div><div class="c">Hayır. Sadece modele iki tablo ekledik; bağlantı aynı kaldı. Tabloların ne olduğunu C# sınıfları söylüyor.</div></div>
+  <div class="sc"><div class="s"><b>23</b>Yeni tablolar Neon'a nasıl geldi?</div><div class="c">EnsureCreated, tabloları olan bir veritabanına dokunmadığı için Neon'daki boş tabloları silip uygulamaya güncel yapıyla yeniden oluşturttuk: 23 → 25 tablo.</div></div>
+  <div class="sc"><div class="s"><b>24</b>Tabloları silmek tehlikeli değil miydi?</div><div class="c">Önce her tablonun satır sayısını saydık; hepsi 0'dı, kaybedilecek veri yoktu. Silmeyi de tek bir transaction içinde yaptık: ya hepsi silinir ya hiçbiri.</div></div>
+  <div class="sc"><div class="s"><b>25</b>Neden migration kullanmadınız?</div><div class="c">Tablolar boşken yeniden oluşturmak en basit ve güvenli yoldu. Veriler Neon'a taşındıktan sonraki yapı değişikliklerinde migration kullanmamız gerekecek; o zaman tabloları silmeden sadece farkı ekleyeceğiz.</div></div>
+  <div class="sc"><div class="s"><b>26</b>Eski 23 tabloda bir şey değişti mi?</div><div class="c">Hayır. Güncellemeden önce ve sonra Neon'daki sütun listesini sorguyla alıp karşılaştırdık; eski tabloların sütunları birebir aynı.</div></div>
+  <div class="sc"><div class="s"><b>27</b>Tablolar neden hâlâ boş? Ekrandaki değerler nereden?</div><div class="c">Sayfalar şimdilik örnek verilerle çalışıyor (3. haftadaki gibi). Örnek özellikleri ve değerlerini sistemi denemek için bilgisayarımızdaki örnek veritabanına (SQLite) panelden girdik. Veriler bir sonraki adımda Neon'a yüklenecek.</div></div>
+
+  <div class="sc-grup">Filtre</div>
+  <div class="sc"><div class="s"><b>28</b>Adres çubuğundaki Oz[1] ne demek?</div><div class="c">Oz = özellik; köşeli parantezdeki sayı özelliğin numarası (<code>AracOzellikleri.Id</code>). ASP.NET Core bu adresi <code>AracFiltresi</code>'ndeki sözlüğe (<code>Dictionary&lt;int, string&gt;</code>) kendisi dolduruyor.</div></div>
+  <div class="sc"><div class="s"><b>29</b>Filtre sorgusu nasıl çalışıyor?</div><div class="c">Seçilen her özellik için sorguya bir koşul ekleniyor: "bu özellikte şu değere sahip bir satırı olan araçlar". LINQ'teki <code>Any()</code>, SQL'de <code>EXISTS</code>'e dönüşüyor.</div></div>
+  <div class="sc"><div class="s"><b>30</b>Birden çok filtre seçilince ne oluyor?</div><div class="c">Koşullar AND ile birleşiyor; araç hepsini sağlamalı. Sedan + en az 500 lt + kamera var → 47 araçtan 7'si.</div></div>
+  <div class="sc"><div class="s"><b>31</b>Filtrelerin doğru çalıştığını nasıl test ettiniz?</div><div class="c">11 farklı durumda sitedeki araç sayısını, aynı koşulları doğrudan SQL ile sayarak karşılaştırdık; hepsi birebir aynı çıktı.</div></div>
+  <div class="sc"><div class="s"><b>32</b>Yeni bir filtre için kod değişiyor mu?</div><div class="c">Hayır. Panelden özellik eklenince filtre kutusu türüne göre kendiliğinden çiziliyor (<code>Views/Araclar/Index.cshtml</code>); sorgu da her özellik için aynı kodla kuruluyor.</div></div>
+  <div class="sc"><div class="s"><b>33</b>Özellik silinince ne oluyor?</div><div class="c">Önce bütün araçlardaki değerleri, sonra özelliğin kendisi siliniyor; filtreden, karttan ve detaydan da kalkıyor. Sadece gizlemek için "Yayında" düğmesi kapatılabilir.</div></div>
+  <div class="sc"><div class="s"><b>34</b>Bir aracın değerini tek tek değiştirebilir miyiz?</div><div class="c">Evet: araç düzenleme formundaki "Ek özellikler" kartından. Aynı değer, özelliğin "Değerleri gir" tablosunda da değişmiş olur; çünkü ikisi de aynı satırı kullanıyor.</div></div>
+  <div class="sc"><div class="s"><b>35</b>Yeni bir özellik türü (örneğin tarih) eklemek isteseniz ne yaparsınız?</div><div class="c"><code>OzellikTuru</code>'na yeni bir tür eklenir, formdaki, filtredeki ve değer tablosundaki tür seçimlerine o türün kutusu yazılır. Tablolar değişmez; çünkü tür yazı olarak, değer de <code>Deger</code> sütununda yazı olarak tutuluyor.</div></div>
+</section>
+
+<!-- ================================================== KİM NE YAPTI -->
+<section class="sayfa">
+  <div class="bolum-ust">11 · Ekip</div>
+  <h2 class="baslik">Kim ne yaptı?</h2>
+  <p class="giris">Rollerimizi geçen haftaki gibi koruduk: veritabanı, liste ve filtreler, formlar, test ve rapor.</p>
+  <div class="izgara-2">
+    <div class="kisi">
+      <div class="ust"><div class="avatar" style="background:#2747d6">MA</div><div><div class="ad">Mehmet Arda Çekiç</div><div class="no">m255036001</div></div></div>
+      <div class="rol">Veritabanı · yayın</div>
+      <ul>
+        <li>Yeni tabloların tasarımı: tanım + değer yapısı, bileşik anahtar, Cascade</li>
+        <li><code>AracOzelligi.cs</code> sınıfları ve <code>VeriTabani.cs</code>'teki ilişkiler</li>
+        <li>Neon'un güncellenmesi (23 → 25) ve kontrol sorguları</li>
+        <li>Yayın</li>
+      </ul>
+    </div>
+    <div class="kisi">
+      <div class="ust"><div class="avatar" style="background:#0891b2">AA</div><div><div class="ad">Azra Ardıç</div><div class="no">m255035059</div></div></div>
+      <div class="rol">Araç listesi · filtreler</div>
+      <ul>
+        <li>Araç listesinde türe göre filtre kutuları (açılır liste, en az – en çok, var / yok, arama)</li>
+        <li>Filtre sorguları (<code>AraclarController</code>, Any → EXISTS)</li>
+        <li>Araç kartında gösterim</li>
+      </ul>
+    </div>
+    <div class="kisi">
+      <div class="ust"><div class="avatar" style="background:#16a34a">EA</div><div><div class="ad">Esra Ağlar</div><div class="no">m255036077</div></div></div>
+      <div class="rol">Formlar · araç detayı</div>
+      <ul>
+        <li>Yeni özellik / düzenle formu ve doğrulamaları</li>
+        <li>Bütün araçların değerlerini tek tabloda girme ekranı</li>
+        <li>Araç formundaki "Ek özellikler" alanları</li>
+        <li>Araç detayında özellik kutuları</li>
+      </ul>
+    </div>
+    <div class="kisi">
+      <div class="ust"><div class="avatar" style="background:#d97706">ÖF</div><div><div class="ad">Ömer Faruk Çelik</div><div class="no">m265035083</div></div></div>
+      <div class="rol">Test · rapor</div>
+      <ul>
+        <li>11 filtre durumunun site ↔ SQL karşılaştırmalı testi</li>
+        <li>Neon'daki tabloların güncelleme öncesi / sonrası karşılaştırılması</li>
+        <li>Soru-cevap bölümü ve rapor</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Görev matrisi</h3>
+  <table>
+    <tr><th>İş</th><th class="o">Arda</th><th class="o">Azra</th><th class="o">Esra</th><th class="o">Ömer</th></tr>
+    <tr><td>Tablo tasarımı (AracOzellikleri, AracOzellikDegerleri)</td><td class="o"><span class="sor">Sorumlu</span></td><td class="o"></td><td class="o"></td><td class="o"><span class="des">destek</span></td></tr>
+    <tr><td>C# sınıfları ve ilişkiler (VeriTabani.cs)</td><td class="o"><span class="sor">Sorumlu</span></td><td class="o"><span class="des">destek</span></td><td class="o"></td><td class="o"></td></tr>
+    <tr><td>Neon'un güncellenmesi (23 → 25)</td><td class="o"><span class="sor">Sorumlu</span></td><td class="o"></td><td class="o"></td><td class="o"><span class="des">destek</span></td></tr>
+    <tr><td>Filtre kutuları ve filtre sorguları</td><td class="o"></td><td class="o"><span class="sor">Sorumlu</span></td><td class="o"><span class="des">destek</span></td><td class="o"></td></tr>
+    <tr><td>Araç kartında gösterim</td><td class="o"></td><td class="o"><span class="sor">Sorumlu</span></td><td class="o"></td><td class="o"></td></tr>
+    <tr><td>Özellik formu ve doğrulamalar</td><td class="o"></td><td class="o"></td><td class="o"><span class="sor">Sorumlu</span></td><td class="o"></td></tr>
+    <tr><td>Toplu değer girme ekranı</td><td class="o"></td><td class="o"><span class="des">destek</span></td><td class="o"><span class="sor">Sorumlu</span></td><td class="o"></td></tr>
+    <tr><td>Araç formunda ek özellikler, detayda gösterim</td><td class="o"></td><td class="o"></td><td class="o"><span class="sor">Sorumlu</span></td><td class="o"></td></tr>
+    <tr><td>Test (site ↔ SQL)</td><td class="o"><span class="des">destek</span></td><td class="o"><span class="des">destek</span></td><td class="o"><span class="des">destek</span></td><td class="o"><span class="sor">Sorumlu</span></td></tr>
+    <tr><td>Yayın</td><td class="o"><span class="sor">Sorumlu</span></td><td class="o"></td><td class="o"></td><td class="o"></td></tr>
+    <tr><td>Rapor ve soru-cevap</td><td class="o"><span class="des">destek</span></td><td class="o"><span class="des">destek</span></td><td class="o"><span class="des">destek</span></td><td class="o"><span class="sor">Sorumlu</span></td></tr>
+  </table>
+</section>
+
+<!-- ================================================== SÖZLÜK -->
+<section class="sayfa">
+  <div class="bolum-ust">12 · Sözlük</div>
+  <h2 class="baslik">Sözlük</h2>
+  <table class="sik">
+    <tr><th style="width:30%">Terim</th><th>Anlamı</th></tr>
+    <tr><td><b>Özellik (bu projede)</b></td><td>Panelden araçlara eklenen bilgi: Kasa tipi, Bagaj hacmi…</td></tr>
+    <tr><td><b>EAV</b></td><td>Entity–Attribute–Value: bilginin tanımını ve değerlerini ayrı tablolarda tutma yöntemi.</td></tr>
+    <tr><td><b>Birincil anahtar (PK)</b></td><td>Her satırı benzersiz tanıtan sütun ya da sütunlar.</td></tr>
+    <tr><td><b>Bileşik anahtar</b></td><td>Birden çok sütundan oluşan birincil anahtar: (AracId, OzellikId).</td></tr>
+    <tr><td><b>Yabancı anahtar (FK)</b></td><td>Başka tablodaki bir satıra işaret eden sütun (AracId → Araclar.Id).</td></tr>
+    <tr><td><b>Ara tablo / çoka-çok ilişki</b></td><td>İki tabloyu birbirine bağlayan tablo; bir aracın çok özelliği, bir özelliğin çok aracı olabilir.</td></tr>
+    <tr><td><b>Cascade / Restrict</b></td><td>Silme kuralı: bağlı satırları da sil / bağlı satır varsa silmeye izin verme.</td></tr>
+    <tr><td><b>Index</b></td><td>Aramayı hızlandıran yapı; kitabın sonundaki dizin gibi.</td></tr>
+    <tr><td><b>Transaction</b></td><td>Birden çok işlemin "ya hepsi ya hiçbiri" şeklinde yapılması.</td></tr>
+    <tr><td><b>EXISTS / NOT EXISTS</b></td><td>SQL'de "şu koşulu sağlayan en az bir satır var mı / yok mu?"</td></tr>
+    <tr><td><b>LINQ, Any()</b></td><td>C# içinde sorgu yazma yolu; Any() "en az bir tane var mı?" demek.</td></tr>
+    <tr><td><b>Model binding</b></td><td>ASP.NET Core'un adres ve form bilgilerini C# nesnelerine kendisi doldurması.</td></tr>
+    <tr><td><b>Enum</b></td><td>Sabit seçenekler listesi (OzellikTuru: Secim, Sayi, EvetHayir, Yazi).</td></tr>
+    <tr><td><b>character varying / numeric</b></td><td>PostgreSQL'de yazı / ondalıklı sayı türleri.</td></tr>
+    <tr><td><b>NOT NULL</b></td><td>Sütun boş bırakılamaz.</td></tr>
+    <tr><td><b>Code-first</b></td><td>Önce C# sınıflarını yazıp tabloları onlardan ürettirme yöntemi.</td></tr>
+    <tr><td><b>EnsureCreated</b></td><td>Veritabanında hiç tablo yoksa hepsini oluşturan EF Core komutu.</td></tr>
+    <tr><td><b>Migration</b></td><td>Veriler dururken tablo yapısını adım adım güncelleme yöntemi.</td></tr>
+    <tr><td><b>dotnet ef</b></td><td>EF Core'un komut satırı aracı (SQL üretme, migration).</td></tr>
+    <tr><td><b>Bağlantı adresi (connection string)</b></td><td>Programın veritabanına bağlanması için gereken bilgileri tek satırda toplayan yazı.</td></tr>
+    <tr><td><b>Neon / PostgreSQL / Npgsql</b></td><td>Bulut veritabanı hizmeti / veritabanı sistemi / .NET'in PostgreSQL sürücüsü.</td></tr>
+  </table>
+
+  <h3 style="margin-top:4mm">Kaynakça</h3>
+  <table class="sik">
+    <tr><th>Kaynak</th><th>Adres</th></tr>
+    <tr><td>EF Core: anahtarlar (bileşik anahtar)</td><td>https://learn.microsoft.com/ef/core/modeling/keys</td></tr>
+    <tr><td>EF Core: zincirleme silme (cascade delete)</td><td>https://learn.microsoft.com/ef/core/saving/cascade-delete</td></tr>
+    <tr><td>EF Core: EnsureCreated ve migration</td><td>https://learn.microsoft.com/ef/core/managing-schemas/ensure-created</td></tr>
+    <tr><td>EF Core komut satırı aracı (dotnet ef)</td><td>https://learn.microsoft.com/ef/core/cli/dotnet</td></tr>
+    <tr><td>PostgreSQL: EXISTS alt sorguları</td><td>https://www.postgresql.org/docs/current/functions-subquery.html</td></tr>
+    <tr><td>Npgsql EF Core sağlayıcısı</td><td>https://www.npgsql.org/efcore/</td></tr>
+    <tr><td>Neon belgeleri</td><td>https://neon.com/docs</td></tr>
+    <tr><td>Entity–attribute–value modeli</td><td>https://en.wikipedia.org/wiki/Entity–attribute–value_model</td></tr>
+  </table>
+</section>
+
+</body>
+</html>

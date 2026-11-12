@@ -1,0 +1,86 @@
+==========================================================================================
+ ROTA RENT A CAR — KURULUM (site + yönetim paneli + internetsiz Yapay Zekâ Asistanı)
+ Paket: {AD}     Hazırlandı: {TARIH}
+ Kod: {SURUM}
+==========================================================================================
+
+Bu klasörde çalışmak için gereken her şey var: site, yönetim paneli, yapay zekâ motoru
+(llama.cpp {MOTOR}), modeller ve .NET {DOTNET}.
+Bilgisayara HİÇBİR ŞEY KURMANIZ GEREKMEZ ve İNTERNET GEREKMEZ.
+
+
+GEREKENLER
+----------
+- Windows 10 ya da 11 (64 bit)
+- En az 8 GB RAM (16 GB ve üstünde daha iyi model kendiliğinden seçilir)
+- Yaklaşık 12 GB boş disk alanı
+- Ekran kartı şart değil; varsa kendiliğinden kullanılır
+
+
+KURULUM (bir kere)
+------------------
+1. Zip'i bilgisayara kopyalayın. USB ile taşıyorsanız USB exFAT ya da NTFS biçiminde olmalı:
+   FAT32 biçimli USB 4 GB'tan büyük dosyayı almaz.
+2. Zip internetten indirildiyse önce: zip'e sağ tıklayın → Özellikler → alttaki
+   "Engellemeyi kaldır" kutusunu işaretleyin → Tamam.
+3. Zip'e sağ tıklayın → "Tümünü ayıkla..." → hedef olarak kısa bir klasör yazın:
+       C:\Rota
+   Masaüstüne ya da Belgeler'e ÇIKARMAYIN: OneDrive açıksa ~10 GB'ı buluta yüklemeye
+   çalışır. Çıkarma birkaç dakika sürer.
+
+
+ÇALIŞTIRMA (her seferinde)
+--------------------------
+1. C:\Rota\BASLAT.bat dosyasına çift tıklayın. Açılan siyah pencere açık kalmalı.
+   Windows bir güvenlik uyarısı gösterirse "Çalıştır" ya da "Ek bilgi → Yine de çalıştır".
+2. İlk açılışta proje derlenir (1-2 dakika). Site hazır olunca tarayıcı kendiliğinden açılır.
+   Açılmazsa tarayıcıya yazın:  http://localhost:5046
+3. Giriş: admin@rota.com / Rota123!
+   Diğer hazır hesaplar: personel@rota.com ve musteri@rota.com (şifre aynı).
+
+Adresler
+  Site ................. http://localhost:5046
+  Yönetim paneli ....... http://localhost:5046/Yonetim
+  Yapay Zekâ Asistanı .. http://localhost:5046/Yonetim/YapayZeka
+  API (Swagger) ........ http://localhost:5046/swagger
+
+
+YAPAY ZEKÂ ASİSTANI
+-------------------
+- Sayfası açılınca motor kendiliğinden başlar. Üstteki durum çubuğu yeşil "Hazır" olana kadar
+  bekleyin (ilk seferde 10-60 saniye).
+- Bu paketteki modeller: {MODELLER}
+  Bilgisayarın belleği 16 GB ve üstündeyse orta model, değilse küçük model seçilir.
+  Durum çubuğundan değiştirilebilir.
+- İsteği Türkçe yazın → Gönder → kartları okuyun → "Seçilenleri uygula".
+  Beğenmezseniz sayfanın altındaki Geçmiş'ten "Geri al".
+- Ayrıntılı kullanım ve kod modu: AracKiralama\yapay-zeka\BENI-OKU.md
+
+
+KAPATMA
+-------
+Siyah pencereyi sağ üstteki X ile kapatın. Yapay zekâ motoru da kendiliğinden kapanır,
+bellekte kalmaz.
+
+
+SIK SORUNLAR
+------------
+- Pencere hemen kapanıyor ya da ".NET bulunamadı" yazıyor: zip eksik çıkarılmış olabilir.
+  Zip'i yeniden "Tümünü ayıkla" ile C:\Rota'ya çıkarın.
+- "Yol çok uzun" hatası: zip'i daha kısa bir yola çıkarın (C:\Rota).
+- "Port 5046 kullanımda": önceki siyah pencere açık kalmış; kapatıp yeniden deneyin.
+- Yapay zekâ durumu "Hata": bellek yetmiyor olabilir; durum çubuğundan küçük modeli seçip
+  "Başlat". Antivirüs llama-server.exe'yi engellemiş olabilir.
+- Çok yavaş: ekran kartı yoksa ilk istek 1-2 dakika sürebilir, sonrakiler hızlanır.
+  İstekleri kısa ve tek konulu yazın.
+
+
+NOTLAR
+------
+- Bu bilgisayarda yapılan değişiklikler sadece bu klasördeki veritabanına yazılır
+  (AracKiralama\src\AracKiralama.Web\arackiralama.db). Canlı siteyi
+  (automarket.ardcek.com) etkilemez.
+- Örnek verilere dönmek için: uygulamayı kapatın, arackiralama.db dosyasını silin.
+  Bir sonraki açılışta örnek verilerle yeniden oluşur.
+- Sınavda ya da bir değerlendirmede yapay zekâyı kullanmadan önce hocanıza sorun.
+- Yeni bir paket yapmak (internetli bilgisayarda): AracKiralama\yapay-zeka\PAKETLE.bat

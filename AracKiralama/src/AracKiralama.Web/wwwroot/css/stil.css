@@ -178,6 +178,24 @@ a { text-decoration: none; }
 .etiket { display: inline-flex; align-items: center; gap: .35rem; padding: .25rem .65rem; border-radius: 999px; background: var(--yuzey); border: 1px solid var(--cizgi); font-size: .78rem; font-weight: 600; color: var(--yazi); }
 .etiket-cam { background: rgba(255, 255, 255, .92); border: 0; color: #0f172a; }
 
+/* ---------- Kampanya rozeti (araç kartı görselinin sağ üstü) ve indirimli fiyat ---------- */
+.kampanya-rozeti { position: absolute; top: .75rem; right: .75rem; max-width: 60%; display: inline-flex; align-items: center; gap: .3rem; padding: .25rem .6rem; border-radius: 999px; background: var(--yesil); color: #fff; font-size: .75rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 4px 10px rgba(22, 163, 74, .3); }
+.kampanya-rozeti.olasi { background: rgba(255, 255, 255, .94); color: #15803d; box-shadow: none; }   /* henüz uygulanmayan (örn. meslek seçilmedi) */
+.fiyat-indirimli { color: var(--yesil); }
+
+/* ---------- Yapay Zekâ Asistanı (Yönetim → Yapay Zekâ Asistanı) ---------- */
+.yz-isik { width: 14px; height: 14px; border-radius: 50%; flex: none; background: var(--soluk); }   /* motorun durumu */
+.yz-isik[data-durum="Hazir"] { background: var(--yesil); box-shadow: 0 0 0 4px rgba(22, 163, 74, .2); }
+.yz-isik[data-durum="Aciliyor"] { background: #f59e0b; animation: yz-nabiz 1s infinite alternate; }
+.yz-isik[data-durum="Hata"] { background: #dc2626; }
+@keyframes yz-nabiz { to { opacity: .35; } }
+.yz-kart .form-check-input { width: 1.2rem; height: 1.2rem; }
+.yz-ozet { white-space: pre-line; }                              /* özetteki satır sonları görünsün */
+.yz-onizleme { width: 100%; height: 640px; border: 0; display: block; }
+.yz-fark { margin: 0; padding: .6rem .9rem; font-size: .8rem; white-space: pre-wrap; word-break: break-word; max-height: 360px; overflow: auto; }
+.yz-eski { background: rgba(220, 38, 38, .08); border-left: 3px solid #dc2626; }   /* silinen */
+.yz-yeni { background: rgba(22, 163, 74, .08); border-left: 3px solid var(--yesil); } /* eklenen */
+
 /* ---------- Durum rozetleri ---------- */
 .durum { display: inline-flex; align-items: center; gap: .35rem; padding: .25rem .6rem; border-radius: 999px; font-size: .75rem; font-weight: 600; white-space: nowrap; }
 .durum::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
@@ -341,3 +359,39 @@ a { text-decoration: none; }
     .kategori-karti { aspect-ratio: 1 / 1; }
     .adimlar .adim .yazi { display: none; }
 }
+
+/* ---------- Site Düzenleyici (Yönetim → Site Düzenleyici) ---------- */
+.duz-kabuk { display: grid; grid-template-columns: minmax(330px, 410px) minmax(0, 1fr); gap: 1rem; height: calc(100vh - 215px); min-height: 560px; }
+.duz-sol { min-height: 0; }
+.duz-sol .card-body { min-height: 0; }
+.duz-alanlar { flex: 1; min-height: 0; overflow-y: auto; padding-right: .3rem; }
+.duz-bolum { font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--ana); margin: 1rem 0 .45rem; }
+.duz-bolum:first-child { margin-top: .25rem; }
+.duz-alan { padding: .6rem .7rem; border: 1px solid var(--cizgi); border-radius: calc(var(--yuvarlak) * .7); background: var(--yuzey); margin-bottom: .5rem; }
+.duz-alan:focus-within { border-color: var(--ana); box-shadow: 0 0 0 3px var(--ana-acik); }
+.duz-alan .form-label { display: flex; justify-content: space-between; gap: .5rem; font-weight: 600; font-size: .84rem; margin-bottom: .3rem; }
+.duz-degisti { font-size: .68rem; font-weight: 700; color: var(--turuncu); white-space: nowrap; }
+.duz-alt { display: flex; justify-content: space-between; gap: .5rem; margin-top: .3rem; font-size: .72rem; color: var(--soluk); }
+.duz-alt button { border: 0; background: none; padding: 0; color: var(--ana); font-size: .72rem; white-space: nowrap; }
+.duz-alt-cubuk { display: flex; gap: .5rem; padding-top: .75rem; margin-top: .5rem; border-top: 1px solid var(--cizgi); }
+.duz-sag { display: flex; flex-direction: column; min-height: 0; min-width: 0; }   /* min-width: 0 → 1280 px çerçeve sütunu genişletmesin */
+.duz-cerceve-kutu { flex: 1; width: 100%; margin: 0 auto; border: 1px solid var(--cizgi); border-radius: var(--yuvarlak); overflow: hidden; background: #fff; box-shadow: var(--golge); transition: width .3s; }
+.duz-cerceve-kutu.telefon { width: 390px; }
+.duz-cerceve-kutu iframe { display: block; width: 100%; height: 100%; border: 0; transform-origin: 0 0; }   /* boyutu ve ölçeği duzenleyici.js ayarlar */
+@media (max-width: 1199.98px) {
+    .duz-kabuk { grid-template-columns: 1fr; height: auto; }
+    .duz-alanlar { max-height: 60vh; }
+    .duz-cerceve-kutu { height: 75vh; }
+}
+
+/* ---------- Panel ana ekranı: "Ne yapmak istiyorsun?" kartları ---------- */
+.kolay-kart { display: flex; gap: .9rem; align-items: flex-start; height: 100%; padding: 1.1rem 1.2rem; color: var(--yazi); border: 1px solid var(--cizgi); border-radius: var(--yuvarlak); background: var(--yuzey); transition: border-color .15s, box-shadow .15s, transform .15s; }
+.kolay-kart:hover { color: var(--yazi); border-color: var(--ana); box-shadow: var(--golge); transform: translateY(-2px); }
+.kolay-kart .ikon { width: 46px; height: 46px; flex: none; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.3rem; background: var(--ana-acik); color: var(--ana); }
+.kolay-kart b { display: block; font-size: 1rem; margin-bottom: .15rem; }
+.kolay-kart span { font-size: .84rem; color: var(--soluk); }
+
+/* ---------- Yönetim menüsü: katlanan "Gelişmiş" bölümü ---------- */
+.yonetim-linkler .grup-buton { width: 100%; display: flex; align-items: center; justify-content: space-between; border: 0; background: none; font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--soluk); padding: .9rem .75rem .35rem; }
+.yonetim-linkler .grup-buton i { transition: transform .2s; }
+.yonetim-linkler .grup-buton.collapsed i { transform: rotate(-90deg); }

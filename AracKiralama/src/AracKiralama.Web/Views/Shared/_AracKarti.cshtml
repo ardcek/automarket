@@ -1,14 +1,20 @@
-@* ARAÇ KARTI: ana sayfa, araç listesi ve "benzer araçlar"da aynı kart kullanılır. Kartı değiştirmek = bu dosya. *@
+@* ARAÇ KARTI: ana sayfa, araç listesi ve "benzer araçlar"da aynı kart kullanılır. Kartı değiştirmek = bu dosya.
+   Kampanya varsa (Yönetim → Kampanyalar): uygulanan indirimde üstü çizili eski fiyat + yeşil rozet,
+   henüz uygulanmayan (örn. meslek seçilmemiş) kampanyada sadece rozet görünür. Karar: Servisler/KampanyaServisi.cs *@
 @model AracKartiModeli
 @{
     var a = Model.Arac;
     var link = Model.Filtre?.TarihDegerleri() ?? new Dictionary<string, string>();
     link["id"] = a.Id.ToString();
+    var kampanya = Model.Kampanya?.Durum(a, Model.GunSayisi);
+    var indirimliFiyat = kampanya?.Uygulanan == null ? (decimal?)null : Math.Round(a.GunlukFiyat * (1 - kampanya.Uygulanan.IndirimOrani));
 }
 <article class="arac-karti">
     <a asp-controller="Araclar" asp-action="Detay" asp-all-route-data="link" class="gorsel">
         <img src="@(a.GorselAdresi ?? "/img/placeholder.svg")" alt="@a.TamAd" loading="lazy" />
         <span class="etiket etiket-cam">@a.Kategori?.Ad</span>
+        @if (kampanya?.Uygulanan != null) { <span class="kampanya-rozeti"><i class="bi bi-percent"></i>@kampanya.Uygulanan.Rozet</span> }
+        else if (kampanya?.Olasi != null) { <span class="kampanya-rozeti olasi"><i class="bi bi-tag"></i>@kampanya.Olasi.Rozet</span> }
     </a>
     <div class="govde">
         <div>
@@ -22,14 +28,28 @@
             <span><i class="bi bi-gear-wide-connected"></i>@a.VitesTuru?.Ad</span>
             <span><i class="bi bi-fuel-pump"></i>@a.YakitTuru?.Ad</span>
             <span><i class="bi bi-people"></i>@a.KoltukSayisi kişi</span>
+            @* Panelden eklenen ve "kartta göster" işaretli özellikler *@
+            @foreach (var d in a.OzellikDegerleri.Where(d => d.Ozellik is { Aktif: true, KarttaGoster: true } && d.Gosterim != null).OrderBy(d => d.Ozellik!.Sira))
+            {
+                <span><i class="bi @d.Ozellik!.Ikon"></i>@d.Gosterim</span>
+            }
         </div>
         <div class="alt">
             <div>
                 @if (Model.GunSayisi != null)
                 {
-                    <div class="small text-muted text-nowrap">@Model.GunSayisi gün · ≈@Bicim.Para(a.GunlukFiyat * Model.GunSayisi.Value)</div>
+                    <div class="small text-muted text-nowrap">@Model.GunSayisi gün · ≈@Bicim.Para((indirimliFiyat ?? a.GunlukFiyat) * Model.GunSayisi.Value)</div>
                 }
-                <div class="fiyat">@Bicim.Para(a.GunlukFiyat) <small>@Icerik.Metin("araclar.gunluk")</small></div>
+                @if (indirimliFiyat != null)
+                {
+                    @* İndirim uygulanıyor: eski fiyat üstü çizili, yenisi yeşil *@
+                    <div class="small text-muted"><del>@Bicim.Para(a.GunlukFiyat)</del></div>
+                    <div class="fiyat fiyat-indirimli">@Bicim.Para(indirimliFiyat.Value) <small>@Icerik.Metin("araclar.gunluk")</small></div>
+                }
+                else
+                {
+                    <div class="fiyat">@Bicim.Para(a.GunlukFiyat) <small>@Icerik.Metin("araclar.gunluk")</small></div>
+                }
             </div>
             <a asp-controller="Araclar" asp-action="Detay" asp-all-route-data="link" class="btn btn-yumusak btn-sm text-nowrap">@Icerik.Metin("araclar.incele") <i class="bi bi-arrow-right"></i></a>
         </div>

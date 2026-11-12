@@ -1,0 +1,823 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Rota Rent a Car — 3. Hafta Raporu: Sayfalar ve Veritabanı Bağlantısı</title>
+<link rel="stylesheet" href="file:///C:/Users/ardce/OneDrive/Desktop/hafta3/dosyalar/lib/inter/inter.css">
+<link rel="stylesheet" href="file:///C:/Users/ardce/OneDrive/Desktop/hafta3/dosyalar/lib/bootstrap-icons/bootstrap-icons.min.css">
+<style>
+  @page { size: A4; margin: 16mm 16mm 18mm 16mm;
+    @bottom-left { content: "Rota Rent a Car · 3. Hafta Raporu"; font: 500 7.5pt Inter, sans-serif; color: #94a3b8; }
+    @bottom-right { content: counter(page); font: 700 8pt Inter, sans-serif; color: #2747d6; }
+  }
+  @page :first { margin: 0; @bottom-left { content: none; } @bottom-right { content: none; } }
+  :root { --ana:#2747d6; --ana-acik:#eef1fd; --koyu:#0b1230; --zemin:#f5f6fa; --cizgi:#e2e6ef; --yazi:#0f172a; --soluk:#64748b; --yesil:#16a34a; --turuncu:#d97706; --kirmizi:#dc2626; }
+  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  html, body { margin:0; }
+  body { font-family: Inter, "Segoe UI", sans-serif; color: var(--yazi); font-size: 9.6pt; line-height: 1.55; }
+  h1, h2, h3, h4 { letter-spacing: -.02em; line-height: 1.2; }
+  p { margin: 0 0 2.6mm; }
+  ul, ol { margin: 0 0 3mm; padding-left: 5mm; } li { margin-bottom: .8mm; }
+  .sayfa { break-before: page; }
+  .bolum-ust { font-size: 7.5pt; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--ana); margin-bottom: 1.5mm; }
+  h2.baslik { font-size: 21pt; font-weight: 800; margin: 0 0 3mm; }
+  .giris { font-size: 10.6pt; color: #334155; margin-bottom: 6mm; max-width: 168mm; }
+  h3 { font-size: 12.5pt; font-weight: 800; margin: 6mm 0 2mm; }
+  h4 { font-size: 10pt; font-weight: 700; margin: 0 0 1.2mm; }
+  .soluk { color: var(--soluk); }
+  code { font-family: Consolas, monospace; font-size: 8.4pt; background: #eef1f7; padding: .2mm 1.2mm; border-radius: 1mm; color: #1e293b; }
+  figure { margin: 2mm 0 5mm; break-inside: avoid; }
+  figure img { width: 100%; display: block; border-radius: 2.5mm; border: 1px solid var(--cizgi); box-shadow: 0 2mm 6mm rgba(15,23,42,.08); }
+  figcaption { font-size: 7.8pt; color: var(--soluk); margin-top: 1.6mm; }
+  figcaption b { color: var(--yazi); }
+  .kutu { background: var(--ana-acik); border-radius: 3mm; padding: 3.5mm 4.5mm; margin: 3mm 0 5mm; break-inside: avoid; }
+  .kutu.koyu { background: var(--koyu); color: #e2e8f0; } .kutu.koyu b { color: #fff; }
+  .kutu.sari { background: #fff7e6; } .kutu.yesil { background: #ecf8f0; } .kutu.kirmizi { background: #fdf0ef; }
+  .kutu > i { color: var(--ana); margin-right: 1.5mm; }
+  .izgara-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .izgara-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3.5mm; }
+  .izgara-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; }
+  .kart { border: 1px solid var(--cizgi); border-radius: 3mm; padding: 3.5mm 4mm; background: #fff; break-inside: avoid; }
+  .kart .ikon { width: 9mm; height: 9mm; border-radius: 2.5mm; background: var(--ana-acik); color: var(--ana); display: inline-flex; align-items: center; justify-content: center; font-size: 12pt; margin-bottom: 2mm; }
+  .kart p { margin: 0; font-size: 8.8pt; color: #334155; }
+  table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 8.3pt; margin: 2mm 0 5mm; border: 1px solid var(--cizgi); border-radius: 2.5mm; overflow: hidden; }
+  th { background: var(--koyu); color: #fff; text-align: left; padding: 1.8mm 2.5mm; font-weight: 600; }
+  td { padding: 1.6mm 2.5mm; border-top: 1px solid var(--cizgi); vertical-align: top; }
+  tr:nth-child(even) td { background: #f8fafc; }
+  tr { break-inside: avoid; }
+  td.o, th.o { text-align: center; }
+  .etiket { display: inline-block; font-size: 7pt; font-weight: 700; padding: .4mm 2mm; border-radius: 10mm; background: var(--ana-acik); color: var(--ana); margin: 0 1mm 1mm 0; }
+  .etiket.y { background: #e8f7ee; color: #15803d; } .etiket.t { background: #fff3e0; color: #b45309; } .etiket.m { background: #f3e8ff; color: #7e22ce; } .etiket.g { background: #eef1f7; color: #475569; }
+  .rakam { border-radius: 3mm; padding: 4mm; background: var(--zemin); border: 1px solid var(--cizgi); }
+  .rakam strong { display: block; font-size: 20pt; font-weight: 800; color: var(--ana); letter-spacing: -.03em; line-height: 1.1; }
+  .rakam span { font-size: 8pt; color: var(--soluk); }
+  .icindekiler { columns: 2; column-gap: 8mm; font-size: 9.6pt; margin: 0; padding: 0; list-style: none; counter-reset: s; }
+  .icindekiler li { counter-increment: s; padding: 1.5mm 0; border-bottom: 1px dashed var(--cizgi); break-inside: avoid; }
+  .icindekiler li::before { content: counter(s, decimal-leading-zero); font-weight: 800; color: var(--ana); margin-right: 3mm; }
+
+  /* Kod ve terminal */
+  pre { font-family: Consolas, monospace; font-size: 7.9pt; line-height: 1.5; background: var(--koyu); color: #dbe2f0; border-radius: 3mm; padding: 3.5mm 4.5mm; margin: 2mm 0 4mm; white-space: pre-wrap; word-break: break-word; break-inside: avoid; }
+  pre .y { color: #6b7a99; } pre .a { color: #9fb0ff; } pre .s { color: #8fe3b0; } pre .k { color: #f6c177; }
+  .dosya { font-family: Consolas, monospace; font-size: 7.8pt; color: var(--ana); font-weight: 700; margin: 4mm 0 -1mm; }
+  .terminal { background: #0a0f1e; color: #c7d2fe; font-family: Consolas, monospace; font-size: 8pt; border-radius: 3mm; padding: 3.5mm 4.5mm; break-inside: avoid; }
+  .terminal .ok { color: #4ade80; } .terminal .bilgi { color: #7dd3fc; }
+
+  /* Adımlar */
+  .adim { display: grid; grid-template-columns: 9mm 1fr; gap: 3mm; margin-bottom: 3.5mm; break-inside: avoid; }
+  .adim .no { width: 8mm; height: 8mm; border-radius: 50%; background: var(--ana); color: #fff; font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 9pt; }
+  .adim h4 { margin-top: .8mm; }
+  .adim p { margin: 0; font-size: 9pt; color: #334155; }
+
+  /* Bağlantı adresi anatomisi */
+  .adres { font-family: Consolas, monospace; font-size: 9.2pt; background: #fff; border: 1.5px solid var(--ana); border-radius: 3mm; padding: 4mm; word-break: break-all; line-height: 2.1; break-inside: avoid; }
+  .adres span { padding: .6mm 1mm; border-radius: 1mm; }
+  .p1 { background: #e0e7ff; } .p2 { background: #dcfce7; } .p3 { background: #fee2e2; } .p4 { background: #fef3c7; } .p5 { background: #f3e8ff; } .p6 { background: #cffafe; } .p7 { background: #ffe4e6; }
+  .nokta { display: inline-block; width: 3mm; height: 3mm; border-radius: 1mm; vertical-align: -0.4mm; margin-right: 1.5mm; }
+
+  /* Soru-cevap */
+  .sc { break-inside: avoid; border-left: 3px solid var(--ana); padding: 1.2mm 0 1.2mm 4mm; margin-bottom: 2.5mm; }
+  .sc .s { font-weight: 700; font-size: 9.5pt; margin-bottom: .8mm; }
+  .sc .s b { color: var(--ana); margin-right: 1.5mm; }
+  .sc .c { font-size: 9pt; color: #334155; }
+  .sc-grup { font-size: 8pt; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--soluk); margin: 5mm 0 2.5mm; padding-bottom: 1mm; border-bottom: 1px solid var(--cizgi); break-after: avoid; }
+
+  /* Kişiler */
+  .kisi { border: 1px solid var(--cizgi); border-radius: 3.5mm; padding: 4mm 4.5mm; break-inside: avoid; background: #fff; }
+  .kisi .ust { display: flex; align-items: center; gap: 3mm; margin-bottom: 2.5mm; }
+  .kisi .avatar { width: 11mm; height: 11mm; border-radius: 50%; color: #fff; font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 10.5pt; flex: none; }
+  .kisi .ad { font-weight: 800; font-size: 10.6pt; line-height: 1.2; }
+  .kisi .no { font-size: 7.8pt; color: var(--soluk); }
+  .kisi .rol { font-size: 8.4pt; font-weight: 700; color: var(--ana); margin-bottom: 1.6mm; }
+  .kisi ul { font-size: 8.4pt; margin: 0; padding-left: 4.5mm; }
+  .sor { display:inline-block; background: var(--ana); color:#fff; font-weight:700; font-size:7.2pt; padding:.5mm 2.5mm; border-radius:10mm; }
+  .des { display:inline-block; background: var(--ana-acik); color: var(--ana); font-weight:600; font-size:7.2pt; padding:.5mm 2.5mm; border-radius:10mm; }
+
+  /* Kapak */
+  .kapak { height: 297mm; position: relative; overflow: hidden; color: #fff; padding: 18mm 18mm 16mm;
+    background: radial-gradient(160mm 120mm at -10% 105%, rgba(39,71,214,.75), transparent 60%), radial-gradient(150mm 110mm at 105% -5%, rgba(39,71,214,.5), transparent 60%), #0b1230; display: flex; flex-direction: column; }
+  .kapak .kurum { display: flex; align-items: center; gap: 5mm; }
+  .kapak .logo-kutu { width: 20mm; height: 20mm; background: #fff; border-radius: 4mm; display: flex; align-items: center; justify-content: center; flex: none; padding: 1.2mm; }
+  .kapak .logo-kutu img { width: 100%; height: 100%; object-fit: contain; }
+  .kapak .kurum-ad { font-size: 11pt; font-weight: 800; letter-spacing: .06em; }
+  .kapak .kurum-alt { font-size: 8.5pt; color: rgba(255,255,255,.65); }
+  .kapak .hafta { margin-top: 22mm; display: inline-flex; align-items: center; gap: 2mm; padding: 1.5mm 4mm; border-radius: 20mm; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); font-size: 9pt; font-weight: 600; width: max-content; }
+  .kapak .hafta .nokta2 { width: 2.2mm; height: 2.2mm; border-radius: 50%; background: #34d399; }
+  .kapak h1 { font-size: 36pt; font-weight: 800; letter-spacing: -.035em; margin: 6mm 0 3mm; line-height: 1.05; }
+  .kapak h1 span { color: #9fb0ff; }
+  .kapak .alt { font-size: 12pt; color: rgba(255,255,255,.78); max-width: 150mm; }
+  .kapak .gorseller { margin-top: 9mm; display: grid; grid-template-columns: 1.55fr 1fr; gap: 4mm; }
+  .kapak .gorseller img { width: 100%; border-radius: 3mm; box-shadow: 0 8mm 20mm rgba(0,0,0,.5); display: block; }
+  .kapak .neon-kart { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.15); border-radius: 3mm; padding: 4mm; font-size: 8.6pt; }
+  .kapak .neon-kart b { color: #fff; } .kapak .neon-kart .buyuk { font-size: 22pt; font-weight: 800; color: #9fb0ff; line-height: 1; }
+  .kapak .alt-blok { margin-top: auto; display: grid; grid-template-columns: 1fr auto; gap: 8mm; align-items: end; }
+  .kapak table { border: 0; margin: 0; font-size: 9pt; width: auto; }
+  .kapak td { border: 0; padding: .9mm 6mm .9mm 0; background: none !important; color: #fff; }
+  .kapak td:first-child { color: rgba(255,255,255,.55); font-size: 7.5pt; text-transform: uppercase; letter-spacing: .1em; font-weight: 700; }
+  .kapak .qr { background: #fff; border-radius: 3mm; padding: 2.5mm; text-align: center; color: var(--koyu); }
+  .kapak .qr img { width: 30mm; height: 30mm; display: block; }
+  .kapak .qr div { font-size: 7.5pt; font-weight: 700; margin-top: 1mm; }
+  .yan-yana { display: grid; grid-template-columns: 1.6fr 1fr; gap: 5mm; align-items: start; }
+  svg text { font-family: Inter, sans-serif; }
+  table.sik td { padding: 1.05mm 2.5mm; }
+</style>
+</head>
+<body>
+
+<!-- ================================================== KAPAK -->
+<section class="kapak">
+  <div class="kurum">
+    <div class="logo-kutu"><img src="g/ktun-logo.png" alt=""></div>
+    <div>
+      <div class="kurum-ad">KONYA TEKNİK ÜNİVERSİTESİ</div>
+      <div class="kurum-alt">Bilgisayar Programcılığı · Ders Kodu 5035354</div>
+    </div>
+  </div>
+  <div class="hafta"><span class="nokta2"></span> 3. Hafta Teslimi · Kasım 2026</div>
+  <h1>Sayfalar ve<br><span>Veritabanı Bağlantısı</span></h1>
+  <div class="alt">Sitenin önemli sayfalarını tamamladık ve buluttaki PostgreSQL veritabanımızı (Neon) sisteme bağladık. Bu rapor, veritabanını adım adım nasıl bağladığımızı, nerede ne kullandığımızı ve ekipte kimin ne yaptığını anlatıyor.</div>
+  <div class="gorseller">
+    <img src="g/liste.jpg" alt="">
+    <div class="neon-kart">
+      <div style="font-size:7.5pt;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.6);font-weight:700">Veritabanı · Neon</div>
+      <div class="buyuk" style="margin-top:3mm">23 tablo</div>
+      <div style="margin-top:1mm">PostgreSQL 18.6 · Frankfurt</div>
+      <div style="margin-top:4mm;font-family:Consolas,monospace;font-size:7.4pt;color:#4ade80">Neon bağlantısı kuruldu:<br>23 tablo hazır, toplam 0 satır</div>
+      <div style="margin-top:4mm;color:rgba(255,255,255,.7)">Bağlantı kuruldu, tablolar oluşturuldu. Veriler bir sonraki adımda yüklenecek.</div>
+    </div>
+  </div>
+  <div class="alt-blok">
+    <table>
+      <tr><td>Hazırlayanlar</td><td>Mehmet Arda Çekiç · Azra Ardıç · Esra Ağlar · Ömer Faruk Çelik</td></tr>
+      <tr><td>Danışman</td><td>Levent Civcik</td></tr>
+      <tr><td>Adres</td><td><b>ardcek.com/hafta3</b></td></tr>
+    </table>
+    <div class="qr"><img src="g/qr.svg" alt="QR"><div>Telefonla okut, aç</div></div>
+  </div>
+</section>
+
+<!-- ================================================== BİR BAKIŞTA -->
+<section class="sayfa">
+  <div class="bolum-ust">Bir bakışta</div>
+  <h2 class="baslik">Bu hafta ne teslim ediyoruz?</h2>
+  <p class="giris">Geçen hafta yalnızca ana sayfayı göstermiştik. Bu hafta sitenin asıl işini yapan sayfaları tamamladık: araçları listelemek, filtrelemek, bir aracın detayına bakıp fiyatını hesaplamak, giriş ve üyelik. Bir de projenin en önemli parçasının ilk adımını attık: <b>veritabanını bağladık</b>.</p>
+
+  <div class="izgara-4" style="margin-bottom:6mm">
+    <div class="rakam"><strong>5</strong><span>ana sayfa türü (+47 araç detay sayfası)</span></div>
+    <div class="rakam"><strong>8</strong><span>filtre + 5 sıralama seçeneği</span></div>
+    <div class="rakam"><strong>23</strong><span>tablo Neon'da oluşturuldu</span></div>
+    <div class="rakam"><strong>22</strong><span>tablolar arası ilişki</span></div>
+  </div>
+
+  <div class="izgara-2">
+    <div class="kutu yesil" style="margin:0"><b><i class="bi bi-check2-circle"></i> Hazır olanlar</b>
+      <ul style="margin:2mm 0 0">
+        <li>Ana sayfa</li>
+        <li>Araç listesi: 8 filtre, sıralama, sayfalama</li>
+        <li>Araç detayı ve anlık fiyat dökümü</li>
+        <li>Giriş ve Üye ol sayfaları (form ve doğrulamalar)</li>
+        <li>Neon PostgreSQL bağlantısı ve 23 tablo</li>
+      </ul>
+    </div>
+    <div class="kutu sari" style="margin:0"><b><i class="bi bi-hourglass-split" style="color:var(--turuncu)"></i> Bilerek sonraya bıraktıklarımız</b>
+      <ul style="margin:2mm 0 0">
+        <li>Hakkımızda, İletişim, Kiralama Koşulları, KVKK sayfaları</li>
+        <li>Üyeliğin ve girişin gerçekten çalışması</li>
+        <li>Verilerin Neon'a yüklenmesi ve sayfaların oradan okuması</li>
+        <li>Rezervasyon</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="kutu koyu">
+    <b><i class="bi bi-info-circle" style="color:#9fb0ff"></i> Önemli: şu an hangi veri nerede?</b><br>
+    Neon'daki veritabanı <b>bağlı ve tabloları hazır, ama boş</b>. Bu haftanın hedefi bağlantıyı kurmaktı. Sayfalarda gördüğünüz araçlar ve şubeler şimdilik <b>örnek verilerdir</b>: projedeki <code style="background:#1e2a4a;color:#dbe2f0">OrnekVeriler.cs</code> dosyasından gelir. Bir sonraki adımda tek bir ayarı değiştirerek sayfaları Neon'daki tablolara bağlayacağız.
+  </div>
+
+  <h3>İçindekiler</h3>
+  <ol class="icindekiler">
+    <li>Bu hafta nasıl çalıştık?</li>
+    <li>Sayfalar</li>
+    <li>Veritabanı nedir? (temelden)</li>
+    <li>Neden PostgreSQL ve Neon?</li>
+    <li>Neon'da adım adım ne yaptık?</li>
+    <li>Bağlantı adresinin parçaları</li>
+    <li>Adresi nereye koyduk?</li>
+    <li>Kod tarafında bağlantı</li>
+    <li>Neon'daki tablolar ve ilişkiler</li>
+    <li>Tablolar neden boş? Sırada ne var?</li>
+    <li>Hocaya canlı gösterim</li>
+    <li>Soru – cevap</li>
+    <li>Kim ne yaptı?</li>
+    <li>Sözlük ve kaynakça</li>
+  </ol>
+</section>
+
+<!-- ================================================== SÜREÇ -->
+<section class="sayfa">
+  <div class="bolum-ust">01 · Süreç</div>
+  <h2 class="baslik">Bu hafta nasıl çalıştık?</h2>
+  <p class="giris">İşi iki parçaya ayırdık: bir yanda kullanıcının göreceği sayfalar, öbür yanda arka taraftaki veritabanı. İkisi aynı anda ilerledi; haftanın sonunda birleştirip test ettik.</p>
+
+  <div class="adim"><div class="no">1</div><div><h4>Sayfaların kapsamını belirledik</h4><p>Bir araç kiralama sitesinde kullanıcı önce araçları görmek, sonra süzmek, sonra bir aracın fiyatını öğrenmek ister. Bu yüzden önceliği araç listesi, filtreler ve araç detayına verdik. Kurumsal içerik sayfalarını (Hakkımızda, KVKK…) sonraya bıraktık.</p></div></div>
+  <div class="adim"><div class="no">2</div><div><h4>Filtre ve fiyat kurallarını yazdık</h4><p>Filtreler (kategori, marka, vites, yakıt, koltuk, fiyat aralığı, model yılı, arama) ve fiyat kuralları (gün sayısı, uzun kiralama indirimi, ek hizmetler, farklı şubeye iade) sunucu tarafında, C# ile yazıldı.</p></div></div>
+  <div class="adim"><div class="no">3</div><div><h4>Veritabanı olarak Neon'u seçtik ve hesabı açtık</h4><p>Ücretsiz, bulutta çalışan ve kurulum gerektirmeyen bir PostgreSQL hizmeti olduğu için Neon'u seçtik. Projeyi ve <code>arackiralama</code> adlı veritabanını oluşturduk.</p></div></div>
+  <div class="adim"><div class="no">4</div><div><h4>Bağlantı adresini güvenli şekilde sisteme verdik</h4><p>Neon'un verdiği bağlantı adresini koda yazmadık; canlı sunucuda (Render) ortam değişkenine, bilgisayarımızda <code>user-secrets</code>'a koyduk. Böylece şifre GitHub'a hiç gitmedi.</p></div></div>
+  <div class="adim"><div class="no">5</div><div><h4>Uygulama tabloları kendisi oluşturdu</h4><p>Uygulamamız açılırken Neon'a bağlanıp 23 tabloyu, C# sınıflarımıza bakarak kendisi oluşturdu (Entity Framework Core). Tek satır SQL yazmadık.</p></div></div>
+  <div class="adim"><div class="no">6</div><div><h4>Test ettik ve yayınladık</h4><p>Sayfaları gerçek sistemle karşılaştırarak test ettik (20 farklı filtre/sıralama durumu ve 3 farklı fiyat senaryosu birebir aynı çıktı). Sayfaların kopyasını ardcek.com/hafta3'e, çalışan sistemi automarket.ardcek.com'a koyduk.</p></div></div>
+
+  <div class="kutu"><i class="bi bi-lightbulb"></i><b>Neden iki adres var?</b> ardcek.com yalnızca sabit (HTML) dosyaları barındırabilen bir hosting; C# programı ve veritabanı bağlantısı orada çalışamaz. Bu yüzden <b>ardcek.com/hafta3</b>'e sayfaların gezilebilen bir kopyasını koyduk. Sistemin <b>kendisi</b> (C# + veritabanı bağlantısı) Render üzerinde, <b>automarket.ardcek.com</b> adresinde çalışıyor.</div>
+</section>
+
+<!-- ================================================== SAYFALAR -->
+<section class="sayfa">
+  <div class="bolum-ust">02 · Sayfalar</div>
+  <h2 class="baslik">Araç listesi ve filtreler</h2>
+  <figure><img src="g/liste.jpg" alt=""><figcaption><b>Araç listesi.</b> Solda filtreler, sağda 12'şerli sayfalanan araç kartları. Bir filtre seçilince liste kendiliğinden yenilenir.</figcaption></figure>
+  <div class="izgara-2">
+    <div>
+      <h4>Filtreler</h4>
+      <p class="soluk" style="font-size:8.8pt">Kategori · Marka · Vites · Yakıt · Koltuk sayısı · Günlük fiyat aralığı · Model yılı · Marka/model arama. Ayrıca alış şubesi ve tarih seçilebilir.</p>
+      <h4>Sıralama</h4>
+      <p class="soluk" style="font-size:8.8pt">Fiyat (artan / azalan) · En yeni model · En düşük km · Marka-model (A→Z)</p>
+    </div>
+    <div class="kutu" style="margin:0"><b>Nasıl çalışıyor?</b> Her filtre, sunucudaki sorguya tek bir koşul ekler. Örneğin kategori seçilince: <code>sorgu.Where(a =&gt; a.KategoriId == seçilen)</code>. Bu kurallar <code>Controllers/AraclarController.cs</code> dosyasında.</div>
+  </div>
+</section>
+
+<section class="sayfa">
+  <div class="izgara-2">
+    <figure><img src="g/liste-suzulmus.jpg" alt=""><figcaption><b>Süzülmüş liste.</b> Kategori: SUV, sıralama: fiyat (azalan) → 7 araç.</figcaption></figure>
+    <figure><img src="g/liste-tarihli.jpg" alt=""><figcaption><b>Tarih seçilince</b> başlıkta tarih aralığı ve gün sayısı, kartlarda toplam tutar görünür.</figcaption></figure>
+  </div>
+  <h2 class="baslik" style="margin-top:4mm">Araç detayı ve fiyat hesabı</h2>
+  <div class="yan-yana">
+    <figure style="margin:0"><img src="g/detay.jpg" alt=""><figcaption><b>Araç detayı.</b> Tarih, şube ya da ek hizmet değişince sağdaki fiyat dökümü anında yenilenir.</figcaption></figure>
+    <div>
+      <h4>Fiyat kuralları</h4>
+      <table>
+        <tr><th>Kural</th><th>Değer</th></tr>
+        <tr><td>Gün sayısı</td><td>Başlayan her 24 saat = 1 gün</td></tr>
+        <tr><td>Haftalık indirim</td><td>7+ gün → %10</td></tr>
+        <tr><td>Aylık indirim</td><td>30+ gün → %20</td></tr>
+        <tr><td>Ek hizmetler</td><td>Günlük fiyat × gün</td></tr>
+        <tr><td>Farklı şubeye iade</td><td>750 ₺</td></tr>
+      </table>
+      <p style="font-size:8.6pt">Örnek (resimdeki): 8 gün × 3.100 ₺ = 24.800 ₺, %10 indirim −2.480 ₺, Kar Zinciri 640 ₺, Navigasyon 720 ₺, farklı şubeye iade 750 ₺ → <b>Toplam 24.430 ₺</b>.</p>
+      <p class="soluk" style="font-size:8.2pt">Kurallar <code>Servisler/FiyatServisi.cs</code> içinde; oranlar ayarlardan gelir.</p>
+    </div>
+  </div>
+</section>
+
+<section class="sayfa">
+  <h2 class="baslik">Giriş ve Üye ol</h2>
+  <div class="izgara-2">
+    <figure><img src="g/giris.jpg" alt=""><figcaption><b>Giriş.</b> Form ve doğrulamalar hazır. Üyelik henüz açılmadığı için gönderince "çok yakında açılacak" uyarısı çıkar.</figcaption></figure>
+    <figure><img src="g/kayit.jpg" alt=""><figcaption><b>Üye ol.</b> Ad, soyad, e-posta, telefon, şifre (tekrar) ve KVKK onayı. Boş ya da hatalı alanlar için uyarılar çalışıyor.</figcaption></figure>
+  </div>
+  <div class="izgara-2">
+    <div class="kutu" style="margin:0"><b>Neden üyelik kapalı?</b> Üyelik bilgileri veritabanında (<code>AspNetUsers</code> tablosunda) tutulacak. Bu hafta tabloyu oluşturduk; kayıt ve girişi, sayfalar Neon'a bağlandığında açacağız. Kapalı/açık durumu tek bir ayarla değişiyor.</div>
+    <div class="kutu" style="margin:0"><b>Rezervasyonlarım</b> linkine basınca kullanıcı giriş sayfasına yönlendirilir; çünkü rezervasyonları görmek için giriş yapmak gerekir. Gerçek bir sitedeki davranışın aynısı.</div>
+  </div>
+  <h3>Telefonda</h3>
+  <div class="yan-yana" style="grid-template-columns: 52mm 1fr">
+    <figure style="margin:0"><img src="g/mobil.jpg" alt=""></figure>
+    <div>
+      <p>Bütün sayfalar telefon ekranına göre kendini düzenliyor: menü tek butona katlanıyor, arama alanları alt alta diziliyor, filtreler listenin üstüne geliyor, araç kartları tek sütuna iniyor.</p>
+      <p>Açık / koyu tema da bütün sayfalarda çalışıyor.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================== VERİTABANI NEDİR -->
+<section class="sayfa">
+  <div class="bolum-ust">03 · Temelden</div>
+  <h2 class="baslik">Veritabanı nedir?</h2>
+  <p class="giris">Veritabanı, verileri düzenli ve kalıcı olarak saklayan bir yazılımdır. En kolay benzetme bir Excel dosyası: içinde sayfalar (tablolar), her sayfada sütunlar ve satırlar var. Farkı şu: aynı anda binlerce kişi güvenle okuyup yazabilir, tablolar birbirine bağlanabilir ve veriler kaybolmaz.</p>
+
+  <div class="izgara-3">
+    <div class="kart"><div class="ikon"><i class="bi bi-table"></i></div><h4>Tablo</h4><p>Bir konu. Örneğin <b>Araclar</b> tablosu bütün araçları tutar.</p></div>
+    <div class="kart"><div class="ikon"><i class="bi bi-layout-three-columns"></i></div><h4>Sütun (kolon)</h4><p>Bir özellik: <b>Model</b>, <b>Yil</b>, <b>GunlukFiyat</b>. Her sütunun bir türü vardır (sayı, metin, tarih…).</p></div>
+    <div class="kart"><div class="ikon"><i class="bi bi-list-ol"></i></div><h4>Satır (kayıt)</h4><p>Tek bir şey: "Audi A5, 2023, 3.100 ₺" bir satırdır.</p></div>
+  </div>
+
+  <h3>Örnek: Araclar tablosu (kısaltılmış)</h3>
+  <table>
+    <tr><th>Id</th><th>MarkaId</th><th>Model</th><th>Yil</th><th>KategoriId</th><th>GunlukFiyat</th><th>SubeId</th></tr>
+    <tr><td>3</td><td>1 <span class="soluk">(Audi)</span></td><td>A5</td><td>2023</td><td>4 <span class="soluk">(Lüks)</span></td><td>3100</td><td>5 <span class="soluk">(Antalya)</span></td></tr>
+    <tr><td>27</td><td>5 <span class="soluk">(Peugeot)</span></td><td>206</td><td>2025</td><td>1 <span class="soluk">(Ekonomi)</span></td><td>750</td><td>4 <span class="soluk">(İzmir)</span></td></tr>
+  </table>
+  <p class="soluk" style="font-size:8pt;margin-top:-3mm">Bu satırlar yalnızca örnektir; Neon'daki Araclar tablosu şu an boştur.</p>
+
+  <div class="izgara-2">
+    <div class="kutu" style="margin:0"><b>Birincil anahtar (Primary Key)</b><br>Her satırı benzersiz tanıtan sütun. Bizim tablolarımızda bu genellikle <code>Id</code>. İki aracın Id'si asla aynı olamaz.</div>
+    <div class="kutu" style="margin:0"><b>Yabancı anahtar (Foreign Key)</b><br>Başka bir tablodaki satıra işaret eden sütun. <code>Araclar.MarkaId = 1</code> → "bu aracın markası, Markalar tablosundaki 1 numaralı satır (Audi)". Bizde 22 böyle ilişki var.</div>
+  </div>
+
+  <h3>SQL: veritabanının dili</h3>
+  <p>Veritabanına ne istediğimizi SQL ile söyleriz. Örneğin "bütün araçları getir":</p>
+<pre><span class="a">SELECT</span> * <span class="a">FROM</span> <span class="s">"Araclar"</span>;
+<span class="a">SELECT</span> <span class="s">"Model"</span>, <span class="s">"GunlukFiyat"</span> <span class="a">FROM</span> <span class="s">"Araclar"</span> <span class="a">WHERE</span> <span class="s">"KategoriId"</span> = 3;   <span class="y">-- sadece SUV'lar</span></pre>
+  <p class="soluk" style="font-size:8.6pt">Biz kodda SQL'i elle yazmıyoruz; C# ile yazdığımız sorguları Entity Framework Core bizim yerimize SQL'e çeviriyor (bölüm 08).</p>
+</section>
+
+<!-- ================================================== NEDEN NEON -->
+<section class="sayfa">
+  <div class="bolum-ust">04 · Seçim</div>
+  <h2 class="baslik">Neden PostgreSQL ve Neon?</h2>
+  <div class="izgara-2">
+    <div class="kart"><div class="ikon"><i class="bi bi-database"></i></div><h4>PostgreSQL</h4><p>Dünyada en çok kullanılan, ücretsiz ve açık kaynak veritabanlarından biri. Güvenilir, hızlı ve .NET ile <b>Npgsql</b> sürücüsü sayesinde sorunsuz çalışıyor. Kullandığımız sürüm: <b>PostgreSQL 18.6</b>.</p></div>
+    <div class="kart"><div class="ikon"><i class="bi bi-cloud"></i></div><h4>Neon</h4><p>PostgreSQL'i bulutta hazır olarak sunan bir hizmet. Sunucu kurmak, bakım yapmak gerekmiyor; ücretsiz planla başlanabiliyor. Bizim veritabanımız Frankfurt'taki sunucuda (AWS eu-central-1).</p></div>
+  </div>
+
+  <h3>Neden kendi bilgisayarımızda değil de bulutta?</h3>
+  <p>Sitemizin çalışan hali Render adlı bulut hizmetinde. Render'ın ücretsiz planında sunucunun diski kalıcı değil: sunucu her yeniden başladığında üzerindeki dosyalar silinir. Veriler (kullanıcılar, rezervasyonlar) kaybolmasın diye veritabanını ayrı ve kalıcı bir yere, Neon'a koyduk.</p>
+
+  <table>
+    <tr><th>Seçenek</th><th>Artısı</th><th>Eksisi</th><th class="o">Seçtik mi?</th></tr>
+    <tr><td><b>Neon (bulut PostgreSQL)</b></td><td>Kalıcı, ücretsiz, kurulumsuz, her yerden erişilir</td><td>İnternet gerekir</td><td class="o"><span class="sor">Canlı sistem</span></td></tr>
+    <tr><td><b>SQLite (tek dosya)</b></td><td>Kurulum yok, internetsiz çalışır, hızlı</td><td>Render'da kalıcı değil, çok kullanıcıya uygun değil</td><td class="o"><span class="des">Bilgisayarda</span></td></tr>
+    <tr><td>Kendi sunucumuza PostgreSQL kurmak</td><td>Tam kontrol</td><td>Sunucu kiralamak, kurmak, bakımını yapmak gerekir</td><td class="o">—</td></tr>
+  </table>
+
+  <div class="kutu"><i class="bi bi-arrow-left-right"></i><b>İki veritabanı, tek kod.</b> Bilgisayarda geliştirirken kurulum gerektirmeyen <b>SQLite</b> dosyasını (<code>arackiralama.db</code>), canlıda <b>Neon</b>'u kullanıyoruz. Entity Framework Core sayesinde kodumuz ikisinde de aynı; hangisinin kullanılacağına program açılırken bakılan bir ayar karar veriyor.</div>
+</section>
+
+<!-- ================================================== NEON ADIMLARI -->
+<section class="sayfa">
+  <div class="bolum-ust">05 · Neon</div>
+  <h2 class="baslik">Neon'da adım adım ne yaptık?</h2>
+  <p class="giris">Neon tarafındaki iş birkaç dakika sürdü. Sırasıyla:</p>
+
+  <div class="adim"><div class="no">1</div><div><h4>Hesap açtık</h4><p><b>neon.tech</b> adresinden GitHub hesabıyla giriş yaptık. Ücretsiz plan yeterli.</p></div></div>
+  <div class="adim"><div class="no">2</div><div><h4>Yeni proje oluşturduk</h4><p>"New Project" ile bir proje açtık. Sunucu bölgesi olarak Türkiye'ye yakın olan <b>AWS Europe Central 1 (Frankfurt)</b>'u seçtik. Sürüm: PostgreSQL 18.</p></div></div>
+  <div class="adim"><div class="no">3</div><div><h4>Veritabanımızı oluşturduk</h4><p>Projede <b><code>arackiralama</code></b> adında bir veritabanı açtık. Veritabanının sahibi olan kullanıcı: <code>neondb_owner</code>.</p></div></div>
+  <div class="adim"><div class="no">4</div><div><h4>Bağlantı adresini aldık</h4><p>Proje panelindeki <b>"Connect"</b> butonuna bastık, veritabanı olarak <code>arackiralama</code>'yı seçtik ve "Connection pooling" açıkken gösterilen <b>bağlantı adresini (connection string)</b> kopyaladık.</p></div></div>
+  <div class="adim"><div class="no">5</div><div><h4>Adresi sisteme verdik</h4><p>Adresi koda yazmadan, canlı sunucunun (Render) ayarlarına ve kendi bilgisayarımızdaki gizli ayarlara koyduk (bölüm 07).</p></div></div>
+  <div class="adim"><div class="no">6</div><div><h4>Uygulama tabloları oluşturdu</h4><p>Uygulama açıldığında Neon'a bağlandı ve 23 tabloyu kendisi oluşturdu. Neon panelindeki <b>Tables</b> bölümünde tabloları görebiliyoruz.</p></div></div>
+
+  <div class="kutu kirmizi"><b><i class="bi bi-exclamation-triangle" style="color:var(--kirmizi)"></i> "API aldık" dememek lazım.</b> Neon'dan aldığımız şey bir <b>API anahtarı değil, bağlantı adresi</b> (connection string). API anahtarı bir hizmetin web servisini kullanmak için verilen bir parola gibidir. Bağlantı adresi ise programın doğrudan veritabanına bağlanması için gereken bütün bilgileri (sunucu, veritabanı adı, kullanıcı, şifre, güvenlik ayarı) tek satırda toplar.</div>
+</section>
+
+<!-- ================================================== BAĞLANTI ADRESİ -->
+<section class="sayfa">
+  <div class="bolum-ust">06 · Bağlantı adresi</div>
+  <h2 class="baslik">Bağlantı adresinin parçaları</h2>
+  <p class="giris">Neon'un verdiği adres tek satırlık uzun bir yazıya benziyor ama her parçasının bir anlamı var. Aşağıda şifreyi ve sunucu adının bir kısmını gizleyerek gösteriyoruz:</p>
+
+  <div class="adres"><span class="p1">postgresql://</span><span class="p2">neondb_owner</span>:<span class="p3">********</span>@<span class="p4">ep-gentle-art-xxxx-pooler.c-6.eu-central-1.aws.neon.tech</span>/<span class="p5">arackiralama</span>?<span class="p6">sslmode=require</span>&amp;<span class="p7">channel_binding=require</span></div>
+
+  <table style="margin-top:4mm">
+    <tr><th style="width:36%">Parça</th><th>Anlamı</th></tr>
+    <tr><td><span class="nokta p1"></span><code>postgresql://</code></td><td>Bağlantı türü: "bu bir PostgreSQL veritabanı".</td></tr>
+    <tr><td><span class="nokta p2"></span><code>neondb_owner</code></td><td>Veritabanı kullanıcısı (veritabanının sahibi).</td></tr>
+    <tr><td><span class="nokta p3"></span><code>********</code></td><td>Şifre. <b>Gizlidir</b>; hiçbir yerde yazılı olarak paylaşılmaz.</td></tr>
+    <tr><td><span class="nokta p4"></span><code>ep-…-pooler.c-6.eu-central-1.aws.neon.tech</code></td><td>Sunucunun adresi. <b>ep-</b>: Neon'daki bağlantı noktası (endpoint). <b>-pooler</b>: bağlantı havuzu üzerinden bağlan. <b>eu-central-1</b>: Frankfurt bölgesi.</td></tr>
+    <tr><td><span class="nokta p5"></span><code>arackiralama</code></td><td>Bağlanılacak veritabanının adı.</td></tr>
+    <tr><td><span class="nokta p6"></span><code>sslmode=require</code></td><td>Bağlantı mutlaka <b>şifreli</b> (SSL/TLS) olsun; aradaki biri trafiği okuyamaz.</td></tr>
+    <tr><td><span class="nokta p7"></span><code>channel_binding=require</code></td><td>Ek güvenlik: şifreli kanalın gerçekten Neon sunucusuyla kurulduğunu doğrular (araya giren sahte bir sunucuya karşı).</td></tr>
+  </table>
+
+  <div class="izgara-2">
+    <div class="kutu" style="margin:0"><b>Pooler (bağlantı havuzu) nedir?</b><br>Her istek için veritabanına yeni bağlantı açmak pahalıdır ve ücretsiz planda aynı anda açılabilecek bağlantı sayısı sınırlıdır. Pooler, çok sayıda kısa bağlantıyı az sayıda gerçek bağlantı üzerinden yönetir.</div>
+    <div class="kutu" style="margin:0"><b>Program bu adresi nasıl anlıyor?</b><br>.NET'in PostgreSQL sürücüsü (Npgsql) adresi <code>Host=…;Database=…;Username=…</code> biçiminde ister. Neon'un <code>postgresql://</code> biçimini bu biçime bizim yazdığımız küçük bir yardımcı çeviriyor (<code>PostgreBaglantisi.Duzenle</code>).</div>
+  </div>
+</section>
+
+<!-- ================================================== NEREYE KOYDUK -->
+<section class="sayfa">
+  <div class="bolum-ust">07 · Güvenlik</div>
+  <h2 class="baslik">Adresi nereye koyduk? Neden koda yazmadık?</h2>
+  <p class="giris">Bağlantı adresinin içinde şifre var. Kodumuz GitHub'da duruyor; oraya giden bir şifreyi başkaları görebilir, veritabanımıza bağlanıp verileri silebilir. Bu yüzden adres <b>kodda yok</b>. Kod, adresi çalıştığı ortamdan okuyor.</p>
+
+  <div class="izgara-3">
+    <div class="kart"><div class="ikon"><i class="bi bi-file-earmark-code"></i></div><h4>appsettings.json</h4><p>Ayar dosyamızda alan var ama <b>boş</b>. GitHub'da herkesin göreceği tek şey bu boş alan ve açıklaması.</p></div>
+    <div class="kart"><div class="ikon"><i class="bi bi-cloud-check"></i></div><h4>Render (canlı sunucu)</h4><p>Render → servisimiz → <b>Environment</b> sayfasında <code>ConnectionStrings__PostgreSql</code> adlı <b>ortam değişkeni</b>.</p></div>
+    <div class="kart"><div class="ikon"><i class="bi bi-laptop"></i></div><h4>Bilgisayarımız</h4><p>.NET'in <b>user-secrets</b> aracı: proje klasörünün dışında, kullanıcı klasöründe saklanır, GitHub'a gitmez.</p></div>
+  </div>
+
+  <div class="dosya">appsettings.json</div>
+<pre>{
+  <span class="s">"ConnectionStrings"</span>: {
+    <span class="y">// Neon (PostgreSQL) bağlantı adresi. ŞİFRE İÇERDİĞİ İÇİN BURAYA YAZILMAZ, GitHub'a gitmez.</span>
+    <span class="y">//   Canlı sitede : Render → Environment → ConnectionStrings__PostgreSql</span>
+    <span class="y">//   Bilgisayarda : dotnet user-secrets set "ConnectionStrings:PostgreSql" "postgresql://..."</span>
+    <span class="s">"PostgreSql"</span>: <span class="s">""</span>
+  },
+  <span class="s">"VeriTabani"</span>: {
+    <span class="y">// "Ornek" → sayfalar örnek verilerden okur, Neon'da tablolar oluşturulur ama boş kalır (bu hafta)</span>
+    <span class="y">// "Neon"  → sayfalar doğrudan Neon'daki tablolardan okur</span>
+    <span class="s">"SayfalarNeredenOkusun"</span>: <span class="s">"Ornek"</span>
+  }
+}</pre>
+
+  <div class="dosya">Bilgisayarda bir kere çalıştırılan komut</div>
+<pre><span class="a">dotnet</span> user-secrets set <span class="s">"ConnectionStrings:PostgreSql"</span> <span class="s">"postgresql://neondb_owner:********@ep-…/arackiralama?sslmode=require"</span></pre>
+
+  <div class="kutu"><b>İki alt çizgi (<code>__</code>) neden?</b> Ayar dosyasında <code>ConnectionStrings</code> başlığının altında <code>PostgreSql</code> var. Ortam değişkeni adlarında iç içe başlık yazılamadığı için .NET, iki alt çizgiyi "bir alt başlık" olarak okur: <code>ConnectionStrings__PostgreSql</code> = <code>ConnectionStrings:PostgreSql</code>.</div>
+</section>
+
+<!-- ================================================== KOD TARAFI -->
+<section class="sayfa">
+  <div class="bolum-ust">08 · Kod</div>
+  <h2 class="baslik">Kod tarafında bağlantı</h2>
+  <p class="giris">Bağlantı dört dosyada gerçekleşiyor. Sırasıyla: <b>Program.cs</b> adresi okur ve hangi veritabanının kullanılacağına karar verir → <b>NeonBaglantisi.cs</b> Neon'a bağlanıp tabloları oluşturur → tabloların ne olduğunu <b>VeriTabani.cs</b> söyler → her tablonun sütunlarını <b>Modeller</b> klasöründeki sınıflar söyler.</p>
+
+  <div class="dosya">1) Program.cs — adresi oku, karar ver</div>
+<pre><span class="y">// Adres: önce appsettings.json, sonra ortam değişkeni / user-secrets okunur (hangisi doluysa)</span>
+<span class="a">var</span> postgreBaglantisi = PostgreBaglantisi.Duzenle(builder.Configuration.GetConnectionString(<span class="s">"PostgreSql"</span>));
+<span class="a">var</span> sayfalarNeondan = builder.Configuration[<span class="s">"VeriTabani:SayfalarNeredenOkusun"</span>] == <span class="s">"Neon"</span>
+                      &amp;&amp; !<span class="a">string</span>.IsNullOrWhiteSpace(postgreBaglantisi);
+
+builder.Services.AddDbContext&lt;VeriTabani&gt;(secenek =&gt;
+{
+    <span class="k">if</span> (sayfalarNeondan) secenek.UseNpgsql(postgreBaglantisi);                       <span class="y">// Neon (PostgreSQL)</span>
+    <span class="k">else</span> secenek.UseSqlite(<span class="s">$"Data Source={...}/arackiralama.db"</span>);                  <span class="y">// örnek veri (SQLite)</span>
+});
+
+<span class="y">// Neon adresi varsa: arka planda Neon'a bağlan, tabloları oluştur (veri yazılmaz)</span>
+<span class="k">if</span> (!<span class="a">string</span>.IsNullOrWhiteSpace(postgreBaglantisi) &amp;&amp; !sayfalarNeondan)
+    _ = Task.Run(() =&gt; NeonBaglantisi.TablolariHazirlaAsync(postgreBaglantisi, app.Logger));</pre>
+
+  <div class="dosya">2) Veri/NeonBaglantisi.cs — bağlan ve tabloları oluştur</div>
+<pre><span class="a">await using var</span> neon = <span class="a">new</span> VeriTabani(<span class="a">new</span> DbContextOptionsBuilder&lt;VeriTabani&gt;().UseNpgsql(baglantiAdresi).Options);
+<span class="a">var</span> simdiOlustu = <span class="a">await</span> neon.Database.EnsureCreatedAsync();   <span class="y">// tablolar yoksa oluştur, varsa dokunma</span>
+<span class="a">var</span> tablolar = <span class="a">await</span> TablolariListeleAsync(neon);              <span class="y">// SELECT table_name FROM information_schema.tables ...</span>
+logger.LogInformation(<span class="s">"Neon bağlantısı kuruldu: {Sayi} tablo hazır, toplam {Satir} satır."</span>, ...);
+<span class="y">// Neon'a ulaşılamazsa (internet yoksa) site çökmez, sadece uyarı yazılır (try / catch)</span></pre>
+
+  <div class="dosya">Uygulama açılırken yazdığı kayıt (log)</div>
+  <div class="terminal">
+    <span class="bilgi">info:</span> Sayfaların veritabanı hazır (SQLite / örnek veri, 1234 ms).<br>
+    <span class="bilgi">info:</span> Now listening on: http://localhost:5046<br>
+    <span class="ok">info: Neon bağlantısı kuruldu: 23 tablo hazır, toplam 0 satır (tablolar şimdi oluşturuldu).</span>
+  </div>
+</section>
+
+<section class="sayfa">
+  <div class="dosya" style="margin-top:0">3) Veri/VeriTabani.cs — hangi tablolar var? (DbContext)</div>
+<pre><span class="a">public class</span> VeriTabani : IdentityDbContext&lt;Kullanici&gt;     <span class="y">// Identity: kullanıcı, rol, giriş tabloları hazır gelir</span>
+{
+    <span class="a">public</span> DbSet&lt;Arac&gt; Araclar =&gt; Set&lt;Arac&gt;();                  <span class="y">// her DbSet = bir tablo</span>
+    <span class="a">public</span> DbSet&lt;Rezervasyon&gt; Rezervasyonlar =&gt; Set&lt;Rezervasyon&gt;();
+    <span class="a">public</span> DbSet&lt;Marka&gt; Markalar =&gt; Set&lt;Marka&gt;();
+    <span class="y">// ... toplam 16 tablo bizim, 7 tablo Identity'nin</span>
+
+    <span class="a">protected override void</span> OnModelCreating(ModelBuilder model)
+    {
+        model.Entity&lt;Arac&gt;().HasIndex(a =&gt; a.Plaka).IsUnique();     <span class="y">// aynı plakadan iki araç olamaz</span>
+        model.Entity&lt;Arac&gt;().HasOne(a =&gt; a.Marka).WithMany()
+             .OnDelete(DeleteBehavior.Restrict);                      <span class="y">// kullanılan marka silinemez</span>
+    }
+}</pre>
+
+  <div class="dosya">4) Modeller/Arac.cs — bir sınıf = bir tablo, bir özellik = bir sütun</div>
+  <div class="izgara-2">
+<pre style="margin:0"><span class="a">public class</span> Arac
+{
+    <span class="a">public int</span> Id { get; set; }
+    <span class="a">public string</span> Plaka { get; set; }
+    <span class="a">public int</span> MarkaId { get; set; }
+    <span class="a">public string</span> Model { get; set; }
+    <span class="a">public int</span> Yil { get; set; }
+    <span class="a">public int</span> KategoriId { get; set; }
+    <span class="a">public int</span> Kilometre { get; set; }
+    <span class="a">public decimal</span> GunlukFiyat { get; set; }
+    <span class="a">public decimal</span> Depozito { get; set; }
+    <span class="a">public</span> AracDurumu Durum { get; set; }
+    <span class="a">public int</span> SubeId { get; set; }
+    <span class="y">// ... toplam 19 sütun</span>
+}</pre>
+    <table style="margin:0">
+      <tr><th>Neon'daki sütun</th><th>Türü</th></tr>
+      <tr><td>Id</td><td>integer (birincil anahtar)</td></tr>
+      <tr><td>Plaka</td><td>text (benzersiz)</td></tr>
+      <tr><td>MarkaId</td><td>integer → Markalar</td></tr>
+      <tr><td>Model</td><td>text</td></tr>
+      <tr><td>Yil</td><td>integer</td></tr>
+      <tr><td>KategoriId</td><td>integer → Kategoriler</td></tr>
+      <tr><td>Kilometre</td><td>integer</td></tr>
+      <tr><td>GunlukFiyat</td><td>numeric</td></tr>
+      <tr><td>Depozito</td><td>numeric</td></tr>
+      <tr><td>Durum</td><td>character varying</td></tr>
+      <tr><td>SubeId</td><td>integer → Subeler</td></tr>
+    </table>
+  </div>
+  <p class="soluk" style="font-size:8.2pt;margin-top:2mm">Sağdaki tablo, Neon'a sorgu atılarak (<code>information_schema.columns</code>) alınmış gerçek sütun listesidir.</p>
+
+  <div class="kutu"><b>Code-first: önce kod, sonra tablo.</b> Tabloları SQL ile elle yazmadık. Önce C# sınıflarını yazdık; <b>Entity Framework Core</b> bu sınıflara bakıp <code>CREATE TABLE</code> komutlarını kendisi üretti ve Neon'da çalıştırdı. <code>int</code> → integer, <code>string</code> → text, <code>decimal</code> → numeric, <code>DateTime</code> → timestamp gibi türleri de kendisi eşledi.</div>
+
+  <table>
+    <tr><th>Kullandığımız paket</th><th>Ne işe yarar?</th></tr>
+    <tr><td><code>Npgsql.EntityFrameworkCore.PostgreSQL</code> 10.0.3</td><td>EF Core'un PostgreSQL (Neon) ile konuşmasını sağlar</td></tr>
+    <tr><td><code>Microsoft.EntityFrameworkCore.Sqlite</code> 10.0.12</td><td>Bilgisayardaki SQLite dosyası için</td></tr>
+    <tr><td><code>Microsoft.AspNetCore.Identity.EntityFrameworkCore</code> 10.0.12</td><td>Üyelik tablolarını (AspNet…) ve şifre güvenliğini hazır getirir</td></tr>
+  </table>
+</section>
+
+<!-- ================================================== TABLOLAR -->
+<section class="sayfa">
+  <div class="bolum-ust">09 · Tablolar</div>
+  <h2 class="baslik">Neon'daki 23 tablo</h2>
+  <p class="giris">Aşağıdaki liste, Neon'a bağlanılarak çıkarılmış gerçek listedir. Satır sayılarının hepsi şu an 0.</p>
+  <div class="izgara-2">
+    <table style="margin:0">
+      <tr><th>Tablo</th><th>Ne tutar?</th><th class="o">Sütun</th></tr>
+      <tr><td colspan="3" style="background:var(--ana-acik);font-weight:700;color:var(--ana)">İşletme</td></tr>
+      <tr><td>Araclar</td><td>Araç filosu</td><td class="o">19</td></tr>
+      <tr><td>Rezervasyonlar</td><td>Kiralama talepleri ve kiralamalar</td><td class="o">32</td></tr>
+      <tr><td>RezervasyonEkstralari</td><td>Rezervasyona eklenen ek hizmetler</td><td class="o">4</td></tr>
+      <tr><td>Odemeler</td><td>Alınan ödemeler</td><td class="o">8</td></tr>
+      <tr><td>Hasarlar</td><td>İadede tespit edilen hasarlar</td><td class="o">5</td></tr>
+      <tr><td>Bakimlar</td><td>Araç bakım kayıtları</td><td class="o">9</td></tr>
+      <tr><td colspan="3" style="background:var(--ana-acik);font-weight:700;color:var(--ana)">Tanımlar</td></tr>
+      <tr><td>Markalar</td><td>Audi, Fiat, Ford…</td><td class="o">4</td></tr>
+      <tr><td>Kategoriler</td><td>Ekonomi, SUV… (en az yaş, ehliyet yılı)</td><td class="o">8</td></tr>
+      <tr><td>YakitTurleri</td><td>Benzin, Dizel, LPG…</td><td class="o">3</td></tr>
+      <tr><td>VitesTurleri</td><td>Manuel, Otomatik</td><td class="o">3</td></tr>
+      <tr><td>Subeler</td><td>Şubeler (adres, telefon)</td><td class="o">5</td></tr>
+      <tr><td>Ekstralar</td><td>Ek hizmetler ve günlük fiyatları</td><td class="o">6</td></tr>
+    </table>
+    <table style="margin:0">
+      <tr><th>Tablo</th><th>Ne tutar?</th><th class="o">Sütun</th></tr>
+      <tr><td colspan="3" style="background:var(--ana-acik);font-weight:700;color:var(--ana)">Site içeriği</td></tr>
+      <tr><td>SiteAyarlari</td><td>Firma bilgisi, renkler, fiyat kuralları, filtre ayarları</td><td class="o">49</td></tr>
+      <tr><td>Sayfalar</td><td>Hakkımızda gibi içerik sayfaları</td><td class="o">9</td></tr>
+      <tr><td>Metinler</td><td>Sitedeki yazıların değiştirilmiş hali</td><td class="o">2</td></tr>
+      <tr><td>Gorseller</td><td>Yüklenen resimler</td><td class="o">5</td></tr>
+      <tr><td colspan="3" style="background:var(--ana-acik);font-weight:700;color:var(--ana)">Üyelik (ASP.NET Identity)</td></tr>
+      <tr><td>AspNetUsers</td><td>Kullanıcılar (+ ad, soyad, doğum ve ehliyet tarihi)</td><td class="o">24</td></tr>
+      <tr><td>AspNetRoles</td><td>Roller: Admin, Personel, Müşteri</td><td class="o">4</td></tr>
+      <tr><td>AspNetUserRoles</td><td>Hangi kullanıcı hangi rolde</td><td class="o">2</td></tr>
+      <tr><td>AspNetUserClaims</td><td>Kullanıcıya ek bilgiler</td><td class="o">4</td></tr>
+      <tr><td>AspNetUserLogins</td><td>Dış hesapla giriş (kullanılmıyor)</td><td class="o">4</td></tr>
+      <tr><td>AspNetUserTokens</td><td>Şifre sıfırlama gibi belirteçler</td><td class="o">4</td></tr>
+      <tr><td>AspNetRoleClaims</td><td>Role ek yetkiler</td><td class="o">4</td></tr>
+    </table>
+  </div>
+  <div class="kutu" style="margin-top:5mm"><b>AspNet ile başlayanlar ne?</b> Üyelik sistemi için Microsoft'un hazır kütüphanesi olan ASP.NET Identity'nin tabloları. Kullanıcıları, şifrelerin güvenli (hash'lenmiş) hallerini ve rolleri tutar. Bu tabloları da kütüphane kendisi tanımlıyor; biz yalnızca kullanıcı tablosuna kendi alanlarımızı (ad, soyad, TC no, doğum tarihi, ehliyet bilgileri) ekledik.</div>
+</section>
+
+<section class="sayfa">
+  <h2 class="baslik">Tablolar arası ilişkiler</h2>
+  <p class="giris">Ok, yabancı anahtarın gösterdiği tabloya doğru çizilmiştir. Örneğin Araclar → Markalar: "her aracın bir markası var".</p>
+  <svg viewBox="0 0 900 470" width="100%" xmlns="http://www.w3.org/2000/svg">
+    <defs><marker id="ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2747d6"/></marker></defs>
+    <g stroke="#2747d6" stroke-width="1.6" fill="none" marker-end="url(#ok)">
+      <path d="M250,170 L195,56"/><path d="M250,180 L195,136"/><path d="M250,196 L195,216"/><path d="M250,206 L195,296"/>
+      <path d="M335,236 L335,318"/>
+      <path d="M335,82 L335,138"/>
+      <path d="M490,198 L422,192"/>
+      <path d="M520,246 L422,340"/>
+      <path d="M690,190 L738,190"/>
+      <path d="M585,82 L585,148"/><path d="M680,56 L738,56"/>
+      <path d="M585,320 L585,248"/>
+      <path d="M680,426 L708,426 L708,232 L684,232"/>
+      <path d="M815,280 L815,222"/><path d="M815,332 L815,368"/>
+    </g>
+    <g font-size="13" font-weight="700" text-anchor="middle">
+      <g fill="#eef1fd" stroke="#c7d2fe"><rect x="20" y="30" width="175" height="52" rx="9"/><rect x="20" y="110" width="175" height="52" rx="9"/><rect x="20" y="190" width="175" height="52" rx="9"/><rect x="20" y="270" width="175" height="52" rx="9"/></g>
+      <text x="107" y="61" fill="#0b1230">Markalar</text><text x="107" y="141" fill="#0b1230">Kategoriler</text><text x="107" y="221" fill="#0b1230">YakitTurleri</text><text x="107" y="301" fill="#0b1230">VitesTurleri</text>
+      <rect x="250" y="30" width="170" height="52" rx="9" fill="#fff" stroke="#c7d2fe"/><text x="335" y="61" fill="#0b1230">Bakimlar</text>
+      <rect x="250" y="140" width="170" height="96" rx="11" fill="#0b1230"/><text x="335" y="184" fill="#fff" font-size="16">Araclar</text><text x="335" y="204" fill="#9fb0ff" font-size="10" font-weight="500">19 sütun</text>
+      <rect x="250" y="320" width="170" height="52" rx="9" fill="#eef1fd" stroke="#c7d2fe"/><text x="335" y="351" fill="#0b1230">Subeler</text>
+      <rect x="490" y="30" width="190" height="52" rx="9" fill="#fff" stroke="#c7d2fe"/><text x="585" y="61" fill="#0b1230" font-size="12">RezervasyonEkstralari</text>
+      <rect x="490" y="150" width="190" height="96" rx="11" fill="#2747d6"/><text x="585" y="194" fill="#fff" font-size="16">Rezervasyonlar</text><text x="585" y="214" fill="#dbe2ff" font-size="10" font-weight="500">32 sütun</text>
+      <rect x="490" y="320" width="190" height="52" rx="9" fill="#fff" stroke="#c7d2fe"/><text x="585" y="351" fill="#0b1230">Odemeler</text>
+      <rect x="490" y="400" width="190" height="52" rx="9" fill="#fff" stroke="#c7d2fe"/><text x="585" y="431" fill="#0b1230">Hasarlar</text>
+      <rect x="740" y="30" width="150" height="52" rx="9" fill="#eef1fd" stroke="#c7d2fe"/><text x="815" y="61" fill="#0b1230">Ekstralar</text>
+      <rect x="740" y="150" width="150" height="72" rx="10" fill="#f3e8ff" stroke="#d8b4fe"/><text x="815" y="186" fill="#581c87">AspNetUsers</text><text x="815" y="204" fill="#7e22ce" font-size="10" font-weight="500">kullanıcılar</text>
+      <rect x="740" y="280" width="150" height="52" rx="9" fill="#f3e8ff" stroke="#d8b4fe"/><text x="815" y="311" fill="#581c87" font-size="12">AspNetUserRoles</text>
+      <rect x="740" y="370" width="150" height="52" rx="9" fill="#f3e8ff" stroke="#d8b4fe"/><text x="815" y="401" fill="#581c87">AspNetRoles</text>
+    </g>
+    <g font-size="10" fill="#64748b">
+      <text x="440" y="185">aracı</text><text x="480" y="292">alış / iade şubesi</text><text x="695" y="182">müşteri</text>
+    </g>
+  </svg>
+  <table style="margin-top:4mm">
+    <tr><th>İlişki</th><th>Anlamı</th><th>Silme kuralı</th></tr>
+    <tr><td>Araclar → Markalar, Kategoriler, YakitTurleri, VitesTurleri, Subeler</td><td>Her aracın bir markası, kategorisi, yakıtı, vitesi ve bulunduğu şubesi var</td><td>Kullanılan tanım silinemez</td></tr>
+    <tr><td>Rezervasyonlar → Araclar, AspNetUsers, Subeler (2 kez)</td><td>Hangi müşteri, hangi aracı, hangi şubeden alıp hangisine bırakacak</td><td>Kiralaması olan araç silinemez</td></tr>
+    <tr><td>RezervasyonEkstralari → Rezervasyonlar, Ekstralar</td><td>Bir rezervasyonda birden çok ek hizmet olabilir (çoka-çok)</td><td>—</td></tr>
+    <tr><td>Odemeler, Hasarlar → Rezervasyonlar</td><td>Ödeme ve hasar kayıtları bir kiralamaya aittir</td><td>—</td></tr>
+    <tr><td>Bakimlar → Araclar</td><td>Bakım kaydı bir araca aittir</td><td>—</td></tr>
+  </table>
+</section>
+
+<!-- ================================================== NEDEN BOŞ -->
+<section class="sayfa">
+  <div class="bolum-ust">10 · Durum</div>
+  <h2 class="baslik">Tablolar neden boş? Sırada ne var?</h2>
+  <p class="giris">Bu haftanın hedefi veritabanını <b>bağlamaktı</b>: bağlantıyı kurmak, güvenli hale getirmek ve tabloları oluşturmak. Verileri yüklemek ve sayfaları tablolardan okutmak bir sonraki adım.</p>
+
+  <table>
+    <tr><th></th><th>Bu hafta (şu an)</th><th>Sonraki adım</th></tr>
+    <tr><td><b>Neon</b></td><td>Bağlı, 23 tablo var, hepsi boş</td><td>Örnek veriler yüklenir (47 araç, 5 şube…)</td></tr>
+    <tr><td><b>Sayfalardaki veriler</b></td><td>Örnek veri (<code>OrnekVeriler.cs</code> → bilgisayardaki SQLite dosyası)</td><td>Neon'daki tablolardan</td></tr>
+    <tr><td><b>Üyelik / giriş</b></td><td>Formlar hazır, kapalı</td><td>Açılır; kullanıcılar <code>AspNetUsers</code>'a kaydedilir</td></tr>
+    <tr><td><b>Gereken değişiklik</b></td><td colspan="2"><code>appsettings.json</code> → <code>"SayfalarNeredenOkusun": "Neon"</code> (tek satır)</td></tr>
+  </table>
+
+  <div class="kutu"><b>Tek satır yetecek mi?</b> Evet. Kodumuz iki durumu da şimdiden biliyor: ayar "Neon" olunca program sayfalar için de Neon'a bağlanır, tablolar boşsa örnek verileri oraya yükler (<code>OrnekVeriler.YukleAsync</code>). Kodun geri kalanı değişmez; çünkü sayfalar veritabanının türünü bilmez, Entity Framework Core ile konuşur.</div>
+
+  <h3>ardcek.com/hafta3'teki kopya hakkında</h3>
+  <p>ardcek.com'daki kopya, sayfaların sunucu olmadan da gezilebilen bir halidir: 51 HTML sayfası (ana sayfa, araç listesi, 47 araç detayı, giriş, üye ol). Filtreler, sıralama, sayfalama ve fiyat hesabı orada tarayıcıda, sunucudaki kuralların aynısıyla çalışıyor. Sonuçlarının gerçek sistemle aynı olduğunu otomatik testle doğruladık (47 kontrolün hepsi geçti).</p>
+</section>
+
+<!-- ================================================== CANLI GÖSTERİM -->
+<section class="sayfa">
+  <div class="bolum-ust">11 · Gösterim</div>
+  <h2 class="baslik">Hocaya canlı gösterim</h2>
+  <p class="giris">"Bağlandığınızı göster" denirse üç yerden gösterebiliriz:</p>
+
+  <div class="adim"><div class="no">1</div><div><h4>Neon paneli → Tables</h4><p>console.neon.tech → projemiz → soldan <b>Tables</b>. Veritabanı olarak <code>arackiralama</code> seçili olmalı. 23 tablo listelenir; bir tabloya tıklayınca sütunları ve (şimdilik boş) içeriği görünür.</p></div></div>
+  <div class="adim"><div class="no">2</div><div><h4>Neon paneli → SQL Editor</h4><p>Soldan <b>SQL Editor</b>'ı açıp sorgu çalıştırabiliriz:</p></div></div>
+<pre><span class="y">-- Veritabanındaki bütün tablolar</span>
+<span class="a">SELECT</span> table_name <span class="a">FROM</span> information_schema.tables <span class="a">WHERE</span> table_schema = <span class="s">'public'</span> <span class="a">ORDER BY</span> table_name;
+
+<span class="y">-- Araclar tablosunun sütunları ve türleri</span>
+<span class="a">SELECT</span> column_name, data_type <span class="a">FROM</span> information_schema.columns <span class="a">WHERE</span> table_name = <span class="s">'Araclar'</span>;
+
+<span class="y">-- Kaç araç var? (şu an 0)</span>
+<span class="a">SELECT COUNT</span>(*) <span class="a">FROM</span> <span class="s">"Araclar"</span>;
+
+<span class="y">-- PostgreSQL sürümü</span>
+<span class="a">SELECT</span> version();</pre>
+  <div class="kutu sari"><b>Tırnak işaretine dikkat!</b> Tablo adlarımız büyük harfle başladığı için PostgreSQL'de çift tırnak içinde yazılır: <code>"Araclar"</code>. Tırnaksız yazılırsa PostgreSQL adı küçük harfe çevirir ve <i>relation "araclar" does not exist</i> hatası verir.</div>
+
+  <div class="adim"><div class="no">3</div><div><h4>Render → Logs</h4><p>dashboard.render.com → <code>rota-arac-kiralama</code> servisi → <b>Logs</b>. Sunucu her açıldığında şu satır görünür: <code>Neon bağlantısı kuruldu: 23 tablo hazır, toplam 0 satır.</code> Bu satır, programın Neon'a gerçekten bağlandığını gösterir.</p></div></div>
+
+  <div class="kutu"><i class="bi bi-shield-lock"></i><b>Gösterirken:</b> Neon'daki "Connect" penceresinde şifre açıkça görünebilir; o pencereyi açmadan gösterin. Render'da da Environment sayfasındaki değeri açmayın.</div>
+</section>
+
+<!-- ================================================== SORU CEVAP -->
+<section class="sayfa">
+  <div class="bolum-ust">12 · Hazırlık</div>
+  <h2 class="baslik">Soru – cevap</h2>
+  <p class="giris">Hocamızın sorabileceğini düşündüğümüz sorular ve kısa cevapları. Cevapları ezberlemek yerine anlamaya çalıştık; her birinin arkasındaki ayrıntı raporun önceki bölümlerinde.</p>
+
+  <div class="sc-grup">Genel</div>
+  <div class="sc"><div class="s"><b>1</b>Bu hafta ne yaptınız?</div><div class="c">Sitenin önemli sayfalarını tamamladık (araç listesi ve filtreler, araç detayı ve fiyat hesabı, giriş, üye ol) ve veritabanını bağladık: Neon'da bir PostgreSQL veritabanı açtık, uygulamamız ona bağlanıp 23 tabloyu oluşturdu. Tablolar şimdilik boş; sayfalar örnek verilerle çalışıyor.</div></div>
+  <div class="sc"><div class="s"><b>2</b>Hangi sayfalar yok, neden?</div><div class="c">Hakkımızda, İletişim, Kiralama Koşulları ve KVKK. Bunlar içerik sayfaları; önce sitenin asıl işini yapan sayfalara öncelik verdik. Üyelik ve rezervasyon da veritabanı aktif kullanılmaya başlayınca açılacak.</div></div>
+  <div class="sc"><div class="s"><b>3</b>ardcek.com/hafta3'teki site veritabanına bağlı mı?</div><div class="c">Hayır. ardcek.com sadece sabit (HTML) dosya barındırabiliyor, C# çalıştıramıyor; oradaki sayfaların gezilebilen kopyası. Sistemin çalışan hali Render'da (automarket.ardcek.com) ve veritabanı bağlantısı orada. Bağlantıyı Neon panelinde ve Render kayıtlarında gösterebiliriz.</div></div>
+
+  <div class="sc-grup">Veritabanı temelleri</div>
+  <div class="sc"><div class="s"><b>4</b>Veritabanı nedir?</div><div class="c">Verileri düzenli ve kalıcı saklayan yazılım. Excel'e benzer ama çok kullanıcılı, güvenli ve tablolar birbirine bağlanabiliyor.</div></div>
+  <div class="sc"><div class="s"><b>5</b>Tablo, satır, sütun nedir?</div><div class="c">Tablo bir konu (Araclar), sütun bir özellik (Model, Yil, GunlukFiyat), satır tek bir kayıt (bir araç).</div></div>
+  <div class="sc"><div class="s"><b>6</b>Birincil anahtar ve yabancı anahtar nedir?</div><div class="c">Birincil anahtar her satırı benzersiz tanıtan sütun (bizde Id). Yabancı anahtar başka tablodaki bir satıra işaret eden sütun: Araclar.MarkaId → Markalar.Id. Bizde 22 yabancı anahtar ilişkisi var.</div></div>
+  <div class="sc"><div class="s"><b>7</b>SQL nedir?</div><div class="c">Veritabanıyla konuşma dili. Örneğin <code>SELECT * FROM "Araclar";</code> bütün araçları getirir. Biz kodda SQL'i elle yazmıyoruz; Entity Framework Core C# sorgularımızı SQL'e çeviriyor.</div></div>
+
+  <div class="sc-grup">PostgreSQL ve Neon</div>
+  <div class="sc"><div class="s"><b>8</b>Neden PostgreSQL?</div><div class="c">Ücretsiz, açık kaynak, güvenilir ve çok yaygın. .NET ile Npgsql sürücüsü sayesinde sorunsuz çalışıyor. Sürümümüz 18.6.</div></div>
+  <div class="sc"><div class="s"><b>9</b>Neon nedir, neden Neon?</div><div class="c">PostgreSQL'i bulutta hazır sunan hizmet. Sunucu kurmadan, ücretsiz planla kullanabildik. Sunucusu Frankfurt'ta (AWS eu-central-1).</div></div>
+  <div class="sc"><div class="s"><b>10</b>Veritabanını neden bilgisayarınızda değil de bulutta tutuyorsunuz?</div><div class="c">Canlı sitemiz Render'da çalışıyor ve Render'ın ücretsiz planında disk kalıcı değil; sunucu yeniden başlayınca dosyalar silinir. Veriler kaybolmasın diye veritabanı ayrı ve kalıcı bir yerde olmalı.</div></div>
+  <div class="sc"><div class="s"><b>11</b>SQLite nedir, neden o da var?</div><div class="c">Tek dosyalık, kurulum gerektirmeyen bir veritabanı. Bilgisayarda geliştirirken ve şu an sayfaların örnek verileri için kullanıyoruz (<code>arackiralama.db</code>). Kodumuz ikisinde de aynı.</div></div>
+  <div class="sc-grup">Bağlantı</div>
+  <div class="sc"><div class="s"><b>12</b>Neon'da ne yaptınız?</div><div class="c">Hesap açtık, Frankfurt bölgesinde bir proje oluşturduk, <code>arackiralama</code> veritabanını açtık, "Connect" penceresinden bağlantı adresini aldık ve bu adresi sistemimize güvenli şekilde verdik. Tabloları uygulamamız kendisi oluşturdu.</div></div>
+  <div class="sc"><div class="s"><b>13</b>Neon'dan API mi aldınız?</div><div class="c">Hayır, bağlantı adresi (connection string) aldık. API anahtarı bir hizmetin web servisini kullanmak içindir; biz doğrudan veritabanına bağlanıyoruz. Bağlantı adresi sunucu, veritabanı, kullanıcı, şifre ve güvenlik ayarını tek satırda toplar.</div></div>
+  <div class="sc"><div class="s"><b>14</b>Bağlantı adresinin içinde ne var?</div><div class="c">Bağlantı türü (postgresql://), kullanıcı (neondb_owner), şifre, sunucu adresi (…-pooler.c-6.eu-central-1.aws.neon.tech), veritabanı adı (arackiralama) ve güvenlik ayarları (sslmode, channel_binding).</div></div>
+  <div class="sc"><div class="s"><b>15</b>sslmode=require ne demek?</div><div class="c">Bağlantı mutlaka şifreli (SSL/TLS) yapılır; aradaki biri giden gelen veriyi okuyamaz.</div></div>
+  <div class="sc"><div class="s"><b>16</b>"pooler" ne demek?</div><div class="c">Bağlantı havuzu. Çok sayıda kısa bağlantıyı az sayıda gerçek bağlantı üzerinden yönetir; ücretsiz plandaki bağlantı sınırını aşmamak ve hızlı bağlanmak için.</div></div>
+  <div class="sc"><div class="s"><b>17</b>Bağlantı adresini nereye yazdınız?</div><div class="c">Koda yazmadık. Canlı sunucuda Render'daki <code>ConnectionStrings__PostgreSql</code> ortam değişkenine, bilgisayarda <code>dotnet user-secrets</code>'a koyduk. <code>appsettings.json</code>'daki alan boş.</div></div>
+  <div class="sc"><div class="s"><b>18</b>Neden koda yazmadınız?</div><div class="c">İçinde şifre var ve kodumuz GitHub'da. GitHub'a giden şifreyi başkaları görüp veritabanımıza bağlanabilir, verileri silebilir.</div></div>
+  <div class="sc"><div class="s"><b>19</b>Ortam değişkeni nedir?</div><div class="c">Programın çalıştığı makinede tanımlanan, programa dışarıdan bilgi veren bir ayar. Kod aynı kalır, her makinede farklı değer verilebilir. İki alt çizgi (__) ayar dosyasındaki alt başlık anlamına gelir.</div></div>
+  <div class="sc"><div class="s"><b>20</b>user-secrets nedir?</div><div class="c">.NET'in geliştirme bilgisayarında gizli ayarları proje klasörünün dışında, kullanıcı klasöründe saklama aracı. GitHub'a gitmez.</div></div>
+
+  <div class="sc-grup">Kod</div>
+  <div class="sc"><div class="s"><b>21</b>Program bağlantı adresini nasıl okuyor?</div><div class="c"><code>Program.cs</code>'de <code>builder.Configuration.GetConnectionString("PostgreSql")</code> ile. .NET bu değeri ayar dosyası, ortam değişkenleri ve user-secrets'tan birleştirerek bulur.</div></div>
+  <div class="sc"><div class="s"><b>22</b>PostgreBaglantisi.Duzenle ne yapıyor?</div><div class="c">Neon'un verdiği <code>postgresql://…</code> biçimini, .NET sürücüsünün istediği <code>Host=…;Database=…;Username=…</code> biçimine çeviriyor.</div></div>
+  <div class="sc"><div class="s"><b>23</b>Entity Framework Core nedir? ORM ne demek?</div><div class="c">ORM (Object-Relational Mapping): C# nesneleriyle veritabanı tabloları arasında çevirmen. EF Core sayesinde SQL yazmadan C# ile veri okuyup yazıyoruz; hangi veritabanı olursa olsun kod aynı kalıyor.</div></div>
+  <div class="sc"><div class="s"><b>24</b>DbContext (VeriTabani.cs) ne işe yarar?</div><div class="c">Veritabanıyla konuşan ana sınıf. İçindeki her <code>DbSet</code> bir tabloyu temsil eder (örneğin <code>DbSet&lt;Arac&gt; Araclar</code>). Tablolar arası ilişkiler de burada (<code>OnModelCreating</code>) tanımlı.</div></div>
+  <div class="sc"><div class="s"><b>25</b>Bir sınıf nasıl tabloya dönüşüyor?</div><div class="c">Arac sınıfı → Araclar tablosu; her özellik bir sütun. <code>int</code> → integer, <code>string</code> → text, <code>decimal</code> → numeric. <code>Id</code> adlı özellik otomatik olarak birincil anahtar olur.</div></div>
+  <div class="sc"><div class="s"><b>26</b>Tabloları nasıl oluşturdunuz, SQL yazdınız mı?</div><div class="c">Yazmadık. "Code-first" yöntemi: önce C# sınıflarını yazdık, EF Core bunlardan tabloları kendisi üretti. Uygulama açılırken <code>EnsureCreatedAsync()</code> çalışıyor: tablolar yoksa oluşturuyor.</div></div>
+  <div class="sc"><div class="s"><b>27</b>EnsureCreated, tablolar zaten varsa ne yapar?</div><div class="c">Hiçbir şey. Sadece veritabanında hiç tablo yoksa oluşturur; var olan tablolara ve verilere dokunmaz.</div></div>
+  <div class="sc"><div class="s"><b>28</b>Migration kullandınız mı?</div><div class="c">Hayır. Proje aşamasında tablo yapısı sık değiştiği için EnsureCreated yeterli. Gerçek bir işletmede, veriler dururken tablo yapısını güncellemek için migration kullanılır; ileride ekleyebiliriz.</div></div>
+  <div class="sc"><div class="s"><b>29</b>Npgsql nedir?</div><div class="c">.NET'in PostgreSQL sürücüsü. EF Core'un PostgreSQL ile konuşmasını <code>Npgsql.EntityFrameworkCore.PostgreSQL</code> paketi sağlıyor.</div></div>
+  <div class="sc"><div class="s"><b>30</b>Tablolar arası ilişkileri nasıl tanımladınız?</div><div class="c">Sınıflardaki <code>MarkaId</code> gibi alanlarla ve <code>VeriTabani.cs</code>'deki <code>OnModelCreating</code> ile. Örneğin kiralaması olan araç ya da kullanılan bir marka yanlışlıkla silinemesin diye silme kuralı "Restrict".</div></div>
+
+  <div class="sc-grup">Tablolar</div>
+  <div class="sc"><div class="s"><b>31</b>Kaç tablo var?</div><div class="c">23: 6 işletme (Araclar, Rezervasyonlar…), 6 tanım (Markalar, Kategoriler…), 4 site içeriği (SiteAyarlari…) ve 7 üyelik tablosu (AspNet…).</div></div>
+  <div class="sc"><div class="s"><b>32</b>AspNet ile başlayan tablolar ne?</div><div class="c">Microsoft'un hazır üyelik sistemi ASP.NET Identity'nin tabloları: kullanıcılar, roller, kullanıcı-rol eşleşmesi gibi. Kütüphane kendisi tanımlıyor; biz kullanıcı tablosuna ad, soyad, doğum ve ehliyet tarihi gibi alanlar ekledik.</div></div>
+  <div class="sc"><div class="s"><b>33</b>Tablolar neden boş?</div><div class="c">Bu haftanın hedefi bağlantıyı kurmak ve tabloları oluşturmaktı. Veriler bir sonraki adımda yüklenecek ve sayfalar tablolardan okuyacak.</div></div>
+  <div class="sc"><div class="s"><b>34</b>Sayfalardaki araçlar nereden geliyor o zaman?</div><div class="c">Örnek verilerden: <code>Veri/OrnekVeriler.cs</code> dosyası 47 araç, 5 şube, kategoriler ve markalar oluşturuyor. Bunlar bilgisayardaki SQLite dosyasında duruyor. ardcek.com'daki kopyada ise sayfaların içine yazılı.</div></div>
+  <div class="sc"><div class="s"><b>35</b>Neon'a veriler nasıl gelecek?</div><div class="c"><code>appsettings.json</code>'daki tek ayarla: <code>"SayfalarNeredenOkusun": "Neon"</code>. Program açılınca tablolar boşsa örnek verileri Neon'a yükler, sayfalar oradan okur.</div></div>
+
+  <div class="sc-grup">Güvenlik ve çalışma</div>
+  <div class="sc"><div class="s"><b>36</b>İnternet yoksa ne olur?</div><div class="c">Program Neon'a ulaşamazsa çökmez; kayda uyarı yazar ve örnek verilerle çalışmaya devam eder (<code>NeonBaglantisi.cs</code>, try/catch).</div></div>
+  <div class="sc"><div class="s"><b>37</b>Kullanıcı şifreleri nasıl saklanacak?</div><div class="c">Düz metin olarak değil, ASP.NET Identity'nin ürettiği tek yönlü özet (hash) olarak <code>AspNetUsers.PasswordHash</code> sütununda. Şifreyi veritabanına bakan biz bile göremeyiz.</div></div>
+  <div class="sc"><div class="s"><b>38</b>Bağlandığınızı nasıl kanıtlarsınız?</div><div class="c">Neon panelinde Tables bölümünde 23 tablo, SQL Editor'da sorgu sonuçları ve Render kayıtlarında "Neon bağlantısı kuruldu: 23 tablo hazır" satırı (bölüm 11).</div></div>
+
+  <div class="sc-grup">Sayfalar</div>
+  <div class="sc"><div class="s"><b>39</b>Filtreler nasıl çalışıyor?</div><div class="c">Her filtre <code>AraclarController</code>'da tek bir "if" satırı: seçilen değer varsa sorguya bir koşul (<code>Where</code>) eklenir. Örneğin <code>if (filtre.KategoriId != null) sorgu = sorgu.Where(a =&gt; a.KategoriId == filtre.KategoriId);</code></div></div>
+  <div class="sc"><div class="s"><b>40</b>Fiyat nasıl hesaplanıyor?</div><div class="c">Başlayan her 24 saat 1 gün sayılır. Kira = gün × günlük fiyat. 7 gün ve üzerinde %10, 30 gün ve üzerinde %20 indirim (sadece kira bedeline). Ek hizmetler günlük fiyat × gün. Farklı şubeye iade 750 ₺. Kodu: <code>Servisler/FiyatServisi.cs</code>.</div></div>
+  <div class="sc"><div class="s"><b>41</b>Giriş neden çalışmıyor?</div><div class="c">Üyelik bir sonraki adım. Form ve doğrulamalar hazır; "Üye girişi açık" ayarı şimdilik kapalı olduğu için gönderince "yakında açılacak" uyarısı çıkıyor.</div></div>
+  <div class="sc"><div class="s"><b>42</b>Rezervasyonlarım'a basınca neden giriş sayfası açılıyor?</div><div class="c">Rezervasyonlar kişiye özel; görmek için giriş yapmak gerekiyor. Giriş yapmamış kullanıcı otomatik olarak giriş sayfasına yönlendirilir.</div></div>
+</section>
+
+<!-- ================================================== KİM NE YAPTI -->
+<section class="sayfa">
+  <div class="bolum-ust">13 · Ekip</div>
+  <h2 class="baslik">Kim ne yaptı?</h2>
+  <p class="giris">Sayfaları ve veritabanı işini paylaştık; test ve raporu birlikte tamamladık.</p>
+  <div class="izgara-2">
+    <div class="kisi">
+      <div class="ust"><div class="avatar" style="background:#2747d6">MA</div><div><div class="ad">Mehmet Arda Çekiç</div><div class="no">m255036001</div></div></div>
+      <div class="rol">Veritabanı bağlantısı · yayın</div>
+      <ul>
+        <li>Neon hesabı, proje ve <code>arackiralama</code> veritabanı</li>
+        <li>Bağlantı adresinin Render'a ve bilgisayara güvenli girilmesi</li>
+        <li><code>Program.cs</code> bağlantı kodu ve <code>NeonBaglantisi.cs</code></li>
+        <li>Canlı sistem (Render) ve ardcek.com/hafta3 yayını</li>
+      </ul>
+    </div>
+    <div class="kisi">
+      <div class="ust"><div class="avatar" style="background:#0891b2">AA</div><div><div class="ad">Azra Ardıç</div><div class="no">m255035059</div></div></div>
+      <div class="rol">Araç listesi · filtreler</div>
+      <ul>
+        <li>Araç listesi sayfası ve araç kartları</li>
+        <li>8 filtre ve 5 sıralama seçeneği</li>
+        <li>Sayfalama ve tarih seçilince toplam tutar</li>
+        <li>Telefon görünümü</li>
+      </ul>
+    </div>
+    <div class="kisi">
+      <div class="ust"><div class="avatar" style="background:#16a34a">EA</div><div><div class="ad">Esra Ağlar</div><div class="no">m255036077</div></div></div>
+      <div class="rol">Araç detayı · fiyat · giriş ve kayıt</div>
+      <ul>
+        <li>Araç detay sayfası ve benzer araçlar</li>
+        <li>Fiyat dökümü: gün, indirim, ek hizmetler, farklı şubeye iade</li>
+        <li>Giriş ve Üye ol sayfaları, form doğrulamaları</li>
+      </ul>
+    </div>
+    <div class="kisi">
+      <div class="ust"><div class="avatar" style="background:#d97706">ÖF</div><div><div class="ad">Ömer Faruk Çelik</div><div class="no">m265035083</div></div></div>
+      <div class="rol">Tablolar · test · rapor</div>
+      <ul>
+        <li>Tablo yapısının ve ilişkilerin incelenip belgelenmesi</li>
+        <li>Sayfaların gerçek sistemle karşılaştırmalı testi</li>
+        <li>Soru-cevap bölümü ve rapor</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Görev matrisi</h3>
+  <table>
+    <tr><th>İş</th><th class="o">Arda</th><th class="o">Azra</th><th class="o">Esra</th><th class="o">Ömer</th></tr>
+    <tr><td>Neon hesabı, proje, veritabanı</td><td class="o"><span class="sor">Sorumlu</span></td><td class="o"></td><td class="o"></td><td class="o"><span class="des">destek</span></td></tr>
+    <tr><td>Bağlantı adresinin güvenli girilmesi</td><td class="o"><span class="sor">Sorumlu</span></td><td class="o"></td><td class="o"></td><td class="o"></td></tr>
+    <tr><td>Bağlantı kodu (Program.cs, NeonBaglantisi.cs)</td><td class="o"><span class="sor">Sorumlu</span></td><td class="o"></td><td class="o"></td><td class="o"><span class="des">destek</span></td></tr>
+    <tr><td>Araç listesi, filtreler, sıralama</td><td class="o"></td><td class="o"><span class="sor">Sorumlu</span></td><td class="o"><span class="des">destek</span></td><td class="o"></td></tr>
+    <tr><td>Araç detayı ve fiyat hesabı</td><td class="o"></td><td class="o"><span class="des">destek</span></td><td class="o"><span class="sor">Sorumlu</span></td><td class="o"></td></tr>
+    <tr><td>Giriş ve Üye ol</td><td class="o"></td><td class="o"></td><td class="o"><span class="sor">Sorumlu</span></td><td class="o"></td></tr>
+    <tr><td>Tablo yapısı ve ilişkilerin belgelenmesi</td><td class="o"><span class="des">destek</span></td><td class="o"></td><td class="o"></td><td class="o"><span class="sor">Sorumlu</span></td></tr>
+    <tr><td>Test</td><td class="o"><span class="des">destek</span></td><td class="o"><span class="des">destek</span></td><td class="o"><span class="des">destek</span></td><td class="o"><span class="sor">Sorumlu</span></td></tr>
+    <tr><td>Yayın (Render, ardcek.com/hafta3)</td><td class="o"><span class="sor">Sorumlu</span></td><td class="o"></td><td class="o"></td><td class="o"></td></tr>
+    <tr><td>Rapor ve soru-cevap</td><td class="o"><span class="des">destek</span></td><td class="o"><span class="des">destek</span></td><td class="o"><span class="des">destek</span></td><td class="o"><span class="sor">Sorumlu</span></td></tr>
+  </table>
+</section>
+
+<!-- ================================================== SÖZLÜK -->
+<section class="sayfa">
+  <div class="bolum-ust">14 · Sözlük</div>
+  <h2 class="baslik">Sözlük</h2>
+  <table class="sik">
+    <tr><th style="width:30%">Terim</th><th>Anlamı</th></tr>
+    <tr><td><b>Veritabanı</b></td><td>Verileri düzenli ve kalıcı saklayan yazılım.</td></tr>
+    <tr><td><b>Tablo / Sütun / Satır</b></td><td>Konu / özellik / tek kayıt.</td></tr>
+    <tr><td><b>Birincil anahtar (PK)</b></td><td>Her satırı benzersiz tanıtan sütun (Id).</td></tr>
+    <tr><td><b>Yabancı anahtar (FK)</b></td><td>Başka tablodaki satıra işaret eden sütun (MarkaId).</td></tr>
+    <tr><td><b>SQL</b></td><td>Veritabanıyla konuşma dili (SELECT, INSERT, UPDATE, DELETE).</td></tr>
+    <tr><td><b>PostgreSQL</b></td><td>Ücretsiz, açık kaynak, yaygın bir veritabanı sistemi.</td></tr>
+    <tr><td><b>SQLite</b></td><td>Tek dosyalık, kurulumsuz veritabanı.</td></tr>
+    <tr><td><b>Neon</b></td><td>PostgreSQL'i bulutta hazır sunan hizmet.</td></tr>
+    <tr><td><b>Bağlantı adresi (connection string)</b></td><td>Programın veritabanına bağlanması için gereken bilgileri tek satırda toplayan yazı.</td></tr>
+    <tr><td><b>SSL / TLS</b></td><td>Ağ üzerinden giden veriyi şifreleyen güvenlik katmanı.</td></tr>
+    <tr><td><b>Pooler (bağlantı havuzu)</b></td><td>Çok sayıda bağlantıyı az sayıda gerçek bağlantıyla yöneten ara katman.</td></tr>
+    <tr><td><b>ORM</b></td><td>Nesne-ilişkisel eşleme: C# nesneleri ↔ tablolar.</td></tr>
+    <tr><td><b>Entity Framework Core (EF Core)</b></td><td>Microsoft'un .NET için ORM kütüphanesi.</td></tr>
+    <tr><td><b>DbContext / DbSet</b></td><td>Veritabanıyla konuşan sınıf / bir tabloyu temsil eden özellik.</td></tr>
+    <tr><td><b>Code-first</b></td><td>Önce C# sınıflarını yazıp tabloları onlardan ürettirme yöntemi.</td></tr>
+    <tr><td><b>EnsureCreated</b></td><td>Tablolar yoksa oluşturan EF Core komutu.</td></tr>
+    <tr><td><b>Migration</b></td><td>Veriler dururken tablo yapısını adım adım güncelleme yöntemi.</td></tr>
+    <tr><td><b>Npgsql</b></td><td>.NET'in PostgreSQL sürücüsü.</td></tr>
+    <tr><td><b>ASP.NET Identity</b></td><td>Microsoft'un hazır üyelik sistemi (AspNet… tabloları).</td></tr>
+    <tr><td><b>Hash</b></td><td>Şifrenin geri çevrilemeyen özeti; şifre bu şekilde saklanır.</td></tr>
+    <tr><td><b>Ortam değişkeni</b></td><td>Programa çalıştığı makineden dışarıdan verilen ayar.</td></tr>
+    <tr><td><b>user-secrets</b></td><td>Geliştirme bilgisayarında gizli ayarları proje dışında saklayan .NET aracı.</td></tr>
+    <tr><td><b>Render</b></td><td>Sistemimizin canlı çalıştığı bulut sunucu hizmeti.</td></tr>
+    <tr><td><b>Log (kayıt)</b></td><td>Programın çalışırken yazdığı bilgi satırları.</td></tr>
+  </table>
+
+  <h3 style="margin-top:4mm">Kaynakça</h3>
+  <table class="sik">
+    <tr><th>Kaynak</th><th>Adres</th></tr>
+    <tr><td>Neon belgeleri</td><td>https://neon.com/docs</td></tr>
+    <tr><td>PostgreSQL belgeleri</td><td>https://www.postgresql.org/docs/</td></tr>
+    <tr><td>Entity Framework Core belgeleri</td><td>https://learn.microsoft.com/ef/core/</td></tr>
+    <tr><td>Npgsql EF Core sağlayıcısı</td><td>https://www.npgsql.org/efcore/</td></tr>
+    <tr><td>ASP.NET Core yapılandırma ve user-secrets</td><td>https://learn.microsoft.com/aspnet/core/security/app-secrets</td></tr>
+    <tr><td>Render belgeleri</td><td>https://render.com/docs</td></tr>
+  </table>
+</section>
+
+</body>
+</html>

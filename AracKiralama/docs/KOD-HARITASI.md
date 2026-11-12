@@ -181,6 +181,34 @@ Program.cs
 
 ---
 
+## Akış 7: Yapay Zekâ Asistanı'na "meslek gruplarına indirim yap" yazılıyor
+
+```
+Tarayıcı (wwwroot/js/yapay-zeka.js) ── POST /Yonetim/YapayZeka/Sor { istek }
+  │
+  ▼
+Areas/Yonetim/Controllers/YapayZekaController.cs → Sor()
+  │  1) YapayZekaBaglami.PanelSistemiAsync()   modele talimat: kurallar + işlem listesi + SİTENİN DURUMU + örnekler
+  │  2) PanelIslemleri.Sema()                  cevabın uyması gereken JSON şeması
+  │  3) YapayZekaServisi.SorAsync()            → http://127.0.0.1:8089/v1/chat/completions
+  │        └─ motor: llama-server.exe (YapayZekaSunucusu açtı) + .gguf model, bu bilgisayarda, internetsiz
+  │  4) PanelIslemleri.DogrulaAsync()          her işlemi kontrol eder, kart hazırlar (hiçbir şey değişmez)
+  │        hata varsa → modele hataları gösterip bir kez düzelttirir
+  ▼
+Tarayıcı: "Anladığım: …" + kartlar (Müşteri bilgisi ekle · Kampanya ekle ×3 · Ayarı değiştir)
+  │  kullanıcı değerleri düzeltir, "Seçilenleri uygula"
+  ▼
+POST /Yonetim/YapayZeka/Uygula → PanelIslemleri.UygulaAsync()
+  │  tek transaction: her işlemin UygulaAsync'i (INSERT MusteriAlanlari, INSERT Kampanyalar, UPDATE SiteAyarlari)
+  │  eski değerler → YapayZekaKayitlari.GeriAlmaJson   ("Geri al" bunları kullanır)
+  ▼
+Sitede: araç listesinde İndirimler filtresi, kartlarda rozet (KampanyaServisi)
+```
+
+Kod modunda aynı sayfa `KodModu.cs`'i kullanır: `DosyaSecAsync` → `OnerAsync` → `DeneAsync` (%TEMP%'te kopya + `dotnet build`) → `UygulaAsync` (yedek: `.yapay-zeka-yedek/`) → `YenidenBaslat` (çıkış kodu 42, `BASLAT.bat` yeniden açar).
+
+---
+
 ## Bir adresin hangi dosyaya gittiğini bulmak
 
 Adres kalıbı: `/{Controller}/{Aksiyon}/{id}`. Yönetim panelinde başına `/Yonetim` gelir.
@@ -195,7 +223,10 @@ Adres kalıbı: `/{Controller}/{Aksiyon}/{id}`. Yönetim panelinde başına `/Yo
 | `/Yonetim/Kategoriler` | `Areas/Yonetim/Controllers/TanimControllerlari.cs` | `KategorilerController.Index` | `Areas/Yonetim/Views/Kategoriler/Index.cshtml` |
 | `/api/fiyat` | `Controllers/Api/ApiController.cs` | `Fiyat` | (JSON) |
 
-> Yönetim controller'ları konularına göre birkaç dosyada toplanmıştır: `TanimControllerlari.cs` (Şube, Ekstra, Marka, Kategori, Seçenek), `IcerikControllerlari.cs` (Ayarlar, Sayfalar, Metinler, Görseller), `RezervasyonControllerlari.cs` (Rezervasyonlar, Ödemeler), `AracControllerlari.cs` (Araçlar, Bakım), `PanelControllerlari.cs` (Panel, Takvim, Raporlar), `KullaniciControllerlari.cs` (Müşteriler, Personel). Bir dosyada `class XController` diye arayın.
+| `/Yonetim/Kampanyalar` | `Areas/Yonetim/Controllers/KampanyaControllerlari.cs` | `KampanyalarController.Index` | `Areas/Yonetim/Views/Kampanyalar/Index.cshtml` |
+| `/Yonetim/YapayZeka` | `Areas/Yonetim/Controllers/YapayZekaController.cs` | `Index` | `Areas/Yonetim/Views/YapayZeka/Index.cshtml` |
+
+> Yönetim controller'ları konularına göre birkaç dosyada toplanmıştır: `TanimControllerlari.cs` (Şube, Ekstra, Marka, Kategori, Seçenek), `IcerikControllerlari.cs` (Ayarlar, Sayfalar, Metinler, Görseller), `RezervasyonControllerlari.cs` (Rezervasyonlar, Ödemeler), `AracControllerlari.cs` (Araçlar, Bakım), `PanelControllerlari.cs` (Panel, Takvim, Raporlar), `KullaniciControllerlari.cs` (Müşteriler, Personel), `KampanyaControllerlari.cs` (Kampanyalar, Müşteri Bilgileri). Bir dosyada `class XController` diye arayın.
 
 ---
 
@@ -210,3 +241,5 @@ Sayfalarda hiç `<script>` kodu yoktur (güvenlik politikası). Davranışlar HT
 | `rezervasyon-adimlari.js` | Rezervasyonun 3 adımı arasında geçiş | rezervasyon formu |
 | `grafikler.js` | Gösterge paneli ve rapor grafikleri (Chart.js) | `<script type="application/json" id="grafik-verisi">` bloğu |
 | `tema.js` | Sayfa açılmadan koyu / açık temayı uygular (beyaz yanıp sönme olmasın) | `<head>` içinde |
+| `yapay-zeka.js` | Yapay Zekâ Asistanı: durum çubuğu, istek gönderme, işlem kartları, önizleme, kod modu adımları | `/Yonetim/YapayZeka` sayfası |
+| `duzenleyici.js` | Site Düzenleyici: yazdıkça taslak, sağda canlı önizleme | `/Yonetim/Duzenleyici` sayfası |

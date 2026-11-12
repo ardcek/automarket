@@ -1,0 +1,35 @@
+@* PANELDEN EKLENEN MÜŞTERİ BİLGİLERİ (Meslek gibi) — kayıt formu ve profil sayfasında kullanılır.
+   Alanlar Yönetim → Müşteri Bilgileri'nden eklenir. Kutuların adı "Alan[3]" (3 = alanın numarası);
+   controller bunları KayitFormu.Alan / ProfilFormu.Alan sözlüğüne alır. Model: (alanlar, kayıtlı/girilen değerler) *@
+@model (List<MusteriAlani> Alanlar, Dictionary<int, string?>? Degerler)
+@foreach (var alan in Model.Alanlar)
+{
+    var deger = Model.Degerler?.GetValueOrDefault(alan.Id);
+    var kutuId = $"alan-{alan.Id}";
+    <div class="col-md-6">
+        @switch (alan.Tur)
+        {
+            case OzellikTuru.Secim:
+                <label class="form-label" for="@kutuId">@alan.Ad@(alan.Zorunlu ? " *" : "")</label>
+                <select name="Alan[@alan.Id]" id="@kutuId" class="form-select">
+                    <option value="">Seçin</option>
+                    @foreach (var secenek in alan.SecenekListesi) { <option value="@secenek" selected="@(deger == secenek)">@secenek</option> }
+                </select>
+                break;
+            case OzellikTuru.EvetHayir:
+                <div class="form-check mt-md-4">
+                    <input type="checkbox" name="Alan[@alan.Id]" id="@kutuId" value="true" class="form-check-input" checked="@(deger == "true")" />
+                    <label class="form-check-label" for="@kutuId">@alan.Ad</label>
+                </div>
+                break;
+            case OzellikTuru.Sayi:
+                <label class="form-label" for="@kutuId">@alan.Ad@(alan.Zorunlu ? " *" : "")</label>
+                <input type="number" step="any" name="Alan[@alan.Id]" id="@kutuId" value="@deger" class="form-control" />
+                break;
+            default:
+                <label class="form-label" for="@kutuId">@alan.Ad@(alan.Zorunlu ? " *" : "")</label>
+                <input type="text" name="Alan[@alan.Id]" id="@kutuId" value="@deger" class="form-control" maxlength="200" />
+                break;
+        }
+    </div>
+}

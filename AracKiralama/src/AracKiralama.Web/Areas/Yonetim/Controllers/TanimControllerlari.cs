@@ -148,6 +148,7 @@ public class MarkalarController : YonetimController
     public async Task<IActionResult> Sil(int id)
     {
         if (await _vt.Araclar.AnyAsync(a => a.MarkaId == id)) Hata("Bu markaya ait araçlar olduğu için silinemez.");
+        else if (await _vt.Kampanyalar.AnyAsync(k => k.MarkaId == id)) Hata("Bu marka bir kampanyada koşul olarak kullanılıyor. Önce kampanyayı değiştirin ya da silin.");
         else { await _vt.Markalar.Where(m => m.Id == id).ExecuteDeleteAsync(); Basarili("Marka silindi."); }
         return RedirectToAction(nameof(Index));
     }
@@ -193,6 +194,7 @@ public class KategorilerController : YonetimController
     public async Task<IActionResult> Sil(int id)
     {
         if (await _vt.Araclar.AnyAsync(a => a.KategoriId == id)) Hata("Bu kategoride araçlar olduğu için silinemez.");
+        else if (await _vt.Kampanyalar.AnyAsync(k => k.KategoriId == id)) Hata("Bu kategori bir kampanyada koşul olarak kullanılıyor. Önce kampanyayı değiştirin ya da silin.");
         else { await _vt.Kategoriler.Where(k => k.Id == id).ExecuteDeleteAsync(); Basarili("Kategori silindi."); }
         return RedirectToAction(nameof(Index));
     }

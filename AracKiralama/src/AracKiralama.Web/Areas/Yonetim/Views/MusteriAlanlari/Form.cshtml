@@ -1,0 +1,41 @@
+@* YENİ / DÜZENLE: MÜŞTERİ BİLGİSİ (MusteriAlanlariController.Ekle / Duzenle, model: MusteriAlaniFormu) *@
+@model MusteriAlaniFormu
+@{
+    var duzenleme = Model.Id != null;
+    ViewData["Title"] = duzenleme ? "Bilgiyi düzenle" : "Yeni müşteri bilgisi";
+}
+<div class="sayfa-baslik"><div><a asp-action="Index" class="small"><i class="bi bi-arrow-left me-1"></i>Müşteri Bilgileri</a><h1 class="mt-1">@ViewData["Title"]</h1></div></div>
+
+<form asp-action="@(duzenleme ? "Duzenle" : "Ekle")" asp-route-id="@Model.Id" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger small"></div>
+    <div class="row g-3">
+        <div class="col-xl-8">
+            <div class="card"><div class="card-body row g-3">
+                <div class="col-md-6"><label asp-for="Ad" class="form-label"></label><input asp-for="Ad" class="form-control" placeholder="örn. Meslek" /><span asp-validation-for="Ad"></span></div>
+                <div class="col-md-6">
+                    <label asp-for="Tur" class="form-label"></label>
+                    <select asp-for="Tur" class="form-select" asp-items="Html.GetEnumSelectList<OzellikTuru>()"></select>
+                    <div class="form-text">Kampanyada koşul olabilmesi için "Seçim listesi" ya da "Var / Yok" seç.</div>
+                </div>
+                <div class="col-12">
+                    <label asp-for="SeceneklerMetni" class="form-label"></label>
+                    <textarea asp-for="SeceneklerMetni" class="form-control" rows="6" placeholder="Öğrenci&#10;Öğretmen&#10;Sağlık çalışanı&#10;Kamu çalışanı&#10;Diğer"></textarea>
+                    <div class="form-text">Sadece "Seçim listesi" türünde kullanılır.</div>
+                    <span asp-validation-for="SeceneklerMetni"></span>
+                </div>
+            </div></div>
+        </div>
+        <div class="col-xl-4">
+            <div class="card"><div class="card-body d-grid gap-2">
+                <div class="form-check form-switch"><input asp-for="KayittaGoster" class="form-check-input" role="switch" /><label asp-for="KayittaGoster" class="form-check-label"></label></div>
+                <div class="form-check form-switch"><input asp-for="Zorunlu" class="form-check-input" role="switch" /><label asp-for="Zorunlu" class="form-check-label"></label></div>
+                <div class="form-check form-switch"><input asp-for="Aktif" class="form-check-input" role="switch" /><label asp-for="Aktif" class="form-check-label"></label></div>
+                <div class="small text-muted">Profil sayfasında her zaman sorulur.</div>
+            </div></div>
+            <div class="card mt-3"><div class="card-body"><label asp-for="Sira" class="form-label"></label><input asp-for="Sira" class="form-control" /></div></div>
+            <button class="btn btn-primary btn-lg w-100 mt-3"><i class="bi bi-check2 me-1"></i>Kaydet</button>
+        </div>
+    </div>
+</form>
+@section Scripts { <partial name="_FormDogrulama" /> }

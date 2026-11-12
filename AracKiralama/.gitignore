@@ -18,3 +18,13 @@ src/AracKiralama.Web/anahtarlar/
 
 # dotnet publish çıktısı (README 12.7)
 publish/
+
+# Yapay Zekâ Asistanı: motor, modeller, taşınabilir .NET ve paketler çok büyük (GB'larca) → git'e girmez.
+# HAZIRLA.ps1 ile her bilgisayarda (ya da USB'de) bir kere indirilir. Betikler ve BENI-OKU.md git'te kalır.
+yapay-zeka/motor/
+yapay-zeka/modeller/
+yapay-zeka/araclar/
+# Kod modunun yedekleri ve "veritabanını yenile" işareti (her bilgisayara özel)
+.yapay-zeka-yedek/
+*.isaret
+*.db.yedek-*

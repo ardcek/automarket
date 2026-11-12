@@ -20,6 +20,9 @@ Bütün yollar `AracKiralama/src/AracKiralama.Web/` klasörüne göredir. Kodun 
 | 8 | [Rapora / Excel'e yeni sütun](#8-rapora-ve-excele-yeni-sütun) | 2 |
 | 9 | [Yeni içerik sayfası veya menü linki](#9-yeni-içerik-sayfası-veya-menü-linki) | 0 (panelden) |
 | 10 | [Yeni API adresi](#10-yeni-api-adresi) | 1 |
+| 11 | [Müşteri grubuna göre indirim ("meslek gruplarına indirim")](#11-müşteri-grubuna-göre-indirim) | 0 (panelden) |
+| 12 | [Yapay Zekâ Asistanı'na yaptırmak (internetsiz)](#12-yapay-zekâ-asistanına-yaptırmak) | 0 |
+| 13 | [Asistana yeni bir yetenek eklemek](#13-asistana-yeni-bir-yetenek-eklemek) | 1 |
 
 **Her değişiklikten sonra:** siteyi kapatıp (`Ctrl + C`) tekrar `dotnet run --project src/AracKiralama.Web` ile açın. **Bir tabloya yeni alan / tablo eklediyseniz** `src/AracKiralama.Web/arackiralama.db` dosyasını silin (veritabanı yeni yapıyla baştan oluşur; canlı site için README → 13.5).
 
@@ -317,6 +320,72 @@ public async Task<List<Sube>> Subeler() => await _vt.Subeler.OrderBy(s => s.Sehi
 ```
 
 `/api/subeler` adresinde çalışır ve `/swagger` sayfasında kendiliğinden listelenir.
+
+---
+
+## 11. Müşteri grubuna göre indirim
+
+> "Meslek gruplarına göre indirim yapın, filtrede de indirimli araçlar görünsün."
+
+Kod gerekmez:
+
+1. **Yönetim → Müşteri Bilgileri → Yeni bilgi:** Ad `Meslek`, Tür `Seçim listesi`, seçenekler (her satıra bir tane) `Öğrenci`, `Öğretmen`, `Sağlık çalışanı`…
+2. **Yönetim → Kampanyalar → Yeni kampanya:** Ad `Öğretmen indirimi`, İndirim `15`, Müşteri bilgisi `Meslek: Öğretmen`. Her meslek için tekrarlayın.
+3. Araç listesini açın: solda **İndirimler** (Mesleğiniz + Sadece indirimli araçlar), kartlarda rozet ve indirimli fiyat.
+
+Hoca "kodda nerede?" derse:
+
+| Ne | Dosya |
+|---|---|
+| Tablolar | `Modeller/MusteriAlani.cs`, `Modeller/Kampanya.cs` |
+| Kural (hangi indirim kime) | `Servisler/KampanyaServisi.cs` → `KampanyaBaglami.Durum()` |
+| Fiyata uygulanması | `Servisler/FiyatServisi.cs` → `Hesapla(..., kampanyalar)` |
+| Filtre | `Controllers/AraclarController.cs` → `SadeceIndirimli`, `Views/Araclar/Index.cshtml` → "İNDİRİMLER" |
+| Kart | `Views/Shared/_AracKarti.cshtml` |
+| Testler | `tests/AracKiralama.Tests/KampanyaTestleri.cs` |
+
+Başka koşullar da aynı ekrandan: kategori ("SUV'larda %10"), marka, araç özelliği, en az gün ("7 gün ve üzeri"), tarih aralığı ("yaz kampanyası").
+
+---
+
+## 12. Yapay Zekâ Asistanı'na yaptırmak
+
+**Yönetim → Yapay Zekâ Asistanı** (`/Yonetim/YapayZeka`). İnternet gerekmez; kurulum: [yapay-zeka/BENI-OKU.md](../yapay-zeka/BENI-OKU.md).
+
+1. İsteği yazın → **Gönder**.
+2. Yapay zekâ "Anladığım: …" yazar ve yapacaklarını **kart kart** gösterir. Kartlardaki değerleri değiştirebilir, istemediğinizin işaretini kaldırabilirsiniz. Yazı / renk değişikliğini **Önizle** ile görün.
+3. **Seçilenleri uygula.** Yanlışsa sayfanın altındaki **Geçmiş → Geri al**.
+
+**Gerçek modelle denenmiş istekler** (2026-11-11; orta model 11/11, küçük model 10/11 doğru; tekrar denemek için `node AracKiralama/tests/uctan-uca/yapay-zeka.mjs`):
+
+| İstek | Asistanın yaptığı |
+|---|---|
+| Meslek gruplarına göre indirim yap, filtrede de indirimli araçlar görünsün | Meslek bilgisi + meslek başına kampanya (filtre zaten açıksa ayara dokunmaz) |
+| Araçlara klima bilgisi ekle, bütün araçlarda olsun, filtrede seçilebilsin | Var/Yok özelliği + 47 araca değer |
+| SUV kategorisindeki araçların fiyatını %10 artır | Toplu fiyat değişikliği (örnek araçla önce/sonra) |
+| SUV'larda 7 gün ve üzeri kiralamalara %12 indirim yap | Kategori + en az gün koşullu kampanya |
+| Ana sayfadaki büyük başlık "Yolculuk burada başlar" olsun | Üç parçalı başlığı böler: Yolculuk [burada] başlar |
+| Butonların rengi turuncu olsun | Ana renk ayarı (önizlenebilir) |
+| Siteye Sıkça Sorulan Sorular sayfası ekle, üst menüde görünsün | Yeni sayfa, içeriğini de yazar |
+| Kar zinciri ek hizmetinin günlük fiyatı 150 lira olsun | Var olan ek hizmeti günceller |
+| Çocuk koltuğu ek hizmeti ekle, günlüğü 100 lira | Yeni ek hizmet |
+| Ekonomi kategorisini öğrencilere %20 indirimli yap | Müşteri bilgisi + kategori koşullu kampanya |
+| Öğretmen indirimini %20 yap | Var olan kampanyayı günceller |
+| Kaç tane kampanya var? | Sadece cevap, değişiklik yok |
+
+**Panelin yapamadığı istekler** ("araç kartında kilometre de görünsün" gibi) için **Kod modu** sekmesi: yapay zekâ dosyaları seçer, değişikliği yazar, geçici kopyada derleyip dener; "Uygula" dosyaları yedekleyip değiştirir. Küçük değişikliklerde iyidir; sonucu her zaman okuyun. Denemek için: `node AracKiralama/tests/uctan-uca/kod-modu.mjs` (uygulama `BASLAT.bat` ile açıkken).
+
+---
+
+## 13. Asistana yeni bir yetenek eklemek
+
+Asistanın yapabildiği her şey `Servisler/YapayZeka/PanelIslemleri.cs` dosyasındadır. Örneğin "şube sil" eklemek:
+
+1. Dosyada en benzer işlemi (`SubeEkle`) kopyalayın, adını `SubeSil` yapın.
+2. Doldurun: `Tur` (modelin yazacağı ad, örn. `"sube_sil"`), `Baslik`, `Aciklama` (modele ne zaman kullanacağını anlatan cümle), `Parametreler` (örn. `ad`), `DogrulaAsync` (şube var mı, aracı var mı?), `UygulaAsync` (sil ve geri almak için eski bilgileri döndür), `GeriAlAsync` (geri ekle).
+3. Dosyanın sonundaki `Hepsi` listesine `new SubeSil(),` ekleyin.
+
+Modele anlatım, JSON şeması, ekrandaki kart ve geçmiş kendiliğinden çalışır. Test örneği: `tests/AracKiralama.Tests/YapayZekaTestleri.cs`.
 
 ---
 

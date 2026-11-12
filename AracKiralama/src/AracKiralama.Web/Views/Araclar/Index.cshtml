@@ -7,6 +7,8 @@
     ViewData["Title"] = Icerik.Metin("araclar.baslik");
     var f = Model.Filtre;
     var a = Icerik.Ayarlar;
+    // İndirimler bölümü: ayar açık ve yayında en az bir kampanya varsa (Yönetim → Kampanyalar)
+    var indirimGrubu = a.FiltreIndirimli && Model.Kampanya.Kampanyalar.Count > 0;
 }
 
 <div class="zemin-ana border-bottom">
@@ -25,7 +27,8 @@
         @* ---------------- FİLTRE PANELİ ---------------- *@
         <aside class="col-lg-3">
             <form method="get" class="card p-3 filtre-paneli" data-otomatik-gonder>
-                @foreach (var deger in f.TarihDegerleri()) { <input type="hidden" name="@deger.Key" value="@deger.Value" /> }
+                @* Tarih ve şube seçimi gizli kutularla korunur. İndirimler bölümü görünüyorsa "Mesleğiniz" seçimi orada, gizli kutuya gerek yok. *@
+                @foreach (var deger in f.TarihDegerleri(musteriSecimleri: !indirimGrubu)) { <input type="hidden" name="@deger.Key" value="@deger.Value" /> }
 
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <b><i class="bi bi-sliders me-1"></i>@Icerik.Metin("araclar.filtreler")</b>
@@ -127,6 +130,69 @@
                     </div>
                 }
 
+                @* Panelden eklenen özellik filtreleri (Yönetim → Filtreler ve Özellikler). Türüne göre kutu çizilir. *@
+                @foreach (var oz in Model.Ozellikler)
+                {
+                    var secili = f.Oz?.GetValueOrDefault(oz.Id);
+                    <div class="filtre-grubu">
+                        <div class="kucuk-baslik mb-2"><i class="bi @oz.Ikon me-1"></i>@oz.Ad @(oz.Tur == OzellikTuru.Sayi && oz.Birim != null ? $"({oz.Birim})" : "")</div>
+                        @switch (oz.Tur)
+                        {
+                            case OzellikTuru.Secim:
+                                <select name="Oz[@oz.Id]" class="form-select form-select-sm">
+                                    <option value="">Tümü</option>
+                                    @foreach (var secenek in oz.SecenekListesi) { <option value="@secenek" selected="@(secili == secenek)">@secenek</option> }
+                                </select>
+                                break;
+                            case OzellikTuru.EvetHayir:
+                                <select name="Oz[@oz.Id]" class="form-select form-select-sm">
+                                    <option value="">Fark etmez</option>
+                                    <option value="true" selected="@(secili == "true")">Var</option>
+                                    <option value="false" selected="@(secili == "false")">Yok</option>
+                                </select>
+                                break;
+                            case OzellikTuru.Sayi:
+                                <div class="d-flex gap-2">
+                                    <input type="number" name="OzEnAz[@oz.Id]" value="@(f.OzEnAz?.GetValueOrDefault(oz.Id))" class="form-control form-control-sm" placeholder="En az" step="any" />
+                                    <input type="number" name="OzEnCok[@oz.Id]" value="@(f.OzEnCok?.GetValueOrDefault(oz.Id))" class="form-control form-control-sm" placeholder="En çok" step="any" />
+                                </div>
+                                break;
+                            default:
+                                <input type="search" name="Oz[@oz.Id]" value="@secili" class="form-control form-control-sm" placeholder="@oz.Ad ara" />
+                                break;
+                        }
+                    </div>
+                }
+
+                @* İNDİRİMLER (Yönetim → Kampanyalar): "Mesleğiniz" gibi seçimler + "Sadece indirimli araçlar".
+                   Giriş yapmış müşteride seçim profilden gelir ve kilitlidir. *@
+                @if (indirimGrubu)
+                {
+                    <div class="filtre-grubu">
+                        <div class="kucuk-baslik mb-2"><i class="bi bi-percent me-1"></i>@Icerik.Metin("araclar.indirimler")</div>
+                        @foreach (var alan in Model.KampanyaAlanlari)
+                        {
+                            var secili = Model.Kampanya.MusteriDegerleri.GetValueOrDefault(alan.Id);
+                            var kilitli = Model.Kampanya.ProfildenMi;
+                            <label class="form-label small mb-1" for="mu-@alan.Id">@alan.Ad</label>
+                            <select name="Mu[@alan.Id]" id="mu-@alan.Id" class="form-select form-select-sm" disabled="@kilitli">
+                                <option value="">Seçin</option>
+                                @if (alan.Tur == OzellikTuru.EvetHayir) { <option value="true" selected="@(secili == "true")">Evet</option> }
+                                else { foreach (var secenek in alan.SecenekListesi) { <option value="@secenek" selected="@(secili == secenek)">@secenek</option> } }
+                            </select>
+                            <div class="form-text mb-2">
+                                @if (kilitli && secili == null) { <a href="/Profil/Duzenle?donusAdresi=/Araclar">Profilinizde belirtin</a> }
+                                else if (kilitli) { <span>Profilinizden</span> }
+                                else { @Icerik.Metin("araclar.indirim-sec") }
+                            </div>
+                        }
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="SadeceIndirimli" id="sadece-indirimli" value="true" checked="@f.SadeceIndirimli" />
+                            <label class="form-check-label small" for="sadece-indirimli">@Icerik.Metin("araclar.sadece-indirimli")</label>
+                        </div>
+                    </div>
+                }
+
                 @if (a.SiralamaGoster)
                 {
                     <div class="filtre-grubu">
@@ -157,7 +223,7 @@
             <div class="row g-4">
                 @foreach (var arac in Model.Araclar.Kayitlar)
                 {
-                    <div class="col-sm-6 col-xl-4"><partial name="_AracKarti" model="new AracKartiModeli { Arac = arac, Filtre = f, GunSayisi = Model.GunSayisi }" /></div>
+                    <div class="col-sm-6 col-xl-4"><partial name="_AracKarti" model="new AracKartiModeli { Arac = arac, Filtre = f, GunSayisi = Model.GunSayisi, Kampanya = Model.Kampanya }" /></div>
                 }
             </div>
             @await Html.PartialAsync("_Sayfalama", (Model.Araclar.ToplamSayfa, Model.Araclar.Sayfa, (Func<int, string>)(s => Url.Action("Index", f.Degerler(s))!)))

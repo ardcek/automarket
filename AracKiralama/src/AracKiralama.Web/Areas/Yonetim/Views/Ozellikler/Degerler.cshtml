@@ -1,0 +1,67 @@
+@* ÖZELLİK DEĞERLERİ (OzelliklerController.Degerler, model: OzellikDegerleriSayfasi)
+   Bütün araçlar alt alta; her birinin bu özellikteki değeri tek ekranda girilir.
+   Kutunun adı "deger[aracId]" → controller hangi araca ait olduğunu buradan anlar. *@
+@model OzellikDegerleriSayfasi
+@{
+    var o = Model.Ozellik;
+    ViewData["Title"] = o.Ad + " — değerler";
+}
+<div class="sayfa-baslik">
+    <div>
+        <a asp-action="Index" class="small"><i class="bi bi-arrow-left me-1"></i>Filtreler ve Özellikler</a>
+        <h1 class="mt-1"><i class="bi @o.Ikon me-2 metin-ana"></i>@o.Ad @(o.Birim != null ? $"({o.Birim})" : "")</h1>
+        <div class="alt-yazi">Her aracın değerini yaz. Boş bırakılan araç bu filtrede çıkmaz. Tür: @o.Tur.Ad()</div>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Duzenle" asp-route-id="@o.Id" class="btn btn-sade">Özelliği düzenle</a>
+        <a href="/Araclar" target="_blank" class="btn btn-sade"><i class="bi bi-box-arrow-up-right me-1"></i>Araç listesini aç</a>
+        <button type="submit" form="degerler-formu" class="btn btn-primary"><i class="bi bi-check2 me-1"></i>Kaydet</button>
+    </div>
+</div>
+
+<form id="degerler-formu" asp-action="Degerler" asp-route-id="@o.Id" method="post" class="card">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead><tr><th style="width:70px"></th><th>Araç</th><th>Kategori</th><th>Renk</th><th style="width:280px">@o.Ad</th></tr></thead>
+            <tbody>
+                @foreach (var a in Model.Araclar)
+                {
+                    var deger = Model.Degerler.GetValueOrDefault(a.Id, "");
+                    var ad = $"deger[{a.Id}]";
+                    <tr>
+                        <td><img src="@(a.GorselAdresi ?? "/img/placeholder.svg")" alt="" style="width:60px;height:40px;object-fit:cover;border-radius:6px" /></td>
+                        <td><b>@a.TamAd</b> <span class="text-muted">@a.Yil</span><div class="small text-muted">@a.Plaka</div></td>
+                        <td class="small">@a.Kategori?.Ad</td>
+                        <td class="small">@a.Renk</td>
+                        <td>
+                            @switch (o.Tur)
+                            {
+                                case OzellikTuru.Secim:
+                                    <select name="@ad" class="form-select form-select-sm">
+                                        <option value="">— boş —</option>
+                                        @foreach (var secenek in o.SecenekListesi) { <option value="@secenek" selected="@(deger == secenek)">@secenek</option> }
+                                    </select>
+                                    break;
+                                case OzellikTuru.EvetHayir:
+                                    <select name="@ad" class="form-select form-select-sm">
+                                        <option value="">Yok</option>
+                                        <option value="true" selected="@(deger == "true")">Var</option>
+                                    </select>
+                                    break;
+                                case OzellikTuru.Sayi:
+                                    <div class="input-group input-group-sm"><input type="number" step="any" name="@ad" value="@deger" class="form-control" />@if (o.Birim != null) { <span class="input-group-text">@o.Birim</span> }</div>
+                                    break;
+                                default:
+                                    <input name="@ad" value="@deger" class="form-control form-control-sm" />
+                                    break;
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="card-body border-top position-sticky bottom-0 bg-body text-end">
+        <button class="btn btn-primary btn-lg"><i class="bi bi-check2 me-1"></i>Değerleri kaydet</button>
+    </div>
+</form>

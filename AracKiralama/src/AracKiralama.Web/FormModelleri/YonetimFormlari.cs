@@ -31,6 +31,9 @@ public class AracFormu
     [Display(Name = "Açıklama")] public string? Aciklama { get; set; }
     [Display(Name = "Görsel adresi")] public string? GorselAdresi { get; set; }
     [Display(Name = "Yeni görsel yükle")] public IFormFile? Gorsel { get; set; }
+
+    /// <summary>Panelden eklenen özelliklerin değerleri: özellik numarası → değer (formda name="Ozellikler[3]").</summary>
+    public Dictionary<int, string?> Ozellikler { get; set; } = new();
 }
 
 public class TeslimFormu
@@ -130,4 +133,58 @@ public class MusteriSatiri
     public Kullanici Kullanici { get; set; } = new();
     public int KiralamaSayisi { get; set; }
     public decimal ToplamHarcama { get; set; }
+}
+
+/// <summary>
+/// Yeni özellik / filtre formu (Yönetim → Filtreler ve Özellikler → Yeni özellik).
+/// Seçenekler formda "her satıra bir tane" yazılır, veritabanına "Beyaz|Siyah" diye kaydedilir.
+/// </summary>
+public class OzellikFormu
+{
+    public int? Id { get; set; }
+    [Display(Name = "Özellik adı"), Required(ErrorMessage = "Özellik adı zorunludur."), MaxLength(60)] public string Ad { get; set; } = "";
+    [Display(Name = "Türü")] public OzellikTuru Tur { get; set; } = OzellikTuru.Secim;
+    [Display(Name = "Seçenekler (her satıra bir tane)")] public string? SeceneklerMetni { get; set; }
+    [Display(Name = "Birim (örn. lt, kg, km)"), MaxLength(20)] public string? Birim { get; set; }
+    [Display(Name = "İkon"), MaxLength(40)] public string Ikon { get; set; } = "bi-tag";
+    [Display(Name = "Araç listesinde filtre olarak göster")] public bool FiltredeGoster { get; set; } = true;
+    [Display(Name = "Araç kartında göster")] public bool KarttaGoster { get; set; }
+    [Display(Name = "Araç detayında göster")] public bool DetaydaGoster { get; set; } = true;
+    [Display(Name = "Sıra (küçük olan önce gelir)")] public int Sira { get; set; }
+    [Display(Name = "Yayında")] public bool Aktif { get; set; } = true;
+
+    /// <summary>Seçenek kutusundaki satırlar (boşlar atılır, aynı olanlar bir kez yazılır).</summary>
+    public List<string> SecenekSatirlari() => (SeceneklerMetni ?? "")
+        .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        .Select(s => s.Replace("|", "/")).Distinct().ToList();
+
+    /// <summary>Formdaki değerleri özelliğe kopyalar.</summary>
+    public void Aktar(AracOzelligi ozellik)
+    {
+        ozellik.Ad = Ad.Trim();
+        ozellik.Tur = Tur;
+        ozellik.Secenekler = Tur == OzellikTuru.Secim ? string.Join("|", SecenekSatirlari()) : null;
+        ozellik.Birim = Tur == OzellikTuru.Sayi ? Birim?.Trim() : null;
+        ozellik.Ikon = string.IsNullOrWhiteSpace(Ikon) ? "bi-tag" : Ikon.Trim();
+        ozellik.FiltredeGoster = FiltredeGoster;
+        ozellik.KarttaGoster = KarttaGoster;
+        ozellik.DetaydaGoster = DetaydaGoster;
+        ozellik.Sira = Sira;
+        ozellik.Aktif = Aktif;
+    }
+
+    /// <summary>Var olan özellikten form oluşturur (düzenleme için).</summary>
+    public static OzellikFormu Olustur(AracOzelligi o) => new()
+    {
+        Id = o.Id, Ad = o.Ad, Tur = o.Tur, SeceneklerMetni = string.Join("\n", o.SecenekListesi), Birim = o.Birim, Ikon = o.Ikon,
+        FiltredeGoster = o.FiltredeGoster, KarttaGoster = o.KarttaGoster, DetaydaGoster = o.DetaydaGoster, Sira = o.Sira, Aktif = o.Aktif,
+    };
+}
+
+/// <summary>Bir özelliğin bütün araçlardaki değerlerini tek ekranda girme sayfası.</summary>
+public class OzellikDegerleriSayfasi
+{
+    public AracOzelligi Ozellik { get; set; } = new();
+    public List<Arac> Araclar { get; set; } = new();
+    public Dictionary<int, string> Degerler { get; set; } = new();   // AracId → değer
 }

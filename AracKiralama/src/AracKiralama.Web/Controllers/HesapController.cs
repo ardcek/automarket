@@ -19,13 +19,16 @@ public class HesapController : TemelController
     private readonly UserManager<Kullanici> _kullanicilar;
     private readonly SiteAyarlari _ayarlar;
     private readonly IcerikServisi _icerik;
+    private readonly MusteriBilgisiServisi _musteriBilgileri;
 
-    public HesapController(SignInManager<Kullanici> girisYonetici, UserManager<Kullanici> kullanicilar, SiteAyarlari ayarlar, IcerikServisi icerik)
+    public HesapController(SignInManager<Kullanici> girisYonetici, UserManager<Kullanici> kullanicilar, SiteAyarlari ayarlar, IcerikServisi icerik,
+        MusteriBilgisiServisi musteriBilgileri)
     {
         _girisYonetici = girisYonetici;
         _kullanicilar = kullanicilar;
         _ayarlar = ayarlar;
         _icerik = icerik;
+        _musteriBilgileri = musteriBilgileri;
     }
 
     [HttpGet]
@@ -62,17 +65,22 @@ public class HesapController : TemelController
     }
 
     [HttpGet]
-    public IActionResult Kayit(string? donusAdresi) => View(new KayitFormu { DonusAdresi = donusAdresi });
+    public async Task<IActionResult> Kayit(string? donusAdresi)
+        => View(new KayitFormu { DonusAdresi = donusAdresi, Alanlar = await _musteriBilgileri.AlanlarAsync(sadeceKayit: true) });
 
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Kayit(KayitFormu form)
     {
+        // Panelden eklenen sorular (Meslek vb.): ekranda tekrar gösterilmek ve kontrol edilmek için okunur
+        form.Alanlar = await _musteriBilgileri.AlanlarAsync(sadeceKayit: true);
+
         // Sunum modu: kayıt kapalıyken form görünür ama gönderilince kayıt yapılmaz.
         if (!_ayarlar.UyeKaydiAcik)
         {
             ModelState.AddModelError("", _icerik.Metin("hesap.kayit-kapali"));
             return View(form);
         }
+        foreach (var hata in MusteriBilgisiServisi.Hatalar(form.Alanlar, form.Alan)) ModelState.AddModelError("", hata);
         if (!ModelState.IsValid) return View(form);
 
         var kullanici = new Kullanici { UserName = form.Eposta, Email = form.Eposta, Ad = form.Ad.Trim(), Soyad = form.Soyad.Trim(), PhoneNumber = form.Telefon };
@@ -83,6 +91,8 @@ public class HesapController : TemelController
             return View(form);
         }
 
+        // Cevaplar MusteriAlanDegerleri tablosuna yazılır (INSERT)
+        await _musteriBilgileri.KaydetAsync(kullanici.Id, form.Alanlar, form.Alan);
         await _kullanicilar.AddToRoleAsync(kullanici, Roller.Musteri);
         await _girisYonetici.SignInAsync(kullanici, isPersistent: true);
 

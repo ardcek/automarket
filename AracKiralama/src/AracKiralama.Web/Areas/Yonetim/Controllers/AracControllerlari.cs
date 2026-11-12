@@ -73,6 +73,7 @@ public class AraclarController : YonetimController
             return View("Form", form);
         }
         _vt.Araclar.Add(arac);
+        await OzellikleriAktarAsync(arac, form.Ozellikler);
         await _vt.SaveChangesAsync();
         Basarili($"{arac.Plaka} plakalı araç eklendi.");
         return RedirectToAction(nameof(Detay), new { id = arac.Id });
@@ -91,6 +92,8 @@ public class AraclarController : YonetimController
             YakitTuruId = a.YakitTuruId, VitesTuruId = a.VitesTuruId, KoltukSayisi = a.KoltukSayisi, Renk = a.Renk,
             Kilometre = a.Kilometre, GunlukFiyat = a.GunlukFiyat, Depozito = a.Depozito, Durum = a.Durum, SubeId = a.SubeId,
             OneCikan = a.OneCikan, Aciklama = a.Aciklama, GorselAdresi = a.GorselAdresi,
+            // Panelden eklenen özelliklerin değerleri: SELECT "OzellikId", "Deger" FROM "AracOzellikDegerleri" WHERE "AracId" = id
+            Ozellikler = await _vt.AracOzellikDegerleri.Where(d => d.AracId == id).ToDictionaryAsync(d => d.OzellikId, d => (string?)d.Deger),
         });
     }
 
@@ -104,6 +107,7 @@ public class AraclarController : YonetimController
             await ListeleriDoldurAsync();
             return View("Form", form);
         }
+        await OzellikleriAktarAsync(arac, form.Ozellikler);
         await _vt.SaveChangesAsync();
         Basarili("Araç bilgileri güncellendi.");
         return RedirectToAction(nameof(Detay), new { id });
@@ -159,9 +163,38 @@ public class AraclarController : YonetimController
         return true;
     }
 
-    /// <summary>Formdaki açılır listeler (marka, kategori, yakıt, vites, şube).</summary>
+    /// <summary>
+    /// Formdaki "Ek özellikler" kutularını aracın özellik değerlerine yazar (Yönetim → Filtreler ve Özellikler).
+    /// Boş bırakılan özelliğin değeri silinir. Değişiklikler SaveChangesAsync ile birlikte kaydedilir.
+    /// </summary>
+    private async Task OzellikleriAktarAsync(Arac arac, Dictionary<int, string?> gelenler)
+    {
+        var tanimlar = await _vt.AracOzellikleri.ToDictionaryAsync(o => o.Id);
+        var mevcut = arac.Id == 0 ? new List<AracOzellikDegeri>() : await _vt.AracOzellikDegerleri.Where(d => d.AracId == arac.Id).ToListAsync();
+        foreach (var (ozellikId, ham) in gelenler)
+        {
+            if (!tanimlar.TryGetValue(ozellikId, out var tanim)) continue;
+            var temiz = AracOzellikDegeri.Temizle(tanim, ham);
+            var kayit = mevcut.FirstOrDefault(d => d.OzellikId == ozellikId);
+            if (temiz == null)
+            {
+                if (kayit != null) _vt.AracOzellikDegerleri.Remove(kayit);
+                continue;
+            }
+            if (kayit == null)
+            {
+                kayit = new AracOzellikDegeri { OzellikId = ozellikId };
+                arac.OzellikDegerleri.Add(kayit);   // yeni araçta Id henüz yok; EF kaydederken bağlar
+            }
+            kayit.Deger = temiz;
+            kayit.SayiDeger = tanim.Tur == OzellikTuru.Sayi ? decimal.Parse(temiz, System.Globalization.CultureInfo.InvariantCulture) : null;
+        }
+    }
+
+    /// <summary>Formdaki açılır listeler (marka, kategori, yakıt, vites, şube) ve panelden eklenen özellikler.</summary>
     private async Task ListeleriDoldurAsync()
     {
+        ViewBag.Ozellikler = await _vt.AracOzellikleri.Where(o => o.Aktif).OrderBy(o => o.Sira).ThenBy(o => o.Ad).AsNoTracking().ToListAsync();
         ViewBag.Markalar = new SelectList(await _vt.Markalar.OrderBy(m => m.Ad).ToListAsync(), "Id", "Ad");
         ViewBag.Kategoriler = new SelectList(await _vt.Kategoriler.OrderBy(k => k.Sira).ToListAsync(), "Id", "Ad");
         ViewBag.Yakitlar = new SelectList(await _vt.YakitTurleri.OrderBy(y => y.Sira).ToListAsync(), "Id", "Ad");

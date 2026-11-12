@@ -73,7 +73,7 @@ public class TestVeriTabani : IDisposable
     }
 
     public RezervasyonServisi RezervasyonServisi()
-        => new(Vt, new FiyatServisi(Ayarlar), new MusaitlikServisi(Vt), Ayarlar);
+        => new(Vt, new FiyatServisi(Ayarlar), new MusaitlikServisi(Vt), Ayarlar, new KampanyaServisi(Vt));
 
     /// <summary>Kurallara bakmadan, doğrudan veritabanına istenen durumda bir rezervasyon ekler.</summary>
     public Rezervasyon RezervasyonEkle(Arac arac, Kullanici musteri, DateTime baslangic, DateTime bitis, RezervasyonDurumu durum)

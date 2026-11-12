@@ -18,6 +18,27 @@
     <div class="d-flex gap-2"><a href="/Yonetim/Takvim" class="btn btn-sade"><i class="bi bi-calendar3-range me-1"></i>Takvim</a><a href="/Yonetim/Araclar/Ekle" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Araç ekle</a></div>
 </div>
 
+@* ---------------- NE YAPMAK İSTİYORSUN? En sık yapılan işlere tek tıkla gitmek için ---------------- *@
+<h2 class="h6 text-muted text-uppercase fw-bold mb-2" style="letter-spacing:.08em">Ne yapmak istiyorsun?</h2>
+<div class="row g-3 mb-4">
+    @foreach (var (ikon, baslik, aciklama, link) in new[]
+    {
+        ("bi-stars", "Yapay zekâya söyle, o yapsın", "İnternetsiz asistan: \"meslek gruplarına indirim yap\" gibi istekleri hazırlar.", "/Yonetim/YapayZeka"),
+        ("bi-magic", "Sitedeki yazıları değiştir", "Başlıklar, butonlar, menü, alt bilgi. Sağda anında görerek.", "/Yonetim/Duzenleyici"),
+        ("bi-funnel", "Yeni filtre / özellik ekle", "Araçlara yeni bir bilgi ekle (renk, bagaj…), listede filtre olsun.", "/Yonetim/Ozellikler"),
+        ("bi-percent", "İndirim / kampanya ekle", "Mesleğe, kategoriye, tarihe göre indirim. Filtrede \"indirimli araçlar\".", "/Yonetim/Kampanyalar"),
+        ("bi-car-front", "Araç ekle veya düzenle", "Fiyat, fotoğraf, şube, öne çıkarma.", "/Yonetim/Araclar"),
+        ("bi-cash-coin", "Fiyat kurallarını değiştir", "İndirim oranları, farklı şubeye iade ücreti.", "/Yonetim/Duzenleyici?sayfa=detay"),
+        ("bi-palette", "Renk ve görünüm", "Ana renk, koyu renk, köşeler, tema, logo.", "/Yonetim/Duzenleyici?sayfa=gorunum"),
+        ("bi-easel", "Hocanın gördüğü siteyi ayarla", "Üye girişi açık mı, kurumsal sayfalar, demo hesaplar.", "/Yonetim/Duzenleyici?sayfa=sunum"),
+    })
+    {
+        <div class="col-12 col-md-6 col-xxl-4">
+            <a class="kolay-kart" href="@link"><span class="ikon"><i class="bi @ikon"></i></span><div><b>@baslik</b><span>@aciklama</span></div></a>
+        </div>
+    }
+</div>
+
 @if (Model.Gecikenler.Count > 0)
 {
     <div class="alert alert-danger d-flex flex-wrap align-items-center gap-2">

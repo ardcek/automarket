@@ -1,0 +1,163 @@
+@* SİTE DÜZENLEYİCİ (DuzenleyiciController.Index, model: DuzenleyiciModeli)
+   Solda seçilen sekmenin yazıları ve ayarları, sağda sitenin kendisi (canlı önizleme).
+   Kutulara yazdıkça önizleme anında değişir (wwwroot/js/duzenleyici.js). "Kaydet"e basılana kadar
+   gerçek site değişmez. Sekmeler ve kutuların adları: Yardimcilar/DuzenleyiciTanimlari.cs *@
+@model DuzenleyiciModeli
+@{
+    ViewData["Title"] = "Site Düzenleyici";
+    var sekme = Model.Sekme;
+    var sira = 0;   // her kutuya benzersiz id vermek için sayaç
+}
+
+<div class="sayfa-baslik mb-3">
+    <div>
+        <h1><i class="bi bi-magic me-2 metin-ana"></i>Site Düzenleyici</h1>
+        <div class="alt-yazi">Soldan değiştir, sağda anında gör. <b>Kaydet</b>'e basmadan gerçek site değişmez.</div>
+    </div>
+</div>
+
+@* ---------------- SEKMELER: sitenin hangi bölümünü düzenleyeceğiz? ---------------- *@
+<ul class="nav nav-pills duz-sekmeler gap-1 mb-3 flex-wrap">
+    @foreach (var s in DuzenleyiciTanimlari.Sekmeler)
+    {
+        <li class="nav-item"><a class="nav-link @(s.Kod == sekme.Kod ? "active" : "")" href="/Yonetim/Duzenleyici?sayfa=@s.Kod"><i class="bi @s.Ikon me-1"></i>@s.Ad</a></li>
+    }
+</ul>
+
+<div class="duz-kabuk">
+    @* ---------------- SOL: kutular ---------------- *@
+    <section class="duz-sol card">
+        <div class="card-body d-flex flex-column p-3">
+            <div class="small text-muted mb-2">@sekme.Aciklama</div>
+            <div class="input-group input-group-sm mb-2">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="search" class="form-control" placeholder="Ne değiştirmek istiyorsun? (başlık, buton, renk…)" data-duz-ara />
+            </div>
+
+            <form id="duzenleyici-formu" asp-action="Kaydet" asp-route-sayfa="@sekme.Kod" method="post" class="duz-alanlar" data-taslak-adresi="/Yonetim/Duzenleyici/Taslak">
+                @foreach (var bolum in Model.Alanlar.GroupBy(a => a.Bolum))
+                {
+                    <div class="duz-bolum" data-duz-bolum>@bolum.Key</div>
+                    @foreach (var alan in bolum)
+                    {
+                        var id = "duz-" + (++sira);
+                        <div class="duz-alan" data-ara="@alan.AramaMetni">
+                            @if (!alan.AyarMi)
+                            {
+                                @* Sitedeki bir yazı: uzunsa çok satırlı kutu *@
+                                <label class="form-label" for="@id"><span>@alan.Etiket</span><span class="duz-degisti" hidden>değişti</span></label>
+                                if (alan.Varsayilan.Length > 60)
+                                {
+                                    <textarea class="form-control form-control-sm" id="@id" name="@alan.FormAdi" rows="2" data-metin="@alan.Anahtar" data-varsayilan="@alan.Varsayilan">@alan.Deger</textarea>
+                                }
+                                else
+                                {
+                                    <input class="form-control form-control-sm" id="@id" name="@alan.FormAdi" value="@alan.Deger" data-metin="@alan.Anahtar" data-varsayilan="@alan.Varsayilan" />
+                                }
+                                <div class="duz-alt"><span class="text-truncate" title="@alan.Varsayilan">İlk hali: @alan.Varsayilan</span><button type="button" data-varsayilana-don>İlk haline dön</button></div>
+                            }
+                            else if (alan.AyarTuru == typeof(bool))
+                            {
+                                @* Aç / kapa: işaretliyse "true", değilse arkadaki gizli kutudan "false" gider *@
+                                <div class="form-check form-switch m-0">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="@id" name="@alan.FormAdi" value="true" checked="@(alan.Deger == "true")" data-ayar="@alan.Anahtar" />
+                                    <input type="hidden" name="@alan.FormAdi" value="false" />
+                                    <label class="form-check-label fw-semibold small" for="@id">@alan.Etiket</label>
+                                    <span class="duz-degisti ms-1" hidden>değişti</span>
+                                </div>
+                                @if (alan.Aciklama != null) { <div class="duz-alt">@alan.Aciklama</div> }
+                            }
+                            else
+                            {
+                                <label class="form-label" for="@id"><span>@alan.Etiket</span><span class="duz-degisti" hidden>değişti</span></label>
+                                if (alan.AyarBilgisi!.Renk)
+                                {
+                                    <input type="color" class="form-control form-control-color w-100" id="@id" name="@alan.FormAdi" value="@alan.Deger" data-ayar="@alan.Anahtar" />
+                                }
+                                else if (alan.AyarBilgisi.Secenekler != null)
+                                {
+                                    <select class="form-select form-select-sm" id="@id" name="@alan.FormAdi" data-ayar="@alan.Anahtar">
+                                        @foreach (var secenek in alan.AyarBilgisi.Secenekler.Split('|'))
+                                        {
+                                            var parca = secenek.Split(':');
+                                            <option value="@parca[0]" selected="@(alan.Deger == parca[0])">@parca[1]</option>
+                                        }
+                                    </select>
+                                }
+                                else if (alan.AyarBilgisi.CokSatir)
+                                {
+                                    <textarea class="form-control form-control-sm" id="@id" name="@alan.FormAdi" rows="2" data-ayar="@alan.Anahtar">@alan.Deger</textarea>
+                                }
+                                else if (alan.AyarTuru == typeof(int) || alan.AyarTuru == typeof(decimal))
+                                {
+                                    <input type="number" step="any" class="form-control form-control-sm" id="@id" name="@alan.FormAdi" value="@alan.Deger" data-ayar="@alan.Anahtar" />
+                                }
+                                else
+                                {
+                                    <input class="form-control form-control-sm" id="@id" name="@alan.FormAdi" value="@alan.Deger" data-ayar="@alan.Anahtar" />
+                                }
+                                <div class="duz-alt"><span>@(alan.Aciklama ?? "İlk hali: " + alan.Varsayilan)</span></div>
+                            }
+                        </div>
+                    }
+                }
+
+                @* Sadece "Sunum ayarları" sekmesinde: Hakkımızda, KVKK gibi sayfaları aç / kapa *@
+                @if (Model.KurumsalSayfalar.Count > 0)
+                {
+                    <div class="duz-bolum" data-duz-bolum>Kurumsal sayfalar</div>
+                    @foreach (var s in Model.KurumsalSayfalar)
+                    {
+                        var id = "duz-" + (++sira);
+                        <div class="duz-alan" data-ara="@s.Baslik.ToLower(Bicim.Tr) kurumsal sayfa">
+                            <div class="form-check form-switch m-0">
+                                <input class="form-check-input" type="checkbox" role="switch" id="@id" name="sayfaAktif[@s.Id]" value="true" checked="@s.Aktif" data-sayfa="@s.Id" />
+                                <input type="hidden" name="sayfaAktif[@s.Id]" value="false" />
+                                <label class="form-check-label fw-semibold small" for="@id">@s.Baslik yayında</label>
+                                <span class="duz-degisti ms-1" hidden>değişti</span>
+                            </div>
+                            <div class="duz-alt">/Sayfa/@s.Adres · açılınca menüde ve alt bilgide görünür (Kaydet'ten sonra).</div>
+                        </div>
+                    }
+                }
+            </form>
+
+            @* Kaydet / Vazgeç: her zaman en altta görünür *@
+            <div class="duz-alt-cubuk">
+                <button type="submit" form="duzenleyici-formu" class="btn btn-primary flex-grow-1"><i class="bi bi-check2 me-1"></i>Kaydet</button>
+                <form asp-action="Vazgec" asp-route-sayfa="@sekme.Kod" method="post"><button class="btn btn-sade" data-onay="Kaydedilmemiş değişiklikler silinsin mi?">Vazgeç</button></form>
+            </div>
+            <div class="small text-muted mt-2" data-duz-durum>Değişiklik yok.</div>
+        </div>
+    </section>
+
+    @* ---------------- SAĞ: canlı önizleme ---------------- *@
+    <section class="duz-sag">
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+            @if (Model.Onizlemeler.Count > 1)
+            {
+                <div class="btn-group btn-group-sm" role="group" aria-label="Önizlenen sayfa">
+                    @for (var i = 0; i < Model.Onizlemeler.Count; i++)
+                    {
+                        <button type="button" class="btn btn-sade @(i == 0 ? "active" : "")" data-onizleme-adresi="@Model.Onizlemeler[i].Adres">@Model.Onizlemeler[i].Ad</button>
+                    }
+                </div>
+            }
+            else
+            {
+                <span class="small fw-semibold"><i class="bi bi-eye me-1"></i>Önizleme: @Model.Onizlemeler[0].Ad</span>
+            }
+            <div class="btn-group btn-group-sm ms-auto" role="group" aria-label="Ekran">
+                <button type="button" class="btn btn-sade active" data-cihaz="masaustu" title="Bilgisayar"><i class="bi bi-laptop"></i></button>
+                <button type="button" class="btn btn-sade" data-cihaz="telefon" title="Telefon"><i class="bi bi-phone"></i></button>
+            </div>
+            <button type="button" class="btn btn-sade btn-sm" data-onizleme-yenile title="Önizlemeyi yenile"><i class="bi bi-arrow-clockwise"></i></button>
+        </div>
+        <div class="duz-cerceve-kutu">
+            <iframe id="onizleme-cercevesi" src="@(Model.Onizlemeler[0].Adres)?onizleme=1" title="Sitenin önizlemesi"></iframe>
+        </div>
+        <div class="small text-muted mt-2"><i class="bi bi-hand-index me-1"></i>İpucu: önizlemede bir yazıya tıklarsan, soldaki kutusu açılır.</div>
+    </section>
+</div>
+
+@section Scripts { <script src="~/js/duzenleyici.js" asp-append-version="true"></script> }

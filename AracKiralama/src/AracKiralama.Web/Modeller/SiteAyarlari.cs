@@ -81,6 +81,8 @@ public class SiteAyarlari
     [Ayar("Fiyatlar", "Geç iade toleransı (dakika)")] public int GecikmeToleransi { get; set; } = 59;
     [Ayar("Fiyatlar", "Eksik her ¼ depo yakıt ücreti (₺)")] public decimal YakitCeyrekUcreti { get; set; } = 450;
     [Ayar("Fiyatlar", "Ücretsiz iptal süresi (saat)", Aciklama = "Alışa bundan az kala iptal edilirse 1 günlük ücret kesilir")] public int UcretsizIptalSaati { get; set; } = 24;
+    [Ayar("Fiyatlar", "Kampanya ile uzun dönem indirimi birleşsin", Aciklama = "Kapalıyken ikisinden müşteriye avantajlı olan uygulanır. Açıkken oranlar toplanır (en çok %90).")]
+    public bool KampanyaUzunDonemleBirlesir { get; set; } = false;
 
     // ---------------- REZERVASYON ----------------
     [Ayar("Rezervasyon", "Yeni rezervasyon alınsın")] public bool RezervasyonaAcik { get; set; } = true;
@@ -110,5 +112,7 @@ public class SiteAyarlari
     [Ayar("Araç Listesi", "Filtre: Koltuk sayısı")] public bool FiltreKoltuk { get; set; } = true;
     [Ayar("Araç Listesi", "Filtre: Fiyat aralığı")] public bool FiltreFiyat { get; set; } = true;
     [Ayar("Araç Listesi", "Filtre: Model yılı")] public bool FiltreYil { get; set; } = true;
+    [Ayar("Araç Listesi", "Filtre: İndirimli araçlar", Aciklama = "Yönetim → Kampanyalar'da yayında kampanya varsa görünür (\"Mesleğiniz\" seçimi + \"Sadece indirimli araçlar\").")]
+    public bool FiltreIndirimli { get; set; } = true;
     [Ayar("Araç Listesi", "Sıralama seçeneklerini göster")] public bool SiralamaGoster { get; set; } = true;
 }

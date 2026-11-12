@@ -21,13 +21,15 @@ public class RezervasyonServisi
     private readonly FiyatServisi _fiyat;
     private readonly MusaitlikServisi _musaitlik;
     private readonly SiteAyarlari _ayarlar;
+    private readonly KampanyaServisi _kampanyalar;
 
-    public RezervasyonServisi(VeriTabani vt, FiyatServisi fiyat, MusaitlikServisi musaitlik, SiteAyarlari ayarlar)
+    public RezervasyonServisi(VeriTabani vt, FiyatServisi fiyat, MusaitlikServisi musaitlik, SiteAyarlari ayarlar, KampanyaServisi kampanyalar)
     {
         _vt = vt;
         _fiyat = fiyat;
         _musaitlik = musaitlik;
         _ayarlar = ayarlar;
+        _kampanyalar = kampanyalar;
     }
 
     // ===================== KURALLAR (veritabanı gerektirmez) =====================
@@ -97,6 +99,7 @@ public class RezervasyonServisi
         r.GunlukFiyat = t.GunlukFiyat;
         r.KiraTutari = t.KiraTutari;
         r.Indirim = t.Indirim;
+        r.IndirimAciklamasi = t.IndirimAciklamasi;
         r.EkstraTutari = t.EkstraTutari;
         r.TekYonUcreti = t.TekYonUcreti;
         r.Depozito = t.Depozito;
@@ -115,15 +118,20 @@ public class RezervasyonServisi
 
     // ===================== İŞLEMLER =====================
 
-    /// <summary>Seçilen araç, tarih ve ekstralar için fiyat teklifi.</summary>
+    /// <summary>
+    /// Seçilen araç, tarih ve ekstralar için fiyat teklifi.
+    /// kampanyalar: uygulanacak kampanyalar ve müşteri bilgileri (Servisler/KampanyaServisi.cs); null ise kampanya yok.
+    /// </summary>
     public async Task<(Arac arac, FiyatTeklifi teklif)> TeklifAsync(int aracId, DateTime baslangic, DateTime bitis,
-        List<int> ekstraIdleri, int alisSubeId, int iadeSubeId)
+        List<int> ekstraIdleri, int alisSubeId, int iadeSubeId, KampanyaBaglami? kampanyalar = null)
     {
-        var arac = await _vt.Araclar.Include(a => a.Marka).Include(a => a.Kategori).FirstOrDefaultAsync(a => a.Id == aracId)
+        // Özellik değerleri de yüklenir: kampanya koşulu bir araç özelliği olabilir (örn. "Klima: Var").
+        var arac = await _vt.Araclar.Include(a => a.Marka).Include(a => a.Kategori).Include(a => a.OzellikDegerleri)
+                       .FirstOrDefaultAsync(a => a.Id == aracId)
                    ?? throw new IsKuraliHatasi("Araç bulunamadı.");
         var ekstralar = await _vt.Ekstralar.Where(e => e.Aktif && ekstraIdleri.Contains(e.Id)).OrderBy(e => e.Ad).ToListAsync();
 
-        var teklif = _fiyat.Hesapla(arac, baslangic, bitis, ekstralar, alisSubeId != iadeSubeId);
+        var teklif = _fiyat.Hesapla(arac, baslangic, bitis, ekstralar, alisSubeId != iadeSubeId, kampanyalar);
         return (arac, teklif);
     }
 
@@ -139,7 +147,9 @@ public class RezervasyonServisi
         var musteri = await _vt.Users.FindAsync(musteriId) ?? throw new IsKuraliHatasi("Müşteri bulunamadı.");
         if (!await _vt.Subeler.AnyAsync(s => s.Id == alisSubeId) || !await _vt.Subeler.AnyAsync(s => s.Id == iadeSubeId))
             throw new IsKuraliHatasi("Lütfen geçerli bir alış ve iade şubesi seçin.");
-        var (arac, teklif) = await TeklifAsync(aracId, baslangic, bitis, ekstraIdleri, alisSubeId, iadeSubeId);
+        // Kampanya: sadece müşterinin profilindeki bilgiler geçerlidir (örn. Meslek = Öğretmen)
+        var kampanyalar = await _kampanyalar.MusteriIcinAsync(musteriId, baslangic);
+        var (arac, teklif) = await TeklifAsync(aracId, baslangic, bitis, ekstraIdleri, alisSubeId, iadeSubeId, kampanyalar);
 
         var surucuHatalari = SurucuHatalari(musteri, arac.Kategori!, baslangic);
         if (surucuHatalari.Count > 0) throw new IsKuraliHatasi(surucuHatalari[0]);

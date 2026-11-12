@@ -16,6 +16,11 @@
         <div><div class="kucuk-baslik">T.C. Kimlik No</div>@(k.TcNo ?? "-")</div>
         <div><div class="kucuk-baslik">Doğum tarihi</div>@(k.DogumTarihi?.ToString("dd.MM.yyyy") ?? "-")</div>
         <div><div class="kucuk-baslik">Ehliyet</div>@(k.EhliyetNo ?? "-") · @(k.EhliyetTarihi?.ToString("dd.MM.yyyy") ?? "-")</div>
+        @* Panelden eklenen bilgiler (Yönetim → Müşteri Bilgileri), örn. Meslek *@
+        @foreach (var (ad, deger) in (List<KeyValuePair<string, string>>)ViewBag.MusteriBilgileri)
+        {
+            <div><div class="kucuk-baslik">@ad</div>@(deger == "true" ? "Evet" : deger)</div>
+        }
     </div></div>
     <div class="col-xl-8"><div class="card tablo-karti"><div class="card-header">Rezervasyonlar</div><div class="table-responsive"><table class="table table-hover align-middle">
         <thead><tr><th>Kod</th><th>Araç</th><th>Tarih</th><th>Durum</th><th class="text-end">Tutar</th></tr></thead>

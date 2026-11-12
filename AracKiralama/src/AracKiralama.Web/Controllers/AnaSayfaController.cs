@@ -6,6 +6,7 @@
 // ============================================================================
 using AracKiralama.FormModelleri;
 using AracKiralama.Modeller;
+using AracKiralama.Servisler;
 using AracKiralama.Veri;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,17 +17,20 @@ public class AnaSayfaController : TemelController
 {
     private readonly VeriTabani _vt;
     private readonly SiteAyarlari _ayarlar;
+    private readonly KampanyaServisi _kampanyalar;
 
-    public AnaSayfaController(VeriTabani vt, SiteAyarlari ayarlar)
+    public AnaSayfaController(VeriTabani vt, SiteAyarlari ayarlar, KampanyaServisi kampanyalar)
     {
         _vt = vt;
         _ayarlar = ayarlar;
+        _kampanyalar = kampanyalar;
     }
 
     public async Task<IActionResult> Index()
     {
         var araclar = await _vt.Araclar
             .Include(a => a.Marka).Include(a => a.Sube).Include(a => a.YakitTuru).Include(a => a.VitesTuru).Include(a => a.Kategori)
+            .Include(a => a.OzellikDegerleri).ThenInclude(d => d.Ozellik)   // kartta gösterilecek panel özellikleri
             .Where(a => a.Durum != AracDurumu.Pasif)
             .AsNoTracking().ToListAsync();
 
@@ -35,6 +39,7 @@ public class AnaSayfaController : TemelController
             AracSayisi = araclar.Count,
             TamamlananKiralama = await _vt.Rezervasyonlar.CountAsync(r => r.Durum == RezervasyonDurumu.Tamamlandi),
             Subeler = await _vt.Subeler.OrderBy(s => s.Sehir).AsNoTracking().ToListAsync(),
+            Kampanya = await _kampanyalar.BaglamAsync(User),   // kartlarda "Öğretmenlere %15" gibi rozetler
 
             // Admin'in "öne çıkar" dediği araçlar (Yönetim → Araçlar → Düzenle)
             OneCikanlar = araclar.Where(a => a.OneCikan).OrderBy(a => a.GunlukFiyat).Take(_ayarlar.OneCikanAracSayisi).ToList(),

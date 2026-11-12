@@ -48,6 +48,9 @@ public class Arac
     public List<Rezervasyon> Rezervasyonlar { get; set; } = new();
     public List<Bakim> Bakimlar { get; set; } = new();
 
+    /// <summary>Panelden eklenen özelliklerdeki değerleri (Yönetim → Filtreler ve Özellikler).</summary>
+    public List<AracOzellikDegeri> OzellikDegerleri { get; set; } = new();
+
     /// <summary>"Renault Clio" gibi ekranda gösterilen ad (veritabanına yazılmaz).</summary>
     [NotMapped] public string TamAd => $"{Marka?.Ad} {Model}".Trim();
 }

@@ -72,15 +72,28 @@ builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(P
 // 3) UYGULAMA SERVİSLERİ (iş kuralları — Servisler klasörü)
 // Singleton = uygulama boyunca tek örnek · Scoped = her istekte yeni örnek
 // ---------------------------------------------------------------------------
+builder.Services.AddHttpContextAccessor();   // servislerin o anki isteğe ulaşabilmesi için (önizleme)
+builder.Services.AddSingleton<TaslakServisi>();   // Site Düzenleyici'nin kaydedilmemiş değişiklikleri
 builder.Services.AddSingleton<IcerikServisi>();
 builder.Services.AddScoped(s => s.GetRequiredService<IcerikServisi>().Ayarlar);   // SiteAyarlari'nı isteyen her yere güncel ayarlar
 builder.Services.AddScoped<FiyatServisi>();
 builder.Services.AddScoped<MusaitlikServisi>();
+builder.Services.AddScoped<KampanyaServisi>();          // Yönetim → Kampanyalar: hangi indirim kime uygulanır
+builder.Services.AddScoped<MusteriBilgisiServisi>();    // Yönetim → Müşteri Bilgileri: Meslek gibi panelden eklenen sorular
 builder.Services.AddScoped<RezervasyonServisi>();
 builder.Services.AddScoped<RaporServisi>();
 builder.Services.AddScoped<SozlesmeServisi>();
 builder.Services.AddScoped<GorselServisi>();
 builder.Services.AddHostedService<GecikmeKontrolu>();
+
+// YAPAY ZEKÂ ASİSTANI (Yönetim → Yapay Zekâ Asistanı): internetsiz, bilgisayardaki modelle çalışır.
+// Ayarları appsettings.json → "YapayZeka". Motor ve modeller: AracKiralama/yapay-zeka/ (BENI-OKU.md)
+builder.Services.Configure<YapayZekaAyarlari>(builder.Configuration.GetSection("YapayZeka"));
+builder.Services.AddSingleton<YapayZekaSunucusu>();   // motoru açıp kapatan tek örnek
+builder.Services.AddHttpClient<YapayZekaServisi>(h => h.Timeout = TimeSpan.FromMinutes(15));   // yavaş bilgisayarda cevap uzun sürebilir
+builder.Services.AddScoped<YapayZekaBaglami>();
+builder.Services.AddScoped<PanelIslemleri>();
+builder.Services.AddScoped<KodModu>();
 
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 QuestPDF.Settings.ThrowOnMissingTextGlyphs = false;   // fontta olmayan karakter PDF'i bozmasın
@@ -113,6 +126,19 @@ CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("tr-TR");
 // ---------------------------------------------------------------------------
 // 5) VERİTABANINI HAZIRLA: tablolar yoksa oluştur, boşsa örnek verileri yükle
 // ---------------------------------------------------------------------------
+// Yapay zekâ kod modu bir model dosyasını değiştirdiyse "veritabanini-yenile.isaret" bırakır.
+// Proje migration kullanmadığı için yeni kolonlar ancak veritabanı yeniden oluşturulunca gelir:
+// yerel SQLite dosyası yedeklenip silinir, aşağıda örnek verilerle yeniden oluşturulur. (Neon'a asla dokunulmaz.)
+var yenileIsareti = Path.Combine(builder.Environment.ContentRootPath, "veritabanini-yenile.isaret");
+if (File.Exists(yenileIsareti) && !sayfalarNeondan)
+{
+    var dbYolu = Path.Combine(veriKlasoru, "arackiralama.db");
+    if (File.Exists(dbYolu)) File.Move(dbYolu, $"{dbYolu}.yedek-{DateTime.Now:yyyyMMdd-HHmmss}");
+    foreach (var ek in new[] { "-shm", "-wal" }) File.Delete(dbYolu + ek);
+    File.Delete(yenileIsareti);
+    app.Logger.LogWarning("Model değiştiği için yerel veritabanı yedeklendi ve yeniden oluşturuluyor.");
+}
+
 using (var kapsam = app.Services.CreateScope())
 {
     var sure = System.Diagnostics.Stopwatch.StartNew();

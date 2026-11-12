@@ -1,0 +1,219 @@
+@* YAPAY ZEKÂ ASİSTANI (YapayZekaController.Index, model: YapayZekaSayfasi)
+   Üstte motorun durumu, ortada iki sekme:
+     • Panel modu : istek → yapay zekâ işlem kartları önerir → kontrol / önizle → uygula (geri alınabilir)
+     • Kod modu   : istek → dosya seçimi → değişiklik önerisi → geçici kopyada derle → uygula (yedekli)
+   Altta geçmiş. Bütün davranış wwwroot/js/yapay-zeka.js dosyasında. *@
+@model YapayZekaSayfasi
+@{
+    ViewData["Title"] = "Yapay Zekâ Asistanı";
+    string[] ornekler =
+    [
+        "Meslek gruplarına göre indirim yap, filtrede de indirimli araçlar görünsün",
+        "Araçlara klima bilgisi ekle, bütün araçlarda olsun, filtrede seçilebilsin",
+        "SUV kategorisindeki araçların fiyatını %10 artır",
+        "Ana sayfadaki büyük başlık \"Yolculuk burada başlar\" olsun",
+        "Butonların rengi turuncu olsun",
+        "Siteye Sıkça Sorulan Sorular sayfası ekle, üst menüde görünsün",
+        "Hafta sonu 3 gün ve üzeri kiralamalara %8 indirim yap",
+        "Kaç tane kampanya var?",
+    ];
+    string[] kodOrnekleri =
+    [
+        "Araç kartında kilometre bilgisi de görünsün",
+        "Araç detay sayfasında aracın plakası gösterilsin",
+        "Araç listesinde \"En yüksek koltuk sayısı\" sıralaması eklensin",
+    ];
+}
+
+<div class="sayfa-baslik">
+    <div>
+        <h1><i class="bi bi-stars me-2 metin-ana"></i>Yapay Zekâ Asistanı</h1>
+        <div class="alt-yazi">İnternetsiz çalışır: model bu bilgisayarda. Ne istediğini yaz, o değişiklikleri hazırlasın; sen onayla.</div>
+    </div>
+</div>
+
+@* ---------------- MOTORUN DURUMU (yapay-zeka.js 2 saniyede bir /Yonetim/YapayZeka/Durum'a sorar) ---------------- *@
+<div class="card mb-3" id="yz-durum-karti" data-durum-adresi="/Yonetim/YapayZeka/Durum">
+    <div class="card-body d-flex flex-wrap align-items-center gap-3">
+        <span class="yz-isik" data-durum="@Model.Durum"></span>
+        <div class="flex-grow-1 min-w-0">
+            <div class="fw-semibold" id="yz-durum-yazi">@Model.Mesaj</div>
+            <div class="small text-muted"><span id="yz-model">@(Model.ModelAdi ?? "model yok")</span> · <span id="yz-motor"></span> · Bu bilgisayarın belleği: @Model.RamGb GB</div>
+        </div>
+        @if (Model.Modeller.Count > 0)
+        {
+            <select id="yz-model-sec" class="form-select form-select-sm w-auto" aria-label="Model">
+                @foreach (var (ad, boyut) in Model.Modeller) { <option value="@ad" selected="@(ad == Model.ModelAdi)">@ad (@boyut GB)</option> }
+            </select>
+            <button type="button" class="btn btn-sm btn-sade" id="yz-baslat"><i class="bi bi-play-fill me-1"></i>Başlat</button>
+            <button type="button" class="btn btn-sm btn-sade" id="yz-durdur"><i class="bi bi-stop-fill me-1"></i>Durdur</button>
+        }
+    </div>
+    <pre class="small text-danger mb-0 px-3 pb-3 d-none" id="yz-son-cikti"></pre>
+</div>
+
+@if (!Model.Kurulu)
+{
+    <div class="alert alert-warning d-flex gap-3">
+        <i class="bi bi-cpu fs-4"></i>
+        <div class="small">
+            <b>Bu bilgisayarda yapay zekâ kurulu değil.</b> Canlı sitede (Render) bu bölüm çalışmaz; laboratuvar / ev bilgisayarı içindir.
+            <ol class="mb-0 mt-1 ps-3">
+                <li>İnternetli bir bilgisayarda <code>AracKiralama\yapay-zeka\HAZIRLA.ps1</code> dosyasını çalıştır (motor + modeller ≈ 9 GB iner).</li>
+                <li>Projeyi USB ile laboratuvara götür, <code>BASLAT.bat</code>'a çift tıkla.</li>
+            </ol>
+            Ayrıntılar: <code>AracKiralama/yapay-zeka/BENI-OKU.md</code>
+        </div>
+    </div>
+}
+
+@* Tarayıcıdan gelen isteklerde güvenlik anahtarı (antiforgery) *@
+@Html.AntiForgeryToken()
+
+<ul class="nav nav-tabs mb-3" role="tablist">
+    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#yz-panel" type="button"><i class="bi bi-ui-checks me-1"></i>Panel modu</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#yz-kod" type="button"><i class="bi bi-code-slash me-1"></i>Kod modu <span class="badge text-bg-warning">deneysel</span></button></li>
+</ul>
+
+<div class="tab-content">
+    @* ================================ PANEL MODU ================================ *@
+    <div class="tab-pane fade show active" id="yz-panel">
+        <div class="card mb-3">
+            <div class="card-body">
+                <label for="yz-istek" class="form-label fw-semibold">Ne yapmak istiyorsun?</label>
+                <textarea id="yz-istek" class="form-control" rows="3" maxlength="2000" placeholder="örn. Meslek gruplarına göre indirim yap, filtrede de indirimli araçlar görünsün"></textarea>
+                <div class="d-flex flex-wrap gap-2 mt-2">
+                    @foreach (var ornek in ornekler) { <button type="button" class="btn btn-sm btn-sade yz-ornek" data-hedef="#yz-istek">@ornek</button> }
+                </div>
+                <div class="d-flex align-items-center gap-2 mt-3">
+                    <button type="button" class="btn btn-primary" id="yz-gonder"><i class="bi bi-send me-1"></i>Gönder</button>
+                    <button type="button" class="btn btn-sade d-none" id="yz-iptal"><i class="bi bi-x-lg me-1"></i>İptal</button>
+                    <span class="small text-muted" id="yz-sayac"></span>
+                </div>
+                <div class="small text-muted mt-2"><i class="bi bi-info-circle me-1"></i>Yapay zekâ hiçbir şeyi kendiliğinden değiştirmez: önce yapacaklarını kart kart gösterir, sen "Uygula" dersen yapılır. Her değişiklik aşağıdaki geçmişten geri alınabilir.</div>
+            </div>
+        </div>
+
+        @* Sonuç: yapay-zeka.js doldurur *@
+        <div id="yz-sonuc" class="d-none">
+            <div class="alert alert-primary small" id="yz-anladigim"></div>
+            <div id="yz-kartlar" class="d-grid gap-2 mb-3"></div>
+            <div class="d-flex flex-wrap gap-2 mb-3" id="yz-butonlar">
+                <button type="button" class="btn btn-primary" id="yz-uygula"><i class="bi bi-check2-circle me-1"></i>Seçilenleri uygula</button>
+                <button type="button" class="btn btn-sade" id="yz-kontrol"><i class="bi bi-arrow-repeat me-1"></i>Düzenlediklerimi kontrol et</button>
+                <button type="button" class="btn btn-sade d-none" id="yz-onizle"><i class="bi bi-eye me-1"></i>Önizle</button>
+                <button type="button" class="btn btn-sade d-none" id="yz-koda-gec"><i class="bi bi-code-slash me-1"></i>Kod modunda dene</button>
+                <button type="button" class="btn btn-sade text-danger" id="yz-vazgec">Vazgeç</button>
+            </div>
+            <div class="card mb-3 d-none" id="yz-onizleme-karti">
+                <div class="card-header d-flex justify-content-between"><span>Önizleme (gerçek site değişmedi)</span><button type="button" class="btn-close" id="yz-onizleme-kapat" aria-label="Kapat"></button></div>
+                <iframe id="yz-onizleme" class="yz-onizleme" title="Önizleme"></iframe>
+            </div>
+        </div>
+        <div id="yz-bitti" class="alert alert-success d-none"></div>
+    </div>
+
+    @* ================================ KOD MODU ================================ *@
+    <div class="tab-pane fade" id="yz-kod">
+        @if (!Model.KodModuAcik)
+        {
+            <div class="alert alert-secondary small"><i class="bi bi-lock me-1"></i>@Model.KodModuNedenKapali</div>
+        }
+        else
+        {
+            <div class="alert alert-warning small d-flex gap-2">
+                <i class="bi bi-exclamation-triangle"></i>
+                <div><b>Deneysel.</b> Yapay zekâ kod dosyalarını değiştirir. Küçük modeller 1-3 dosyalık küçük değişikliklerde iyidir, büyük özelliklerde sık hata yapar.
+                    Önce "Dene" ile geçici bir kopyada derlenir; "Uygula"dan önce kırmızı/yeşil farkı mutlaka oku. Dosyaların eski hali yedeklenir.</div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <label for="yz-kod-istek" class="form-label fw-semibold">Kodda ne değişsin?</label>
+                    <textarea id="yz-kod-istek" class="form-control" rows="3" maxlength="2000"></textarea>
+                    <div class="d-flex flex-wrap gap-2 mt-2">
+                        @foreach (var ornek in kodOrnekleri) { <button type="button" class="btn btn-sm btn-sade yz-ornek" data-hedef="#yz-kod-istek">@ornek</button> }
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mt-3">
+                        <button type="button" class="btn btn-primary" id="yz-kod-dosya-sec"><i class="bi bi-search me-1"></i>1) Dosyaları bul</button>
+                        <span class="small text-muted" id="yz-kod-sayac"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3 d-none" id="yz-kod-dosyalar-karti">
+                <div class="card-header">Değişecek dosyalar <span class="small text-muted fw-normal">(ekleyip çıkarabilirsin)</span></div>
+                <div class="card-body">
+                    <div class="small mb-2" id="yz-kod-anladigim"></div>
+                    <div id="yz-kod-dosyalar" class="d-flex flex-wrap gap-2 mb-2"></div>
+                    <div class="input-group input-group-sm mb-3" style="max-width:520px">
+                        <input class="form-control" list="yz-kod-tum-dosyalar" id="yz-kod-dosya-ekle" placeholder="Dosya ekle: Views/Shared/_AracKarti.cshtml" />
+                        <button class="btn btn-sade" type="button" id="yz-kod-dosya-ekle-buton">Ekle</button>
+                    </div>
+                    <datalist id="yz-kod-tum-dosyalar"></datalist>
+                    <button type="button" class="btn btn-primary" id="yz-kod-oner"><i class="bi bi-magic me-1"></i>2) Değişikliği hazırla</button>
+                </div>
+            </div>
+
+            <div id="yz-kod-oneri" class="d-none">
+                <div class="alert alert-primary small" id="yz-kod-oneri-anladigim"></div>
+                <div id="yz-kod-farklar" class="d-grid gap-2 mb-3"></div>
+                <div id="yz-kod-deneme" class="mb-3"></div>
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <button type="button" class="btn btn-primary" id="yz-kod-dene"><i class="bi bi-hammer me-1"></i>3) Dene (kopyada derle)</button>
+                    <button type="button" class="btn btn-sade d-none" id="yz-kod-duzelt"><i class="bi bi-wrench me-1"></i>Hataları yapay zekâya düzelt</button>
+                    <button type="button" class="btn btn-success d-none" id="yz-kod-uygula"><i class="bi bi-check2-circle me-1"></i>4) Uygula</button>
+                </div>
+            </div>
+            <div id="yz-kod-bitti" class="alert alert-success d-none"></div>
+        }
+    </div>
+</div>
+
+@* ---------------- GEÇMİŞ ---------------- *@
+<div class="card mt-4">
+    <div class="card-header">Geçmiş <span class="small text-muted fw-normal">(son 20 değişiklik)</span></div>
+    @if (Model.Gecmis.Count == 0)
+    {
+        <div class="card-body small text-muted">Henüz asistanla bir değişiklik yapılmadı.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle mb-0 small">
+                <thead><tr><th>Tarih</th><th>İstek</th><th>Yapılanlar</th><th>Tür</th><th class="text-end"></th></tr></thead>
+                <tbody>
+                    @foreach (var k in Model.Gecmis)
+                    {
+                        <tr class="@(k.GeriAlindi ? "opacity-50" : "")">
+                            <td class="text-nowrap">@Bicim.TarihSaat(k.Tarih)<div class="text-muted">@k.KullaniciAdi</div></td>
+                            <td style="max-width:260px">@k.Istek</td>
+                            <td style="max-width:420px"><div class="yz-ozet">@k.Ozet</div></td>
+                            <td><span class="etiket">@k.Tur</span></td>
+                            <td class="text-end text-nowrap">
+                                @if (k.GeriAlindi) { <span class="text-muted">Geri alındı</span> }
+                                else
+                                {
+                                    <form asp-action="GeriAl" asp-route-id="@k.Id" method="post"><button class="btn btn-sm btn-sade text-danger" data-onay="Bu değişiklik geri alınsın mı?"><i class="bi bi-arrow-counterclockwise me-1"></i>Geri al</button></form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@* ---------------- YARDIM ---------------- *@
+<div class="card mt-3">
+    <div class="card-header"><i class="bi bi-question-circle me-1"></i>Nasıl çalışır?</div>
+    <div class="card-body small d-grid gap-1">
+        <div><b>Panel modu:</b> Yapay zekâ kod yazmaz; isteğini panelin yapabildiği işlemlere çevirir (kampanya ekle, yazı değiştir, filtre ekle, fiyat değiştir…). Kartlardaki değerleri değiştirebilir, istemediğin kartın işaretini kaldırabilirsin.</div>
+        <div><b>Kod modu:</b> Panelin yapamadığı istekler içindir. Yapay zekâ dosyaları seçer, değişikliği yazar, geçici bir kopyada derleyip dener. Uygulayınca uygulama yeniden başlar.</div>
+        <div><b>İpuçları:</b> Kısa ve net yaz ("SUV'lara %10 indirim"). Sonucu sitede kontrol et. Yanlışsa geçmişten geri al ve isteği daha açık yaz.</div>
+        <div><b>Hız:</b> Ekran kartı olmayan bilgisayarda bir cevap 20 saniye – 2 dakika sürebilir. Durum çubuğundan küçük modeli seçmek hızlandırır.</div>
+        <div class="text-muted"><i class="bi bi-mortarboard me-1"></i>Sınavda ya da değerlendirmede kullanmadan önce hocanıza sorun.</div>
+    </div>
+</div>
+
+@section Scripts { <script src="~/js/yapay-zeka.js" asp-append-version="true"></script> }

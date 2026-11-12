@@ -1,0 +1,234 @@
+==========================================================================================
+ ROTA RENT A CAR — ARAÇ KİRALAMA OTOMASYONU
+ GENEL PROJE RAPORU (baştan bugüne ne yaptık)
+ Tarih: 12 Kasım 2026
+==========================================================================================
+
+Ekip: Mehmet Arda Çekiç (m255036001), Azra Ardıç (m255035059), Esra Ağlar (m255036077),
+      Ömer Faruk Çelik (m265035083)
+Canlı site: https://automarket.ardcek.com   (ardcek.com/automarket buraya yönlenir)
+Kod: github.com/ardcek/automarket  →  AracKiralama\ klasörü
+
+
+1. ÖZET
+-------
+Bir araç kiralama firmasının sitesini ve yönetim panelini yaptık. Müşteri araç arar,
+filtreler, fiyatı görür ve rezervasyon yapar. Firma çalışanları panelden araçları,
+rezervasyonları, ödemeleri, raporları yönetir. Sitedeki hemen her şey (yazılar, renkler,
+filtreler, kampanyalar, sayfalar) koda dokunmadan panelden değiştirilebilir.
+
+Son olarak panele internetsiz çalışan bir Yapay Zekâ Asistanı ekledik. Türkçe yazılan
+isteği ("Meslek gruplarına göre indirim yap, filtrede de görünsün" gibi) panel
+işlemlerine çevirir; onaylayınca uygular, istenirse geri alır.
+
+
+2. KULLANILAN TEKNOLOJİLER
+--------------------------
+- Dil ve çatı:     C#, ASP.NET Core MVC (.NET 10)
+- Veritabanı:      Bilgisayarda SQLite (tek dosya: arackiralama.db)
+                   İnternette PostgreSQL (Neon, Frankfurt), bağlı; tablolar oluşturuldu
+- Veri erişimi:    Entity Framework Core (tablolar koddan oluşur, migration yok)
+- Üyelik:          ASP.NET Core Identity — roller: Admin, Personel, Müşteri
+- Görünüm:         Razor sayfaları, Bootstrap, Bootstrap Icons, Chart.js (hepsi projenin
+                   içinde; internet olmadan da çalışır)
+- Yayın:           Docker → Render (ücretsiz), alan adı ardcek.com (Hostinger)
+- Yapay zekâ:      llama.cpp (llama-server) + Qwen3.5 modelleri (4B ve 9B), tamamen yerel
+- Testler:         xUnit (104 birim testi) + Node ile uçtan uca testler
+
+
+3. ZAMAN ÇİZELGESİ
+------------------
+Nisan–Haziran 2026
+  - İlk deneme Next.js ile yapılmıştı. Ana klasörde örnek olarak duruyor; asıl proje
+    AracKiralama\ klasöründe.
+
+8 Ekim 2026 — Proje ASP.NET Core MVC ile sıfırdan yazıldı
+  - Fiyat hesaplama, araç müsaitliği, rezervasyon durumları (iş kuralları ayrı serviste)
+  - Müşteri sitesi: arama, filtreler, canlı fiyat, 3 adımlı rezervasyon, PDF sözleşme
+  - Yönetim paneli: özet ekranı ve grafikler, doluluk takvimi, teslim/iade, ödeme, bakım,
+    Excel rapor
+  - REST API + Swagger, gecikmeleri takip eden arka plan servisi
+  - 57 test, README, geliştirici rehberi, sunum notları
+
+8 Ekim 2026 — Canlı yayın hazırlığı
+  - Render'da yayın (Dockerfile, render.yaml), automarket.ardcek.com alan adı
+  - Güvenlik başlıkları (CSP): sayfalarda satır içi script yok, hepsi ayrı dosyalarda
+  - Dış bağlantılar (CDN) kaldırıldı: site internetsiz de düzgün görünür
+
+9 Ekim 2026 — Kodun tamamı Türkçe, site panelden yönetiliyor
+  - Bütün sınıf, tablo, alan ve adres adları Türkçe (Arac, Rezervasyon, /Araclar ...)
+  - Her dosyanın başına ne işe yaradığını anlatan açıklama
+  - Panelden: ayarlar (firma, renk, fiyat kuralları, filtre aç-kapa), site yazıları,
+    sayfalar, görseller, kategoriler, markalar, yakıt-vites
+  - Yeni filtreler (arama, marka, fiyat aralığı, model yılı) ve sıralamalar
+  - Sunucunun açılışı hızlandırıldı; 64 test
+
+10 Ekim 2026 — Düzeltmeler
+  - Render derleme hatası giderildi, Neon adres biçimi otomatik çevriliyor; 66 test
+
+22 Ekim 2026'dan itibaren — Haftalık teslimler
+  - 1. hafta: sadece ana sayfa tasarımı (Masaüstü\hafta1, ardcek.com/hafta1)
+  - 3. hafta: önemli sayfaların kopyası + 23 sayfalık "Sayfalar ve Veritabanı Raporu"
+    PDF'i (Masaüstü\hafta3, ardcek.com/hafta3)
+  - 4. hafta: 25 sayfalık "Araç Özellikleri ve Veritabanı Raporu" PDF'i
+    (Masaüstü\hafta4, ardcek.com/hafta4) ve Proje Bilgi Formu (Grup 14)
+
+1 Kasım 2026 — Neon bağlantısı ve sunum modu (canlıda)
+  - Neon'a bağlanıldı; uygulama açılırken tablolar Neon'da oluşturuluyor (23 tablo, boş)
+  - Sayfalar şimdilik örnek verilerden okuyor; tek ayarla Neon'a geçilebilir
+  - Sunum modu: giriş ve kayıt formları görünür ama müşteri kullanamaz; personel ve admin
+    girebilir. Demo hesaplar ve API linki gizli. Kurumsal sayfalar kapalı.
+  - Bağlantı adresi koda yazılmadı (Render ortam değişkeni ve user-secrets)
+
+2 Kasım 2026 — Kolay panel
+  - Site Düzenleyici: solda sayfanın yazıları ve ayarları, sağda sitenin kendisi.
+    Yazdıkça önizleme değişir; "Kaydet"e basılana kadar gerçek site değişmez.
+  - Filtreler ve Özellikler: koda dokunmadan araçlara yeni özellik (ör. "Renk") eklenir;
+    araç listesinde filtre, kartta ve detayda bilgi olarak görünür.
+  - Panel girişi "Ne yapmak istiyorsun?" kartlarıyla sadeleşti.
+  - Düzeltme: ondalıklı fiyatlar (700.00) panelde kaydedilemiyordu.
+
+11 Kasım 2026 — Kampanyalar ve müşteri bilgileri
+  - Müşteri Bilgileri: "Meslek" gibi sorular; kayıt formunda, profilde ve müşteri
+    detayında görünür.
+  - Kampanyalar: koşullu indirimler. Koşullar müşteri bilgisi (Öğretmen), kategori, marka,
+    araç özelliği, en az gün sayısı ve tarih aralığı olabilir.
+  - Müşteriye en avantajlı indirim uygulanır; istenirse uzun dönem indirimiyle toplanır.
+  - Araç listesinde "İndirimler" filtresi (Mesleğiniz + Sadece indirimli araçlar),
+    kartlarda indirim rozeti ve üstü çizili eski fiyat.
+  - Canlı fiyatta, rezervasyonda ve sözleşme PDF'inde indirimin adı yazar.
+
+11 Kasım 2026 — İnternetsiz Yapay Zekâ Asistanı
+  - Ayrıntılar 5. bölümde.
+
+12 Kasım 2026 — 4. hafta teslimi, GitHub ve kurulum paketi
+  - 4. hafta raporu: panelden araçlara yeni özellik / filtre (AracOzellikleri,
+    AracOzellikDegerleri). Neon, raporla birebir aynı olsun diye 25 tabloya getirildi.
+  - Proje Bilgi Formu (TÜBİTAK 1001 tarzı) dolduruldu; kaynağı docs\proje-bilgi-formu\.
+  - Bu haftanın bütün işi tek bir "Hafta 4" commit'i olarak GitHub'a gönderildi;
+    belgeler de (raporlar, form, bu rapor) depoya girdi.
+  - Kurulum paketi: PAKETLE.bat projeyi ve yapay zekâyı (motor, modeller, taşınabilir
+    .NET, paketler) tek klasör + zip yapar. Başka bir Windows bilgisayarda kurulumsuz
+    ve internetsiz çalışır (~9,5 GB).
+
+
+4. SİSTEMDE ŞU AN NELER VAR
+---------------------------
+Müşteri sitesi
+  - Ana sayfa, araç listesi, araç detayı, 3 adımlı rezervasyon, Rezervasyonlarım, profil
+  - Filtreler: kategori, marka, yakıt, vites, fiyat aralığı, model yılı, arama,
+    panelden eklenen özellikler, indirimler
+  - Canlı fiyat hesabı (gün sayısı, ek hizmetler, uzun dönem indirimi, kampanyalar)
+  - PDF kiralama sözleşmesi
+  - Kurallar: yaş sınırı (ör. 20 yaşındaki müşteri SUV ve lüks kiralayamaz), iptal, gecikme
+
+Yönetim paneli (23 ekran)
+  - Kolay:      Yapay Zekâ Asistanı, Site Düzenleyici, Filtreler ve Özellikler,
+                Kampanyalar ve İndirimler, Müşteri Bilgileri
+  - Günlük iş:  Araçlar, Doluluk Takvimi, Rezervasyonlar, Bakım, Ödemeler, Müşteriler,
+                Raporlar (Excel)
+  - Tanımlar:   Kategoriler, Markalar, Yakıt ve Vites, Şubeler, Ek Hizmetler
+  - Gelişmiş:   Bütün ayarlar, Bütün yazılar, Sayfalar, Görseller, Personel ve Roller
+
+Diğer
+  - REST API + Swagger (/swagger), sağlık adresi (/health)
+  - Veritabanında 29 tablo (22 projenin kendi tablosu + 7 üyelik tablosu)
+
+Kodun büyüklüğü
+  - 62 C# dosyası (~9.600 satır), 70 Razor sayfası (~3.350 satır), 7 JavaScript dosyası
+
+
+5. YAPAY ZEKÂ ASİSTANI (Yönetim → Yapay Zekâ Asistanı)
+-----------------------------------------------------
+Ne işe yarar?
+  Hoca bir değişiklik istediğinde isteği Türkçe yazıyoruz; asistan değişikliği yapıyor.
+  İnternet gerekmez: model bilgisayarda çalışır. Laboratuvara USB ile götürülür.
+
+Panel modu (asıl yol, güvenli)
+  - Asistan kod yazmaz; isteği hazır panel işlemlerine çevirir (19 işlem türü):
+    kampanya ekle/güncelle/kapat, müşteri bilgisi ekle, yazı değiştir, ana başlık
+    değiştir, ayar değiştir, araç özelliği ekle ve değer ver, fiyat değiştir,
+    kategori/marka/ek hizmet/şube/sayfa ekle, sayfa aç-kapat, soruya cevap ver.
+  - Her işlem önce kart olarak gösterilir. Değerler düzenlenebilir, istenmeyen kartın
+    işareti kaldırılabilir. Yazı ve renk değişiklikleri uygulamadan önce önizlenebilir.
+  - "Uygula" hepsini tek seferde kaydeder. Her değişiklik geçmişe yazılır ve
+    "Geri al" ile eski haline döner.
+  - Modelin bilinen hataları kodla yakalanır; hatalı kart kırmızı ve işaretsiz gelir.
+
+Kod modu (deneysel, sadece Admin)
+  - Panelin yapamadığı istekler için kod dosyalarını değiştirir.
+  - Adımlar: ilgili dosyaları seçer → değişikliği önerir → geçici bir kopyada derleyip
+    dener → dosyaları yedekler → uygular → siteyi yeniden başlatır.
+  - Geri al: yedekten geri yükler. Site hiç açılmazsa GERI-AL.bat kullanılır.
+
+USB kiti (AracKiralama\yapay-zeka\)
+  - HAZIRLA.bat: evde, internetle, gerekenleri bir kere indirir (motor, modeller,
+    taşınabilir .NET, paketler)
+  - BASLAT.bat: laboratuvarda çift tık; siteyi ve asistanı açar
+  - GERI-AL.bat: son kod değişikliğini geri yükler
+  - PAKETLE.bat: her şeyi tek klasör + zip yapar (başka bilgisayara kurulum);
+    zip'in kökünde BASLAT.bat ve KURULUM-OKU.txt durur
+  - BENI-OKU.md: adım adım kullanım
+
+Ölçülen sonuçlar (bu dizüstünde: 32 GB RAM, RTX 4060)
+  - 11 deneme isteği, orta model (9B):          11/11 doğru
+  - 11 deneme isteği, küçük model (4B):         10/11 doğru
+  - Ekran kartıyla bir istek:                   1-8 saniye
+  - Sadece işlemciyle (zayıf bilgisayar gibi):  ilk istek ~67 sn, sonrakiler 7-8 sn
+  - Kod modu, iki istek ("kartta kilometre", "detayda plaka"): baştan sona geçti
+  - Gerçek tarayıcıyla arayüz testi: 15/15
+  Model seçimi otomatik: 16 GB ve üstü RAM'de orta model, altında küçük model.
+
+
+6. TESTLER
+----------
+- 104 birim testi, hepsi geçiyor: fiyat, müsaitlik, rezervasyon, doğrulama, veritabanı,
+  kampanyalar, yapay zekâ işlemleri ve kod modu güvenliği.
+- Uçtan uca testler (tests\uctan-uca\): kampanya (21 kontrol), yapay zekâ (11 istek),
+  kod modu, arayüz (gerçek Chrome ile 15 kontrol).
+- Panel testi (deploy\statik-kopya\test-panel.mjs) ve 3. hafta sayfa testleri.
+Çalıştırmak: uygulama kapalıyken  dotnet test
+
+
+7. YAYIN
+--------
+- GitHub'a gönderilen her değişiklik Render'da kendiliğinden yayınlanır.
+- cron-job.org /health adresini düzenli çağırır; ücretsiz sunucu uyumaz.
+- Neon bağlı: uygulama açılırken tabloları hazırlar, logda
+  "Neon bağlantısı kuruldu: 25 tablo hazır" yazar.
+- Bağlantı adresi hiçbir dosyada yok: Render'da ortam değişkeni, bilgisayarda user-secrets.
+
+
+8. BELGELER
+-----------
+- README.md: kurulumdan sözlüğe kadar 17 bölüm (giriş bilgileri, panel kullanımı,
+  kurallar, canlı yayın, sorun çözme)
+- docs\GELISTIRICI-REHBERI.md: "Hoca şunu isterse" tarifleri (denenmiş)
+- docs\KOD-HARITASI.md: hangi adres hangi dosyada
+- docs\SUNUM.md: sunum notları
+- yapay-zeka\BENI-OKU.md: USB, kurulum paketi ve asistan kullanımı
+- docs\Proje-Oneri-ve-Emsal-Analizi.pdf: 6 sitenin 15 ölçütle karşılaştırması
+- docs\ana-sayfa-tasarimi\varliklar\: 1. hafta ana sayfa tasarımının görselleri, yazı
+  tipleri, ikonları ve stilleri
+- docs\raporlar\hafta3, hafta4: haftalık raporların kaynakları (HTML + görseller);
+  PDF'leri Masaüstü\hafta3 ve Masaüstü\hafta4'te
+- docs\proje-bilgi-formu\: Proje Bilgi Formu'nu dolduran betik ve metinler
+  (node doldur.js bos-form.docx cikti.docx)
+
+
+9. BİLİNEN SINIRLAR
+-------------------
+- Canlı sitede (Render) panelden yapılan değişiklikler sunucu yeniden başlayınca
+  kaybolur, çünkü orada SQLite kalıcı değil. Sayfalar Neon'a geçince kalıcı olur.
+  Bilgisayardaki değişiklikler kalıcıdır.
+- Neon'da 25 tablo var (4. hafta raporuyla aynı olsun diye bilerek); kod 29 tablo
+  bekliyor. Sayfalar Neon'a geçmeden önce tablolar modelden yeniden kurulmalı.
+- Küçük model bazen hata yapar: kartları okuyup öyle uygulayın.
+- Kod modu deneysel: büyük özelliklerde sık hata yapar; 1-3 dosyalık işlerde iyidir.
+- Yapay zekâ canlı sitede çalışmaz, sadece bilgisayarda çalışır.
+- Ücretsiz Render sunucusu ilk açılışta yavaş olabilir.
+
+
+10. BEKLEYEN İŞLER
+------------------
+Ayrı dosyada: YAPILACAKLAR.txt (aynı klasörde)

@@ -1,0 +1,58 @@
+@* MÜŞTERİ BİLGİLERİ (MusteriAlanlariController.Index, model: List<MusteriAlani>)
+   Müşterilere sorulan ek bilgiler (Meslek vb.). Kayıt formunda ve profilde sorulur, kampanyalarda koşul olur. *@
+@model List<MusteriAlani>
+@{
+    ViewData["Title"] = "Müşteri Bilgileri";
+    var cevapSayilari = (Dictionary<int, int>)ViewBag.CevapSayilari;
+    var kampanyaSayilari = (Dictionary<int, int>)ViewBag.KampanyaSayilari;
+}
+<div class="sayfa-baslik">
+    <div><h1><i class="bi bi-person-vcard me-2 metin-ana"></i>Müşteri Bilgileri</h1><div class="alt-yazi">Müşterilere sorulacak ek bilgiler: meslek, öğrenci mi, nereden duydu…</div></div>
+    <div class="d-flex gap-2">
+        <a href="/Hesap/Kayit" target="_blank" class="btn btn-sade"><i class="bi bi-box-arrow-up-right me-1"></i>Kayıt formunu aç</a>
+        <a asp-action="Ekle" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Yeni bilgi</a>
+    </div>
+</div>
+
+<div class="alert alert-primary d-flex gap-3 align-items-start small">
+    <i class="bi bi-lightbulb fs-4"></i>
+    <div>Eklediğin bilgi <b>kayıt formunda</b> ve <b>profilde</b> sorulur. <a href="/Yonetim/Kampanyalar">Kampanyalar</a>'da koşul olarak seçilebilir:
+        örneğin "Meslek: Öğretmen olanlara %15". Giriş yapmayan ziyaretçi, araç listesinde mesleğini seçerek indirimli fiyatı görür.</div>
+</div>
+
+<div class="card">
+    @if (Model.Count == 0)
+    {
+        <div class="card-body text-muted">Henüz bilgi eklenmedi. <a asp-action="Ekle">İlk bilgiyi ekle</a> (örn. Meslek).</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead><tr><th>Bilgi</th><th>Türü</th><th>Nerede</th><th>Cevaplayan</th><th>Kampanya</th><th class="text-end"></th></tr></thead>
+                <tbody>
+                    @foreach (var a in Model)
+                    {
+                        <tr class="@(a.Aktif ? "" : "opacity-50")">
+                            <td><b>@a.Ad</b>
+                                @if (a.Tur == OzellikTuru.Secim) { <div class="small text-muted text-truncate" style="max-width:280px">@string.Join(" · ", a.SecenekListesi)</div> }</td>
+                            <td class="small">@a.Tur.Ad()</td>
+                            <td class="small">
+                                @if (!a.Aktif) { <span class="durum durum-reddedildi">Yayında değil</span> }
+                                @if (a.KayittaGoster) { <span class="etiket">Kayıt formu</span> }
+                                <span class="etiket">Profil</span>
+                                @if (a.Zorunlu) { <span class="etiket">Zorunlu</span> }
+                            </td>
+                            <td class="small">@cevapSayilari.GetValueOrDefault(a.Id)</td>
+                            <td class="small">@kampanyaSayilari.GetValueOrDefault(a.Id)</td>
+                            <td class="text-end text-nowrap">
+                                <a asp-action="Duzenle" asp-route-id="@a.Id" class="btn btn-sm btn-sade">Düzenle</a>
+                                <form asp-action="Sil" asp-route-id="@a.Id" method="post" class="d-inline"><button class="btn btn-sm btn-sade text-danger" data-onay="&quot;@a.Ad&quot; ve müşterilerin cevapları silinsin mi?">Sil</button></form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

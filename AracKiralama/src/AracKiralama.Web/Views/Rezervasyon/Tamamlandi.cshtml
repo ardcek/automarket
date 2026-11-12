@@ -16,7 +16,7 @@
         </div>
         <ul class="dokum">
             <li><span>@Model.GunSayisi gün × @Bicim.Para(Model.GunlukFiyat)</span><span>@Bicim.Para(Model.KiraTutari)</span></li>
-            @if (Model.Indirim > 0) { <li class="indirim"><span>İndirim</span><span>− @Bicim.Para(Model.Indirim)</span></li> }
+            @if (Model.Indirim > 0) { <li class="indirim"><span>@(Model.IndirimAciklamasi ?? "İndirim")</span><span>− @Bicim.Para(Model.Indirim)</span></li> }
             @foreach (var e in Model.Ekstralar) { <li><span>@e.Ekstra!.Ad</span><span>@Bicim.Para(e.Tutar)</span></li> }
             @if (Model.TekYonUcreti > 0) { <li><span>Farklı şubeye iade</span><span>@Bicim.Para(Model.TekYonUcreti)</span></li> }
             <li class="toplam"><span>Toplam</span><span>@Bicim.Para(Model.ToplamTutar)</span></li>

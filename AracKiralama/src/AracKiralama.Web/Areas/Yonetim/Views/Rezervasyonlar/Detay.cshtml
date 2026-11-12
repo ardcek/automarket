@@ -60,7 +60,7 @@
                 <div class="kucuk-baslik mb-2">Ücret dökümü</div>
                 <ul class="dokum">
                     <li><span>@r.GunSayisi gün × @Bicim.Para(r.GunlukFiyat)</span><span>@Bicim.Para(r.KiraTutari)</span></li>
-                    @if (r.Indirim > 0) { <li class="indirim"><span>İndirim</span><span>− @Bicim.Para(r.Indirim)</span></li> }
+                    @if (r.Indirim > 0) { <li class="indirim"><span>@(r.IndirimAciklamasi ?? "İndirim")</span><span>− @Bicim.Para(r.Indirim)</span></li> }
                     @foreach (var e in r.Ekstralar) { <li><span>@e.Ekstra!.Ad</span><span>@Bicim.Para(e.Tutar)</span></li> }
                     @foreach (var (ad, tutar) in new[] { ("Tek yön", r.TekYonUcreti), ("Geç iade", r.GecikmeUcreti), ("Eksik yakıt", r.YakitUcreti), ("Hasar", r.HasarUcreti), ("İptal ücreti", r.IptalUcreti) })
                     {

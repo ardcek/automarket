@@ -10,3 +10,7 @@ deploy/
 .vs/
 .vscode/
 *.user
+yapay-zeka/
+.yapay-zeka-yedek/
+**/*.db.yedek-*
+**/*.isaret

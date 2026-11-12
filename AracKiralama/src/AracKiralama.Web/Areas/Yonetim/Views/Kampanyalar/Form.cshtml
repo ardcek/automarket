@@ -1,0 +1,93 @@
+@* YENİ / DÜZENLE: KAMPANYA (KampanyalarController.Ekle / Duzenle, model: KampanyaFormu)
+   Koşulların hepsi isteğe bağlı; boş bırakılan "fark etmez" demektir. *@
+@model KampanyaFormu
+@{
+    var duzenleme = Model.Id != null;
+    ViewData["Title"] = duzenleme ? "Kampanyayı düzenle" : "Yeni kampanya";
+    var musteriSecenekleri = (List<(string Deger, string Yazi)>)ViewBag.MusteriSecenekleri;
+    var aracSecenekleri = (List<(string Deger, string Yazi)>)ViewBag.AracSecenekleri;
+    var kategoriler = (List<Kategori>)ViewBag.Kategoriler;
+    var markalar = (List<Marka>)ViewBag.Markalar;
+}
+<div class="sayfa-baslik"><div><a asp-action="Index" class="small"><i class="bi bi-arrow-left me-1"></i>Kampanyalar</a><h1 class="mt-1">@ViewData["Title"]</h1></div></div>
+
+<form asp-action="@(duzenleme ? "Duzenle" : "Ekle")" asp-route-id="@Model.Id" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger small"></div>
+    <div class="row g-3">
+        <div class="col-xl-8">
+            @* ---- Kampanyanın kendisi ---- *@
+            <div class="card"><div class="card-body row g-3">
+                <div class="col-md-6"><label asp-for="Ad" class="form-label"></label><input asp-for="Ad" class="form-control" placeholder="örn. Öğretmen indirimi" /><span asp-validation-for="Ad"></span></div>
+                <div class="col-md-3">
+                    <label asp-for="IndirimYuzdesi" class="form-label"></label>
+                    <div class="input-group"><span class="input-group-text">%</span><input asp-for="IndirimYuzdesi" class="form-control" step="0.5" min="1" max="90" /></div>
+                    <span asp-validation-for="IndirimYuzdesi"></span>
+                </div>
+                <div class="col-md-3"><label asp-for="Sira" class="form-label"></label><input asp-for="Sira" class="form-control" /></div>
+                <div class="col-12">
+                    <label asp-for="RozetYazisi" class="form-label"></label>
+                    <input asp-for="RozetYazisi" class="form-control" placeholder="örn. Öğretmenlere %15" />
+                    <div class="form-text">Boş bırakırsan "Kampanya adı + oran" yazılır.</div>
+                </div>
+            </div></div>
+
+            @* ---- Koşullar ---- *@
+            <div class="card mt-3">
+                <div class="card-header">Kime ve hangi araçlarda? <span class="small text-muted fw-normal">(boş bırakılan koşul "fark etmez" demektir)</span></div>
+                <div class="card-body row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="MusteriKosulu" class="form-label"></label>
+                        <select asp-for="MusteriKosulu" class="form-select">
+                            <option value="">Herkes</option>
+                            @foreach (var s in musteriSecenekleri) { <option value="@s.Deger">@s.Yazi</option> }
+                        </select>
+                        <div class="form-text">Liste boşsa: önce <a href="/Yonetim/MusteriAlanlari/Ekle" target="_blank">Müşteri Bilgileri</a>'nden "Meslek" gibi bir bilgi ekle.</div>
+                        <span asp-validation-for="MusteriKosulu"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="EnAzGun" class="form-label"></label>
+                        <input asp-for="EnAzGun" class="form-control" placeholder="Her süre" min="1" max="365" />
+                        <span asp-validation-for="EnAzGun"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="KategoriId" class="form-label"></label>
+                        <select asp-for="KategoriId" class="form-select">
+                            <option value="">Bütün kategoriler</option>
+                            @foreach (var k in kategoriler) { <option value="@k.Id">@k.Ad</option> }
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="MarkaId" class="form-label"></label>
+                        <select asp-for="MarkaId" class="form-select">
+                            <option value="">Bütün markalar</option>
+                            @foreach (var m in markalar) { <option value="@m.Id">@m.Ad</option> }
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="AracKosulu" class="form-label"></label>
+                        <select asp-for="AracKosulu" class="form-select">
+                            <option value="">Fark etmez</option>
+                            @foreach (var s in aracSecenekleri) { <option value="@s.Deger">@s.Yazi</option> }
+                        </select>
+                        <span asp-validation-for="AracKosulu"></span>
+                    </div>
+                    <div class="col-md-6"><label asp-for="BaslangicTarihi" class="form-label"></label><input asp-for="BaslangicTarihi" type="date" class="form-control" /></div>
+                    <div class="col-md-6"><label asp-for="BitisTarihi" class="form-label"></label><input asp-for="BitisTarihi" type="date" class="form-control" /><span asp-validation-for="BitisTarihi"></span></div>
+                    <div class="col-12 form-text">Tarih aralığı alış tarihine göre kontrol edilir.</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <div class="card"><div class="card-body d-grid gap-2">
+                <div class="form-check form-switch"><input asp-for="Aktif" class="form-check-input" role="switch" /><label asp-for="Aktif" class="form-check-label"></label></div>
+                <div class="small text-muted">
+                    <i class="bi bi-info-circle me-1"></i>Uzun dönem indirimiyle (haftalık / aylık) birlikte olursa müşteriye avantajlı olan uygulanır.
+                    İkisinin toplanmasını istersen: Ayarlar → Fiyatlar → "Kampanya ile uzun dönem indirimi birleşsin".
+                </div>
+            </div></div>
+            <button class="btn btn-primary btn-lg w-100 mt-3"><i class="bi bi-check2 me-1"></i>Kaydet</button>
+        </div>
+    </div>
+</form>
+@section Scripts { <partial name="_FormDogrulama" /> }

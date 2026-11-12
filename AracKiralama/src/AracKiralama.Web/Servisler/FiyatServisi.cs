@@ -4,6 +4,7 @@
 // (tests/AracKiralama.Tests/FiyatTestleri.cs).
 // Oranlar (indirim, tek yön, gecikme...) admin panelinden değiştirilir:
 // Yönetim → Ayarlar → Fiyatlar  (Modeller/SiteAyarlari.cs)
+// Kampanya indirimleri (Yönetim → Kampanyalar) hazır olarak dışarıdan verilir (KampanyaBaglami).
 // ============================================================================
 using AracKiralama.Modeller;
 
@@ -26,6 +27,7 @@ public class FiyatTeklifi
     public decimal KiraTutari { get; set; }
     public decimal IndirimOrani { get; set; }
     public decimal Indirim { get; set; }
+    public string? IndirimAciklamasi { get; set; }   // dökümde görünen ad: "Uzun dönem indirimi", "Öğretmen indirimi"
     public List<EkstraSatiri> Ekstralar { get; set; } = new();
     public decimal EkstraTutari { get; set; }
     public decimal TekYonUcreti { get; set; }
@@ -50,7 +52,12 @@ public class FiyatServisi
         return Math.Max(1, gun);
     }
 
-    public FiyatTeklifi Hesapla(Arac arac, DateTime baslangic, DateTime bitis, List<Ekstra> ekstralar, bool farkliSubeyeIade)
+    /// <param name="kampanyalar">
+    /// Yönetim → Kampanyalar'daki indirimler ve müşterinin bilgileri (Servisler/KampanyaServisi.cs).
+    /// Verilmezse sadece uzun dönem indirimi hesaplanır.
+    /// </param>
+    public FiyatTeklifi Hesapla(Arac arac, DateTime baslangic, DateTime bitis, List<Ekstra> ekstralar, bool farkliSubeyeIade,
+        KampanyaBaglami? kampanyalar = null)
     {
         var teklif = new FiyatTeklifi
         {
@@ -61,8 +68,23 @@ public class FiyatServisi
         teklif.KiraTutari = teklif.GunSayisi * arac.GunlukFiyat;
 
         // Uzun kiralama indirimi: önce aylık, değilse haftalık kontrol edilir.
-        if (teklif.GunSayisi >= _ayarlar.AylikIndirimGunu) teklif.IndirimOrani = _ayarlar.AylikIndirimOrani;
-        else if (teklif.GunSayisi >= _ayarlar.HaftalikIndirimGunu) teklif.IndirimOrani = _ayarlar.HaftalikIndirimOrani;
+        decimal uzunDonem = 0;
+        if (teklif.GunSayisi >= _ayarlar.AylikIndirimGunu) uzunDonem = _ayarlar.AylikIndirimOrani;
+        else if (teklif.GunSayisi >= _ayarlar.HaftalikIndirimGunu) uzunDonem = _ayarlar.HaftalikIndirimOrani;
+
+        // Kampanya: bu araç, müşteri ve süre için en avantajlı kampanya (yoksa null)
+        var kampanya = kampanyalar?.Durum(arac, teklif.GunSayisi, baslangic).Uygulanan;
+
+        // İki indirim birden olursa: ayar kapalıysa avantajlı olan, açıksa ikisinin toplamı (en çok %90)
+        if (kampanya == null)
+            (teklif.IndirimOrani, teklif.IndirimAciklamasi) = (uzunDonem, uzunDonem > 0 ? "Uzun dönem indirimi" : null);
+        else if (_ayarlar.KampanyaUzunDonemleBirlesir && uzunDonem > 0)
+            (teklif.IndirimOrani, teklif.IndirimAciklamasi) = (Math.Min(0.9m, uzunDonem + kampanya.IndirimOrani), $"Uzun dönem + {kampanya.Ad}");
+        else if (kampanya.IndirimOrani >= uzunDonem)
+            (teklif.IndirimOrani, teklif.IndirimAciklamasi) = (kampanya.IndirimOrani, kampanya.Ad);
+        else
+            (teklif.IndirimOrani, teklif.IndirimAciklamasi) = (uzunDonem, "Uzun dönem indirimi");
+
         teklif.Indirim = Math.Round(teklif.KiraTutari * teklif.IndirimOrani, 2);
 
         // Ekstralar gün sayısıyla çarpılır; indirim ekstralara uygulanmaz.

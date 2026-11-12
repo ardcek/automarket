@@ -1,0 +1,115 @@
+==========================================================================================
+ ROTA ARAÇ KİRALAMA — YAPILACAKLAR LİSTESİ
+ Tarih: 12 Kasım 2026
+ Projenin tam geçmişi için: PROJE-RAPORU.txt (aynı klasörde)
+==========================================================================================
+
+SON DURUM (kısaca)
+------------------
+- Site, yönetim paneli, kampanyalar ve internetsiz Yapay Zekâ Asistanı hazır ve bu
+  bilgisayarda denendi. 104 birim testinin hepsi geçti.
+- 12 Kasım 2026: bu haftanın bütün işi tek bir "Hafta 4" commit'i olarak GitHub'a
+  gönderildi (belgeler dahil). Render canlı siteyi kendiliğinden yeniden yayınlar.
+- Yapay zekâ dosyaları: C:\Users\ardce\rota-yapay-zeka (modeller, motor, taşınabilir .NET,
+  paketler; ~9,5 GB).
+- Başka bilgisayar için kurulum paketi: C:\Users\ardce\Rota-Hafta4.zip (ve aynı adlı klasör).
+
+
+------------------------------------------------------------------------------------------
+ A) ÖNCELİKLİ İŞLER
+------------------------------------------------------------------------------------------
+
+[x] 1. GitHub'a gönderildi (12 Kasım 2026)
+       Kolay panel, kampanyalar, Yapay Zekâ Asistanı ve düzeltmeleri tek bir "Hafta 4"
+       commit'inde birleştirildi. Raporlar, Proje Bilgi Formu, PROJE-RAPORU ve bu dosya da
+       depoya girdi (depo herkese açık: adlar ve öğrenci numaraları görünür).
+       Canlı sitede yapay zekâ sayfası "kurulu değil" yazar; bu normaldir, çünkü
+       yapay zekâ sadece bilgisayarda çalışır.
+
+[ ] 2. Push'tan sonra canlı siteyi kontrol et
+       https://automarket.ardcek.com  →  ana sayfa, Araçlar, bir araç detayı, Giriş sayfası.
+
+[ ] 3. Kurulum paketini başka bilgisayarda dene (laboratuvar için)
+       Paket hazır: C:\Users\ardce\Rota-Hafta4.zip (~9,5 GB; proje + iki model + taşınabilir
+       .NET + paketler). O bilgisayara hiçbir şey kurmak ve internet gerekmez.
+       a) Zip'i USB ile taşıyacaksan USB exFAT ya da NTFS olmalı (FAT32 4 GB'tan büyük
+          dosyayı almaz). İstersen zip yerine C:\Users\ardce\Rota-Hafta4 klasörünü kopyala.
+       b) Diğer bilgisayarda: zip'e sağ tık → "Tümünü ayıkla" → C:\Rota
+          (Masaüstüne değil: OneDrive buluta yüklemeye çalışır).
+       c) Wi-Fi'ı kapat, C:\Rota\BASLAT.bat'a çift tıkla. İlk açılış 1-2 dk sürer;
+          tarayıcı açılınca admin@rota.com / Rota123! ile gir ve bir istek dene.
+       Ayrıntılı anlatım: zip'teki KURULUM-OKU.txt ve AracKiralama\yapay-zeka\BENI-OKU.md
+       Sonraki haftalar için yeni paket: AracKiralama\yapay-zeka\PAKETLE.bat -Ad Rota-Hafta5
+
+[ ] 4. Hocaya sor: Yapay zekâ asistanını sınavda / değerlendirmede kullanmak serbest mi?
+       Sormadan sınavda kullanmayın.
+
+[ ] 5. Neon tablolarını yenile (sayfaları Neon'a geçirmeden ÖNCE)
+       12 Kasım 2026: Neon, 4. hafta raporuyla birebir aynı olsun diye 25 tabloya güncellendi
+       (3. haftanın 23 tablosu + AracOzellikleri, AracOzellikDegerleri; hepsi boş, 24 ilişki).
+       Kod 29 tablo bekliyor. Neon'da BİLEREK olmayanlar (raporda geçmiyorlar):
+         MusteriAlanlari, MusteriAlanDegerleri, Kampanyalar, YapayZekaKayitlari tabloları
+         ve Rezervasyonlar.IndirimAciklamasi, SiteAyarlari.KampanyaUzunDonemleBirlesir,
+         SiteAyarlari.FiltreIndirimli sütunları.
+       Sayfaları Neon'a geçirmeden önce Neon'daki (boş) tablolar silinip modelden yeniden
+       oluşturulmalı. Bunu Claude ile birlikte yapın (bağlantı adresi hiçbir dosyaya yazılmadan).
+       Sonra appsettings.json → VeriTabani → SayfalarNeredenOkusun = "Neon" yapılabilir.
+
+
+------------------------------------------------------------------------------------------
+ B) KONTROL EDİLECEKLER (yapılmadıysa)
+------------------------------------------------------------------------------------------
+
+[ ] 6. Neon şifresini yenile
+       Bağlantı adresi bir ara sohbete yapıştırılmıştı. Neon → Roles → Reset password,
+       sonra yeni adresi Render'a (Environment → ConnectionStrings__PostgreSql) ve bu
+       bilgisayara (dotnet user-secrets) gir.
+
+[ ] 7. 3. hafta teslimi yüklendi mi?
+       Masaüstü\hafta3 klasörü → ardcek.com/hafta3
+
+[ ] 7b. 4. hafta teslimi: Masaüstü\hafta4\Hafta4-Arac-Ozellikleri-ve-Veritabani-Raporu.pdf
+       → ardcek.com/hafta4/ klasörüne AYNI ADLA yükle (kapaktaki QR tam bu adresi açar).
+       Raporun kaynağı: docs\raporlar\hafta4\rapor.html (+ g\ klasöründeki görseller).
+
+[ ] 7c. Proje Bilgi Formu (Grup 14) hazır → hocaya teslim et:
+       Masaüstü\proje-bilgi-formu\Grup14-Proje-Bilgi-Formu.docx (ve aynısının .pdf'i).
+       İş-zaman çizelgesindeki gelecek haftaların sırası (İP4–İP7) bizim önerimizdir; hocaya
+       farklı sırayla gösterecekseniz formu Word'de düzeltin ya da Claude'a yeniden ürettirin
+       (kaynak: docs\proje-bilgi-formu\icerik.js).
+
+
+------------------------------------------------------------------------------------------
+ C) İSTEĞE BAĞLI / SONRAYA KALANLAR
+------------------------------------------------------------------------------------------
+
+[ ] 8. Bu bilgisayarda yapay zekâyı her seferinde kolay açmak için bir kere şu komutu
+       çalıştır, sonra terminali kapatıp aç:
+         setx YapayZeka__Klasor C:\Users\ardce\rota-yapay-zeka
+       (Modelleri proje klasörüne KOPYALAMAYIN: proje OneDrive'da, 9 GB'ı buluta yüklemeye
+       çalışır.)
+
+[ ] 9. Test yedeklerini temizle (isteğe bağlı)
+       AracKiralama\.yapay-zeka-yedek\ içinde kod modu denemelerinden 4 yedek kaldı.
+       Git'e girmiyor; silinebilir.
+
+[ ] 10. Plandan kalanlar (2. hafta planı):
+        - Ders sitesi (AracKiralama\ogren\): internetsiz açılan "ne yaptık, nasıl yaptık"
+          öğrenme sayfaları. YAPILMADI.
+        - Kodun her satırına Türkçe açıklama: her dosyanın başında açıklama var, ekranların
+          çoğunda yorum var; ama plandaki "satır satır açıklama" ve her veritabanı sorgusunun
+          üstüne SQL karşılığı TAMAMLANMADI.
+
+[x] 11. Önceden dışarıda bırakılan belgeler (docs\Proje-Oneri-ve-Emsal-Analizi.pdf,
+        docs\ana-sayfa-tasarimi\, docs\raporlar\, docs\proje-bilgi-formu\,
+        deploy\statik-kopya\) 12 Kasım 2026'da "Hafta 4" commit'iyle GitHub'a girdi.
+
+
+------------------------------------------------------------------------------------------
+ UNUTMAYIN
+------------------------------------------------------------------------------------------
+- Neon bağlantı adresini hiçbir dosyaya yazmayın, GitHub'a göndermeyin.
+- Yeni tablo ya da ayar eklenince bilgisayardaki arackiralama.db silinmeli (kendiliğinden
+  örnek verilerle yeniden oluşur). Yapay zekâ bunu kendisi yapar.
+- Bütün hazır hesapların şifresi: Rota123!   (admin@rota.com, personel@rota.com,
+  musteri@rota.com)

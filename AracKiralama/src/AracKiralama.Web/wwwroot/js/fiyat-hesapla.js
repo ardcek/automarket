@@ -26,6 +26,10 @@
             alisSubeId: Number(deger("AlisSubeId")),
             iadeSubeId: Number(deger("IadeSubeId")),
             ekstraIdleri: [...form.querySelectorAll('[name="EkstraIdleri"]:checked')].map(k => Number(k.value)),
+            // Kampanya için seçilen müşteri bilgileri: name="Mu[1]" → { "1": "Öğretmen" }
+            mu: Object.fromEntries([...form.querySelectorAll('[name^="Mu["]')]
+                .filter(k => k.value)
+                .map(k => [k.name.slice(3, -1), k.value])),
         };
         if (!istek.baslangic || !istek.bitis) return;
 
@@ -53,7 +57,8 @@
 
         const t = cevap.teklif;
         const satirlar = [[`${t.gunSayisi} gün × ${para(t.gunlukFiyat)}`, para(t.kiraTutari)]];
-        if (t.indirim > 0) satirlar.push([`Uzun dönem indirimi (%${Math.round(t.indirimOrani * 100)})`, "− " + para(t.indirim), "indirim"]);
+        // İndirimin adı sunucudan gelir: "Uzun dönem indirimi", "Öğretmen indirimi" (Yönetim → Kampanyalar)
+        if (t.indirim > 0) satirlar.push([`${t.indirimAciklamasi || "İndirim"} (%${Math.round(t.indirimOrani * 100)})`, "− " + para(t.indirim), "indirim"]);
         t.ekstralar.forEach(e => satirlar.push([e.ad, para(e.tutar)]));
         if (t.tekYonUcreti > 0) satirlar.push(["Farklı şubeye iade", para(t.tekYonUcreti)]);
         satirlar.push(["Toplam", cevap.toplamYazi, "toplam"]);

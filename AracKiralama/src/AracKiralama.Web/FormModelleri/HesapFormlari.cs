@@ -4,6 +4,7 @@
 // ============================================================================
 using System.ComponentModel.DataAnnotations;
 using AracKiralama.Modeller;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using AracKiralama.Yardimcilar;
 
 namespace AracKiralama.FormModelleri;
@@ -40,6 +41,10 @@ public class KayitFormu
     public bool KvkkOnay { get; set; }
 
     public string? DonusAdresi { get; set; }
+
+    // ---- Panelden eklenen müşteri bilgileri (Yönetim → Müşteri Bilgileri), örn. Meslek ----
+    public Dictionary<int, string?>? Alan { get; set; }                   // formdan gelen cevaplar: Alan[3] = "Öğretmen"
+    [ValidateNever] public List<MusteriAlani> Alanlar { get; set; } = new();   // sadece ekranda göstermek için
 }
 
 public class ProfilFormu
@@ -53,6 +58,10 @@ public class ProfilFormu
     [Display(Name = "Ehliyet no")] public string? EhliyetNo { get; set; }
     [Display(Name = "Ehliyet veriliş tarihi"), DataType(DataType.Date), Required(ErrorMessage = "Ehliyet tarihi zorunludur.")] public DateTime? EhliyetTarihi { get; set; }
     public string? DonusAdresi { get; set; }
+
+    // ---- Panelden eklenen müşteri bilgileri (Yönetim → Müşteri Bilgileri), örn. Meslek ----
+    public Dictionary<int, string?>? Alan { get; set; }
+    [ValidateNever] public List<MusteriAlani> Alanlar { get; set; } = new();
 }
 
 /// <summary>"Rezervasyonlarım" sayfası.</summary>

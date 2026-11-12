@@ -108,7 +108,7 @@ public class SozlesmeServisi
                 {
                     Baslik(s, "ÜCRET DÖKÜMÜ", renk);
                     UcretSatiri(s, $"Kira bedeli ({r.GunSayisi} gün × {Bicim.Para(r.GunlukFiyat)})", r.KiraTutari);
-                    if (r.Indirim > 0) UcretSatiri(s, "Uzun dönem indirimi", -r.Indirim);
+                    if (r.Indirim > 0) UcretSatiri(s, r.IndirimAciklamasi ?? "İndirim", -r.Indirim);   // "Uzun dönem indirimi", "Öğretmen indirimi"...
                     foreach (var e in r.Ekstralar) UcretSatiri(s, e.Ekstra!.Ad, e.Tutar);
                     if (r.TekYonUcreti > 0) UcretSatiri(s, "Farklı şubeye iade", r.TekYonUcreti);
                     if (r.GecikmeUcreti > 0) UcretSatiri(s, "Geç iade ücreti", r.GecikmeUcreti);

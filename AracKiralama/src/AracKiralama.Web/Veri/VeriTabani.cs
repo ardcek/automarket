@@ -31,6 +31,18 @@ public class VeriTabani : IdentityDbContext<Kullanici>   // Identity: kullanıc�
     public DbSet<Sube> Subeler => Set<Sube>();
     public DbSet<Ekstra> Ekstralar => Set<Ekstra>();
 
+    // ---- Panelden eklenen araç özellikleri (Yönetim → Filtreler ve Özellikler) ----
+    public DbSet<AracOzelligi> AracOzellikleri => Set<AracOzelligi>();
+    public DbSet<AracOzellikDegeri> AracOzellikDegerleri => Set<AracOzellikDegeri>();
+
+    // ---- Panelden eklenen müşteri bilgileri ve kampanyalar (Yönetim → Müşteri Bilgileri / Kampanyalar) ----
+    public DbSet<MusteriAlani> MusteriAlanlari => Set<MusteriAlani>();
+    public DbSet<MusteriAlanDegeri> MusteriAlanDegerleri => Set<MusteriAlanDegeri>();
+    public DbSet<Kampanya> Kampanyalar => Set<Kampanya>();
+
+    // ---- Yapay Zekâ Asistanı'nın yaptığı değişikliklerin geçmişi (geri almak için) ----
+    public DbSet<YapayZekaKaydi> YapayZekaKayitlari => Set<YapayZekaKaydi>();
+
     // ---- Site içeriği ----
     public DbSet<SiteAyarlari> SiteAyarlari => Set<SiteAyarlari>();
     public DbSet<Sayfa> Sayfalar => Set<Sayfa>();
@@ -74,5 +86,23 @@ public class VeriTabani : IdentityDbContext<Kullanici>   // Identity: kullanıc�
         model.Entity<Arac>().HasOne(a => a.VitesTuru).WithMany().OnDelete(DeleteBehavior.Restrict);
         model.Entity<Arac>().HasOne(a => a.Sube).WithMany().OnDelete(DeleteBehavior.Restrict);
         model.Entity<RezervasyonEkstrasi>().HasOne(x => x.Ekstra).WithMany().OnDelete(DeleteBehavior.Restrict);
+
+        // Araç özelliği değerleri: bir araç × bir özellik = bir satır (anahtar iki sütundan oluşur).
+        // Araç ya da özellik silinirse ona ait değerler de kendiliğinden silinir (Cascade).
+        model.Entity<AracOzellikDegeri>().HasKey(x => new { x.AracId, x.OzellikId });
+        model.Entity<AracOzellikDegeri>().HasOne(x => x.Arac).WithMany(a => a.OzellikDegerleri).HasForeignKey(x => x.AracId).OnDelete(DeleteBehavior.Cascade);
+        model.Entity<AracOzellikDegeri>().HasOne(x => x.Ozellik).WithMany(o => o.Degerler).HasForeignKey(x => x.OzellikId).OnDelete(DeleteBehavior.Cascade);
+
+        // Müşteri bilgisi cevapları: bir müşteri × bir alan = bir satır. Müşteri ya da alan silinirse cevaplar da silinir.
+        model.Entity<MusteriAlanDegeri>().HasKey(x => new { x.KullaniciId, x.AlanId });
+        model.Entity<MusteriAlanDegeri>().HasOne(x => x.Kullanici).WithMany().HasForeignKey(x => x.KullaniciId).OnDelete(DeleteBehavior.Cascade);
+        model.Entity<MusteriAlanDegeri>().HasOne(x => x.Alan).WithMany(a => a.Degerler).HasForeignKey(x => x.AlanId).OnDelete(DeleteBehavior.Cascade);
+
+        // Kampanya koşulları: koşulda kullanılan alan / kategori / marka / özellik silinirse kampanya silinmez,
+        // o koşul boşalır (SetNull). Panel silmeden önce uyarır.
+        model.Entity<Kampanya>().HasOne(k => k.MusteriAlani).WithMany().HasForeignKey(k => k.MusteriAlanId).OnDelete(DeleteBehavior.SetNull);
+        model.Entity<Kampanya>().HasOne(k => k.Kategori).WithMany().HasForeignKey(k => k.KategoriId).OnDelete(DeleteBehavior.SetNull);
+        model.Entity<Kampanya>().HasOne(k => k.Marka).WithMany().HasForeignKey(k => k.MarkaId).OnDelete(DeleteBehavior.SetNull);
+        model.Entity<Kampanya>().HasOne(k => k.AracOzelligi).WithMany().HasForeignKey(k => k.AracOzellikId).OnDelete(DeleteBehavior.SetNull);
     }
 }

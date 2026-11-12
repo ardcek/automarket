@@ -45,6 +45,7 @@ public static class OrnekVeriler
         await vt.RezervasyonEkstralari.ExecuteDeleteAsync();
         await vt.Rezervasyonlar.ExecuteDeleteAsync();
         await vt.Bakimlar.ExecuteDeleteAsync();
+        await vt.AracOzellikDegerleri.ExecuteDeleteAsync();   // özellik tanımları kalır, araçlara ait değerler silinir
         await vt.Araclar.ExecuteDeleteAsync();
         await vt.UserRoles.ExecuteDeleteAsync();
         await vt.Users.ExecuteDeleteAsync();

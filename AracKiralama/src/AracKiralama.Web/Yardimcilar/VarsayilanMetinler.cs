@@ -94,6 +94,9 @@ public static class VarsayilanMetinler
         ["araclar.rezervasyon-yap"] = "Rezervasyon Yap",
         ["araclar.odeme-notu"] = "Şimdi ödeme alınmaz, onaydan sonra şubede ödenir.",
         ["araclar.benzer"] = "Benzer araçlar",
+        ["araclar.indirimler"] = "İndirimler",
+        ["araclar.sadece-indirimli"] = "Sadece indirimli araçlar",
+        ["araclar.indirim-sec"] = "İndirimli fiyatı görmek için seçin",
 
         // ---- Rezervasyon ----
         ["rezervasyon.baslik"] = "Rezervasyonu tamamla",

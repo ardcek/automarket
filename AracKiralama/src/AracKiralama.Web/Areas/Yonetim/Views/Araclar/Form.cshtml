@@ -26,11 +26,40 @@
                 <div class="col-12"><label asp-for="Aciklama" class="form-label"></label><textarea asp-for="Aciklama" class="form-control" rows="3"></textarea></div>
             </div></div>
             <div class="card"><div class="card-header">Fiyat ve durum</div><div class="card-body row g-3">
-                <div class="col-md-4"><label asp-for="GunlukFiyat" class="form-label"></label><input asp-for="GunlukFiyat" class="form-control" step="50" /><span asp-validation-for="GunlukFiyat"></span></div>
-                <div class="col-md-4"><label asp-for="Depozito" class="form-label"></label><input asp-for="Depozito" class="form-control" step="500" placeholder="Kategorinin varsayılanı" /></div>
+                <div class="col-md-4"><label asp-for="GunlukFiyat" class="form-label"></label><input asp-for="GunlukFiyat" class="form-control" step="any" /><span asp-validation-for="GunlukFiyat"></span></div>
+                <div class="col-md-4"><label asp-for="Depozito" class="form-label"></label><input asp-for="Depozito" class="form-control" step="any" placeholder="Kategorinin varsayılanı" /></div>
                 <div class="col-md-4"><label asp-for="Durum" class="form-label"></label><select asp-for="Durum" class="form-select" asp-items="Html.GetEnumSelectList<AracDurumu>()"></select></div>
                 <div class="col-12 form-check form-switch ms-2"><input asp-for="OneCikan" class="form-check-input" role="switch" /><label asp-for="OneCikan" class="form-check-label"></label></div>
                 <div class="col-12 small text-muted">Sürücü yaş / ehliyet şartı aracın kategorisinden gelir (Yönetim → Kategoriler).</div>
+            </div></div>
+
+            @* Panelden eklenen özellikler (Yönetim → Filtreler ve Özellikler). Kutunun adı Ozellikler[özellik numarası]. *@
+            @{ var ozellikler = (List<AracOzelligi>)ViewBag.Ozellikler; }
+            <div class="card mt-3"><div class="card-header d-flex justify-content-between"><span>Ek özellikler</span><a href="/Yonetim/Ozellikler" class="small">Özellikleri yönet</a></div><div class="card-body row g-3">
+                @if (ozellikler.Count == 0) { <div class="col-12 small text-muted">Henüz özellik eklenmedi. Yönetim → Filtreler ve Özellikler'den ekleyebilirsin.</div> }
+                @foreach (var oz in ozellikler)
+                {
+                    var deger = Model.Ozellikler.GetValueOrDefault(oz.Id) ?? "";
+                    var ad = $"Ozellikler[{oz.Id}]";
+                    <div class="col-md-4">
+                        <label class="form-label"><i class="bi @oz.Ikon me-1"></i>@oz.Ad @(oz.Birim != null ? $"({oz.Birim})" : "")</label>
+                        @switch (oz.Tur)
+                        {
+                            case OzellikTuru.Secim:
+                                <select name="@ad" class="form-select"><option value="">— boş —</option>@foreach (var s in oz.SecenekListesi) { <option value="@s" selected="@(deger == s)">@s</option> }</select>
+                                break;
+                            case OzellikTuru.EvetHayir:
+                                <select name="@ad" class="form-select"><option value="">Yok</option><option value="true" selected="@(deger == "true")">Var</option></select>
+                                break;
+                            case OzellikTuru.Sayi:
+                                <input type="number" step="any" name="@ad" value="@deger" class="form-control" />
+                                break;
+                            default:
+                                <input name="@ad" value="@deger" class="form-control" />
+                                break;
+                        }
+                    </div>
+                }
             </div></div>
         </div>
         <div class="col-xl-4">

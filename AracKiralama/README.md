@@ -39,6 +39,7 @@ Bilgisayarınızda veritabanı kurmanıza **gerek yoktur**; program ilk açıld�
 Ayrıca:
 - **[docs/KOD-HARITASI.md](docs/KOD-HARITASI.md)**: "Kullanıcı bir butona basınca hangi dosyalar sırayla çalışır?" Kodu ezberlemeden anlamak için yol haritası.
 - **[docs/GELISTIRICI-REHBERI.md](docs/GELISTIRICI-REHBERI.md)**: "Hoca şunu eklemenizi isterse" tarifleri (yeni filtre, yeni alan, yeni ayar, yeni sayfa...).
+- **[yapay-zeka/BENI-OKU.md](yapay-zeka/BENI-OKU.md)**: internetsiz **Yapay Zekâ Asistanı**'nın kurulumu (USB ile laboratuvara götürmek) ve kullanımı.
 - **[docs/SUNUM.md](docs/SUNUM.md)**: sunum akışı ve hocanın sorabileceği sorular.
 
 ---
@@ -365,7 +366,27 @@ Resim yükleyin (JPG, PNG, WEBP; en fazla 3 MB), çıkan adresi (`/gorsel/3` gib
 
 ### 7.6. Panelde olmayan bir şey mi istendi?
 
-Panelden değiştirilemeyen tek şey **iş akışı kuralları**dır (rezervasyon durumları, "kirada olan araç teslim edilemez" gibi), çünkü kod bunlara göre karar verir. Yeni bir ayar, filtre veya alan eklemek ise birkaç satırdır: **[docs/GELISTIRICI-REHBERI.md](docs/GELISTIRICI-REHBERI.md)**.
+Panelden değiştirilemeyen tek şey **iş akışı kuralları**dır (rezervasyon durumları, "kirada olan araç teslim edilemez" gibi), çünkü kod bunlara göre karar verir. Yeni bir ayar, filtre veya alan eklemek ise birkaç satırdır: **[docs/GELISTIRICI-REHBERI.md](docs/GELISTIRICI-REHBERI.md)**. Çoğu isteği [Yapay Zekâ Asistanı](#78-yapay-zekâ-asistanı-yonetimyapayzeka)'na da yaptırabilirsiniz.
+
+### 7.7. Kampanyalar ve Müşteri Bilgileri (`/Yonetim/Kampanyalar`, `/Yonetim/MusteriAlanlari`)
+
+Koda dokunmadan indirim tanımlamak için.
+
+- **Müşteri Bilgileri:** müşterilere sorulacak ek bilgiler (örn. **Meslek**: Öğrenci, Öğretmen, Doktor…). Kayıt formunda ve profilde sorulur.
+- **Kampanyalar:** indirim kuralı. Koşullar isteğe bağlıdır ve hepsi birlikte sağlanmalıdır: müşteri bilgisi (Meslek = Öğretmen), kategori, marka, araç özelliği, en az gün, tarih aralığı.
+- Birden fazla kampanya uyarsa müşteriye **en avantajlı** olan uygulanır. Uzun dönem indirimiyle birlikte olursa da avantajlı olan seçilir (Ayarlar → Fiyatlar → "Kampanya ile uzun dönem indirimi birleşsin" açılırsa oranlar toplanır).
+- **Sitede:** araç listesinin solunda **İndirimler** bölümü çıkar: "Mesleğiniz" seçimi + **Sadece indirimli araçlar**. Kartlarda rozet ("Öğretmenlere %15") ve üstü çizili eski fiyat görünür; fiyat dökümünde ve sözleşmede kampanyanın adı yazar.
+- Giriş yapmış müşteride profilindeki bilgi kullanılır; ziyaretçi (ya da personel) listeden seçerek indirimli fiyatı görür.
+
+Örnek (hoca "meslek gruplarına göre indirim yapın" derse): Müşteri Bilgileri → "Meslek" ekle → Kampanyalar → "Öğretmen indirimi, %15, Meslek: Öğretmen" → araç listesini aç.
+
+### 7.8. Yapay Zekâ Asistanı (`/Yonetim/YapayZeka`)
+
+Ne istediğinizi Türkçe yazarsınız ("Meslek gruplarına göre indirim yap, filtrede de görünsün"); bilgisayardaki yapay zekâ modeli değişiklikleri **kart kart** hazırlar, siz **Uygula** dersiniz. **İnternet gerekmez.**
+
+- **Panel modu:** kod yazılmaz; kampanya, müşteri bilgisi, yazı, ayar, filtre/özellik, fiyat, kategori, sayfa… eklenir / değiştirilir. Her değişiklik **Geçmiş**'ten geri alınır.
+- **Kod modu (deneysel, sadece Admin):** panelin yapamadığı istekler için kod dosyalarını değiştirir; önce geçici bir kopyada derleyip dener, dosyaları yedekler.
+- Canlı sitede (Render) çalışmaz; laboratuvar / ev bilgisayarı içindir. Kurulum ve USB: **[yapay-zeka/BENI-OKU.md](yapay-zeka/BENI-OKU.md)**.
 
 ---
 
