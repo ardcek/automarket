@@ -43,6 +43,13 @@ public class AnaSayfaController : TemelController
 
             // Admin'in "öne çıkar" dediği araçlar (Yönetim → Araçlar → Düzenle)
             OneCikanlar = araclar.Where(a => a.OneCikan).OrderBy(a => a.GunlukFiyat).Take(_ayarlar.OneCikanAracSayisi).ToList(),
+
+            // Kayan marka şeridi: filoda en az bir aracı olan ve logosu girilmiş markalar (Yönetim → Markalar)
+            Markalar = araclar.Select(a => a.Marka).OfType<Marka>().Where(m => !string.IsNullOrEmpty(m.LogoAdresi))
+                .DistinctBy(m => m.Id).OrderBy(m => m.Sira).ThenBy(m => m.Ad).ToList(),
+
+            // Son çağrı bandının arkasındaki fotoğraf: filodaki en pahalı (en gösterişli) araç
+            CagriGorseli = araclar.Where(a => a.GorselAdresi != null).MaxBy(a => a.GunlukFiyat)?.GorselAdresi,
         };
 
         // Her kategori için araç sayısı ve en düşük fiyat

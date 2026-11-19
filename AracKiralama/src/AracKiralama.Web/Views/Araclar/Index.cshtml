@@ -5,32 +5,49 @@
 @model AracListesiSayfasi
 @{
     ViewData["Title"] = Icerik.Metin("araclar.baslik");
+    ViewData["SaydamMenu"] = true;   // sayfa koyu bantla başlıyor: üst menü en üstte saydam
     var f = Model.Filtre;
     var a = Icerik.Ayarlar;
     // İndirimler bölümü: ayar açık ve yayında en az bir kampanya varsa (Yönetim → Kampanyalar)
     var indirimGrubu = a.FiltreIndirimli && Model.Kampanya.Kampanyalar.Count > 0;
+    // Telefondaki "Filtreler" butonunda görünen sayı: kaç filtre seçili (sıralama filtre sayılmaz)
+    var seciliFiltre = new object?[] { f.KategoriId, f.MarkaId, f.VitesTuruId, f.YakitTuruId, f.EnAzKoltuk, f.EnDusukFiyat, f.EnYuksekFiyat, f.EnAzYil }.Count(d => d != null)
+        + (string.IsNullOrWhiteSpace(f.Arama) ? 0 : 1) + (f.SadeceIndirimli ? 1 : 0)
+        + (f.Oz?.Values.Count(d => !string.IsNullOrEmpty(d)) ?? 0) + (f.OzEnAz?.Values.Count(d => d != null) ?? 0) + (f.OzEnCok?.Values.Count(d => d != null) ?? 0);
 }
 
-<div class="zemin-ana border-bottom">
-    <div class="container py-4">
-        <h1 class="h3 mb-1">@Icerik.Metin("araclar.baslik")</h1>
-        <p class="text-muted">
+@* Koyu başlık bandı (menü üstünde saydam başlar) + üstüne binen arama kutusu. Görünüm: vitrin.css → "KOYU SAYFA BAŞLIĞI" *@
+<section class="sayfa-sahne ust-altinda" data-sahne>
+    <partial name="_SahneZemini" />
+    <div class="container">
+        <h1 data-giris style="--i:0">@Icerik.Metin("araclar.baslik")</h1>
+        <p class="alt-yazi mb-0" data-giris style="--i:1">
             @if (f.TarihSecili) { <span><i class="bi bi-calendar-range me-1"></i>@Bicim.TarihSaat(f.Baslangic!.Value) → @Bicim.TarihSaat(f.Bitis!.Value) · <b>@Model.GunSayisi gün</b></span> }
             else { @Icerik.Metin("araclar.tarih-sec") }
         </p>
-        <div class="card p-3"><partial name="_AramaFormu" model="(f, Model.Subeler)" /></div>
     </div>
+</section>
+<div class="container">
+    <div class="arama-kutusu parlayan-kenar" data-giris style="--i:2"><partial name="_AramaFormu" model="(f, Model.Subeler)" /></div>
 </div>
 
 <div class="container py-4">
     <div class="row g-4">
-        @* ---------------- FİLTRE PANELİ ---------------- *@
+        @* ---------------- FİLTRE PANELİ ----------------
+           Geniş ekranda solda sabit panel; telefonda (992 px altı) "Filtreler" butonuyla soldan açılan panel (Bootstrap offcanvas-lg).
+           Telefonda seçimler hemen gönderilmez, alttaki "Sonuçları göster" ile gönderilir (data-otomatik-gonder="genis-ekran"). *@
         <aside class="col-lg-3">
-            <form method="get" class="card p-3 filtre-paneli" data-otomatik-gonder>
+            <div class="offcanvas-lg offcanvas-start filtre-kabuk" tabindex="-1" id="filtre-paneli" aria-labelledby="filtre-paneli-baslik">
+                <div class="offcanvas-header border-bottom d-lg-none">
+                    <h2 class="h5 mb-0" id="filtre-paneli-baslik"><i class="bi bi-sliders me-2"></i>@Icerik.Metin("araclar.filtreler")</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#filtre-paneli" aria-label="Kapat"></button>
+                </div>
+                <div class="offcanvas-body d-block">
+            <form method="get" id="filtre-formu" class="card p-3" data-otomatik-gonder="genis-ekran">
                 @* Tarih ve şube seçimi gizli kutularla korunur. İndirimler bölümü görünüyorsa "Mesleğiniz" seçimi orada, gizli kutuya gerek yok. *@
                 @foreach (var deger in f.TarihDegerleri(musteriSecimleri: !indirimGrubu)) { <input type="hidden" name="@deger.Key" value="@deger.Value" /> }
 
-                <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-none d-lg-flex justify-content-between align-items-center mb-2">
                     <b><i class="bi bi-sliders me-1"></i>@Icerik.Metin("araclar.filtreler")</b>
                     <a asp-action="Index" asp-all-route-data="f.TarihDegerleri()" class="small">@Icerik.Metin("araclar.temizle")</a>
                 </div>
@@ -102,7 +119,7 @@
                         <div class="secenekler">
                             @foreach (var (deger, yazi) in new (int?, string)[] { (null, "Tümü"), (5, "5+"), (7, "7+"), (9, "9+") })
                             {
-                                <input type="radio" name="EnAzKoltuk" id="ko@(deger ?? 0)" value="@deger" checked="@(f.EnAzKoltuk == deger)" /><label for="ko@(deger ?? 0)">@yazi</label>
+                                <input type="radio" name="EnAzKoltuk" id="ko@(deger ?? 0)" value="@(deger?.ToString() ?? "")" checked="@(f.EnAzKoltuk == deger)" /><label for="ko@(deger ?? 0)">@yazi</label>
                             }
                         </div>
                     </div>
@@ -206,11 +223,24 @@
                     </div>
                 }
             </form>
+                </div>
+                @* Sadece telefonda: panelin altında sabit duran butonlar *@
+                <div class="filtre-alt d-lg-none">
+                    <a asp-action="Index" asp-all-route-data="f.TarihDegerleri()" class="btn btn-sade">@Icerik.Metin("araclar.temizle")</a>
+                    <button type="submit" form="filtre-formu" class="btn btn-primary flex-fill">Sonuçları göster</button>
+                </div>
+            </div>
         </aside>
 
         @* ---------------- SONUÇLAR ---------------- *@
         <div class="col-lg-9">
-            <div class="text-muted mb-3"><b class="text-body">@Model.Araclar.ToplamKayit</b> @Icerik.Metin("araclar.bulundu")</div>
+            <div class="sonuc-cubugu">
+                <div class="text-muted"><span class="sayi">@Model.Araclar.ToplamKayit</span> @Icerik.Metin("araclar.bulundu")</div>
+                <button type="button" class="btn btn-sade d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#filtre-paneli" aria-controls="filtre-paneli">
+                    <i class="bi bi-sliders me-1"></i>@Icerik.Metin("araclar.filtreler")
+                    @if (seciliFiltre > 0) { <span class="badge rounded-pill text-bg-primary ms-1">@seciliFiltre</span> }
+                </button>
+            </div>
             @if (Model.Araclar.Kayitlar.Count == 0)
             {
                 <div class="card bos-durum">
@@ -223,7 +253,7 @@
             <div class="row g-4">
                 @foreach (var arac in Model.Araclar.Kayitlar)
                 {
-                    <div class="col-sm-6 col-xl-4"><partial name="_AracKarti" model="new AracKartiModeli { Arac = arac, Filtre = f, GunSayisi = Model.GunSayisi, Kampanya = Model.Kampanya }" /></div>
+                    <div class="col-sm-6 col-xl-4" data-goster><partial name="_AracKarti" model="new AracKartiModeli { Arac = arac, Filtre = f, GunSayisi = Model.GunSayisi, Kampanya = Model.Kampanya }" /></div>
                 }
             </div>
             @await Html.PartialAsync("_Sayfalama", (Model.Araclar.ToplamSayfa, Model.Araclar.Sayfa, (Func<int, string>)(s => Url.Action("Index", f.Degerler(s))!)))

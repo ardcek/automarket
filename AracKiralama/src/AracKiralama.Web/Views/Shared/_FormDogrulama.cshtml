@@ -1,3 +1,8 @@
-@* Formlarda sayfa yenilenmeden hata gösteren doğrulama kütüphaneleri ([Required] vb. kuralları tarayıcıda çalıştırır). *@
+@* Formlarda sayfa yenilenmeden hata gösteren doğrulama kütüphaneleri ([Required] vb. kuralları tarayıcıda çalıştırır).
+   jQuery'ye ihtiyaç duyarlar. Yönetim paneli jQuery'yi zaten yükler; müşteri sitesi yüklemez (sayfalar hafif olsun), o yüzden burada yüklenir. *@
+@if (ViewData["jQueryYuklu"] is not true)
+{
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+}
 <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
 <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>

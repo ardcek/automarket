@@ -7,11 +7,11 @@
 }
 <div class="giris-sayfasi">
     <div class="giris-yan">
-        <h2>@Icerik.Metin("hesap.kayit-yan-baslik")</h2>
-        <p class="opacity-75 mb-0">@Icerik.Metin("hesap.kayit-yan-metin")</p>
+        <h2 data-giris style="--i:1">@Icerik.Metin("hesap.kayit-yan-baslik")</h2>
+        <p class="opacity-75 mb-0" data-giris style="--i:2">@Icerik.Metin("hesap.kayit-yan-metin")</p>
     </div>
     <div class="giris-form">
-        <div class="ic">
+        <div class="ic" data-giris style="--i:0">
             <h1 class="h3">@Icerik.Metin("hesap.kayit-baslik")</h1>
             <p class="text-muted">Zaten üye misiniz? <a asp-action="Giris">Giriş yapın</a></p>
             <form asp-action="Kayit" method="post" class="row g-3">

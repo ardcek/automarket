@@ -69,6 +69,13 @@ public static class VarsayilanMetinler
         ["anasayfa.subeler-ust"] = "Şubelerimiz",
         ["anasayfa.subeler-baslik"] = "Havalimanında ve şehir merkezinde",
         ["anasayfa.subeler-buton"] = "Araçları gör",
+        ["anasayfa.markalar-baslik"] = "Filomuzdaki markalar",
+        ["anasayfa.akan-yazilar"] = "Şeffaf fiyat · Anında onay · 7/24 yol yardımı · Tam kasko · Farklı şubeye iade",
+        ["anasayfa.adimlar-ust"] = "Nasıl çalışır",
+        ["anasayfa.adimlar-baslik"] = "Üç adımda yola çık",
+        ["anasayfa.cagri-baslik"] = "Anahtarın hazır. Yola çıkmaya hazır mısın?",
+        ["anasayfa.cagri-metin"] = "Şeffaf fiyat, sürprizsiz teslim. Sana uygun aracı birkaç tıkla bul, gerisini bize bırak.",
+        ["anasayfa.cagri-buton"] = "Araçları keşfet",
 
         // ---- Arama kutusu ----
         ["arama.alis-sube"] = "Alış şubesi",

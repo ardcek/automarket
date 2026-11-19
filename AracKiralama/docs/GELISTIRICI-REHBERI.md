@@ -23,6 +23,7 @@ Bütün yollar `AracKiralama/src/AracKiralama.Web/` klasörüne göredir. Kodun 
 | 11 | [Müşteri grubuna göre indirim ("meslek gruplarına indirim")](#11-müşteri-grubuna-göre-indirim) | 0 (panelden) |
 | 12 | [Yapay Zekâ Asistanı'na yaptırmak (internetsiz)](#12-yapay-zekâ-asistanına-yaptırmak) | 0 |
 | 13 | [Asistana yeni bir yetenek eklemek](#13-asistana-yeni-bir-yetenek-eklemek) | 1 |
+| 14 | [Sitenin görünümü ve hareketli efektler ("bu bölüm de kayarak gelsin")](#14-sitenin-görünümü-ve-hareketli-efektler) | 0–1 |
 
 **Her değişiklikten sonra:** siteyi kapatıp (`Ctrl + C`) tekrar `dotnet run --project src/AracKiralama.Web` ile açın. **Bir tabloya yeni alan / tablo eklediyseniz** `src/AracKiralama.Web/arackiralama.db` dosyasını silin (veritabanı yeni yapıyla baştan oluşur; canlı site için README → 13.5).
 
@@ -386,6 +387,46 @@ Asistanın yapabildiği her şey `Servisler/YapayZeka/PanelIslemleri.cs` dosyas�
 3. Dosyanın sonundaki `Hepsi` listesine `new SubeSil(),` ekleyin.
 
 Modele anlatım, JSON şeması, ekrandaki kart ve geçmiş kendiliğinden çalışır. Test örneği: `tests/AracKiralama.Tests/YapayZekaTestleri.cs`.
+
+---
+
+## 14. Sitenin görünümü ve hareketli efektler
+
+Müşteri sitesinin tasarımı `wwwroot/css/vitrin.css`, hareketleri `wwwroot/js/efektler.js` dosyasındadır (yönetim paneli bunları yüklemez; panelin görünümü `wwwroot/css/stil.css`). Renkler yine **Yönetim → Ayarlar → Görünüm**'den gelir: ana rengi değiştirince ışıklar, geçişler ve butonlar da o renge döner.
+
+Efektler için JavaScript yazılmaz, HTML etiketine bir **data-** özelliği eklenir:
+
+| İstek | Ne yazılır? | Örnek |
+|---|---|---|
+| "Bu bölüm kaydırınca kayarak gelsin" | `data-goster` (yandan: `data-goster="sol"` / `"sag"`, büyüyerek: `"olcek"`) | `<div class="col-md-4" data-goster>…</div>` |
+| "Bu sayı sayarak artsın" | `data-sayac="hedef sayı"` (+ isteğe bağlı `data-sonek="+"`) | `<strong data-sayac="47" data-sonek="+">47+</strong>` |
+| "Kart fareyle eğilsin, ışık izlesin" | `data-egim` (sadece ışık: `data-egim="isik"`) | `_AracKarti.cshtml` → `<article class="arac-karti" data-egim>` |
+| "Buton fareye doğru çekilsin" | `data-miknatis` | `<a class="btn btn-isik" data-miknatis>` |
+| "Koyu bölümde bir parça fareyle kaysın (derinlik)" | `data-sahne` olan bölümün içinde `data-derinlik="24"` (px; eksi = ters yön, büyük = öne yakın) ya da `data-dondur="8"` (derece) | Ana sayfanın üstündeki süzülen kartlar, araç fotoğrafı |
+| "Kaydırdıkça bu parça farklı hızda kaysın (paralaks)" | `vitrin.css`'in sonundaki **KAYDIRMAYA BAĞLI PARALAKS** bölümüne bir satır + bir `@keyframes` | `.animasyon .sehir-arka { animation: sehir-kay linear both; animation-timeline: view(); }` |
+| "Koyu, hareketli arka planlı bir bant" | bölüme `data-sahne` + içine `<partial name="_SahneZemini" />` | Ana sayfanın sonundaki "son çağrı bandı" |
+| "Sayfa koyu bantla başlıyor, menü saydam olsun" | view'ın başına `ViewData["SaydamMenu"] = true;` ve bölüme `ust-altinda` sınıfı | `Views/Araclar/Index.cshtml` |
+| "Bir efekti kapat" | ilgili `data-…` özelliğini silin; hepsini kapatmak için `tema.js`'te `animasyon` sınıfını ekleyen satırı silin | — |
+
+Ana sayfadaki **akan yazı bandı**, **marka şeridi** ve **son çağrı bandı** panelden kapatılabilir: Yönetim → Site Metinleri → "Ana sayfa" → yazılarını boş bırakın.
+
+**Performans kuralları** (site yavaşlarsa önce buraya bakın):
+- Sürekli dönen bir animasyon sadece `transform` ve `opacity` değiştirmeli; `filter`, `background-position`, `box-shadow`, `backdrop-filter` (buzlu cam) ve `mix-blend-mode` her karede işlemciyi yorar.
+- Kaydırmaya bağlı hareketler JavaScript ile değil CSS (`animation-timeline`) ile yapılır; tarayıcı bunları kaydırmayla birlikte ayrı iş parçacığında oynatır.
+- **Yeni araç fotoğrafı:** en fazla ~1600 px genişlikte olsun. Kartlar `wwwroot/img/cars/k/` klasöründeki 720 px'lik `.webp` kopyayı kullanır (aynı ad, örn. `Audi_A3.jpg` → `k/Audi_A3.webp`; herhangi bir resim programıyla ya da squoosh.app ile üretilir). Kopyası yoksa büyük fotoğraf kullanılır, hiçbir şey bozulmaz. Kod: `Yardimcilar/Gorseller.cs`.
+- Fotoğraflar ve kütüphaneler tarayıcıda önbelleğe alınır (`Yardimcilar/Altyapi.cs`); bir fotoğrafı aynı adla değiştirdiyseniz tarayıcıda `Ctrl + F5`.
+
+Hoca "kodda nerede?" derse:
+
+| Ne | Dosya |
+|---|---|
+| Kaydırınca belirme, sayaç, kart eğilmesi | `wwwroot/js/efektler.js` (her bölüm numaralı ve açıklamalı) |
+| Işık bulutları, yol ızgarası, far izleri | `Views/Shared/_SahneZemini.cshtml` + `vitrin.css` → "SAHNE ZEMİNİ" |
+| Karttan detaya uçan fotoğraf (sayfa geçişi) | `_AracKarti.cshtml` ve `Araclar/Detay.cshtml`'deki `view-transition-name: arac-@id` + `vitrin.css` → "Sayfalar arası geçiş" |
+| Tema butonunda daire gibi açılan yeni tema | `wwwroot/js/genel.js` → "Açık / koyu tema" |
+| "Hareketi azalt" açık cihazda her şeyin durması | `wwwroot/js/tema.js` (`animasyon` sınıfı) |
+| Kategorilerin yatay akması, yoldaki araç, katmanların farklı hızda kayması | `vitrin.css` → "KAYDIRMAYA BAĞLI PARALAKS" |
+| Kartlardaki küçük fotoğraf, tarayıcı önbelleği | `Yardimcilar/Gorseller.cs`, `Yardimcilar/Altyapi.cs` |
 
 ---
 

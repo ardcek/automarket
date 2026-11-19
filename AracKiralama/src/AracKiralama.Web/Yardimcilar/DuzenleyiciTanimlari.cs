@@ -28,7 +28,7 @@ public static class DuzenleyiciTanimlari
     // ---------------------------------------------------------------- SEKMELER
     public static readonly DuzenleyiciSekmesi[] Sekmeler =
     [
-        new("anasayfa", "Ana sayfa", "bi-house", "Büyük başlık, rakamlar, arama kutusu, kategoriler, öne çıkanlar, adımlar, şubeler.",
+        new("anasayfa", "Ana sayfa", "bi-house", "Büyük başlık, rakamlar, arama kutusu, marka şeridi, kategoriler, öne çıkanlar, adımlar, şubeler, son çağrı bandı.",
             [("Ana sayfa", "/")],
             [.. VarsayilanMetinler.Liste.Keys.Where(k => k.StartsWith("anasayfa.")), "arama.alis-sube", "arama.iade-sube", "arama.tum-subeler", "arama.ayni-sube", "arama.alis", "arama.iade", "arama.buton"],
             ["Ana Sayfa"]),
@@ -115,6 +115,13 @@ public static class DuzenleyiciTanimlari
         ["anasayfa.subeler-ust"] = ("Şubeler", "Küçük üst başlık"),
         ["anasayfa.subeler-baslik"] = ("Şubeler", "Büyük başlık"),
         ["anasayfa.subeler-buton"] = ("Şubeler", "Şube kartındaki buton"),
+        ["anasayfa.markalar-baslik"] = ("Marka şeridi", "Kayan logoların başlığı (boş bırakılırsa şerit gizlenir)"),
+        ["anasayfa.akan-yazilar"] = ("Akan yazı bandı", "Kaydırdıkça kayan büyük yazılar; aralarına · koyun (boş bırakılırsa bant gizlenir)"),
+        ["anasayfa.adimlar-ust"] = ("Nasıl çalışır (3 adım)", "Küçük üst başlık"),
+        ["anasayfa.adimlar-baslik"] = ("Nasıl çalışır (3 adım)", "Büyük başlık"),
+        ["anasayfa.cagri-baslik"] = ("Son çağrı bandı", "Büyük başlık (boş bırakılırsa bant gizlenir)"),
+        ["anasayfa.cagri-metin"] = ("Son çağrı bandı", "Başlığın altındaki yazı"),
+        ["anasayfa.cagri-buton"] = ("Son çağrı bandı", "Buton"),
         // Araç listesi
         ["araclar.baslik"] = ("Liste sayfası", "Sayfa başlığı"),
         ["araclar.tarih-sec"] = ("Liste sayfası", "Başlığın altındaki bilgi"),

@@ -1,4 +1,6 @@
-@* ARAÇ DETAYI + CANLI FİYAT (sağdaki kutu wwwroot/js/fiyat-hesapla.js ile /api/fiyat'a sorar) *@
+@* ARAÇ DETAYI + CANLI FİYAT (sağdaki kutu wwwroot/js/fiyat-hesapla.js ile /api/fiyat'a sorar)
+   Büyük fotoğrafın view-transition-name'i araç kartındakiyle aynı: karttan buraya gelirken fotoğraf "uçar" (vitrin.css).
+   Telefonda altta sabit fiyat + "Rezervasyon yap" çubuğu çıkar; fiyat kutusu ekrana gelince gizlenir (data-mobil-cubuk). *@
 @model AracDetaySayfasi
 @{
     var a = Model.Arac;
@@ -10,23 +12,23 @@
     var ayar = Icerik.Ayarlar;
 }
 
-<div class="container py-4">
+<div class="container py-4 detay-sayfasi">
     <a asp-action="Index" asp-all-route-data="Model.Filtre.TarihDegerleri()" class="small"><i class="bi bi-arrow-left me-1"></i>@Icerik.Metin("menu.araclar")</a>
 
     <div class="row g-4 mt-1">
         <div class="col-lg-8">
-            <div class="detay-gorsel mb-4"><img src="@(a.GorselAdresi ?? "/img/placeholder.svg")" alt="@a.TamAd" /></div>
+            <div class="detay-gorsel mb-4"><img src="@(a.GorselAdresi ?? "/img/placeholder.svg")" srcset="@Gorseller.Secenekler(a.GorselAdresi)" sizes="(min-width: 992px) 66vw, 100vw" alt="@a.TamAd" fetchpriority="high" style="view-transition-name: arac-@a.Id" /></div>
             <div class="d-flex flex-wrap gap-2 mb-2">
                 <span class="etiket"><i class="bi @a.Kategori!.Ikon"></i>@a.Kategori.Ad</span>
                 <span class="etiket"><i class="bi bi-geo-alt"></i>@a.Sube!.Ad</span>
             </div>
-            <h1 class="h2">@a.TamAd <span class="text-muted fw-normal">@a.Yil</span></h1>
+            <h1 class="detay-baslik">@a.TamAd <span class="text-muted fw-normal">@a.Yil</span></h1>
             <p class="text-muted mb-4">@a.Aciklama</p>
 
             <div class="row g-3 mb-4">
                 @foreach (var (ikon, etiket, deger) in new[] { ("bi-gear-wide-connected", "Vites", a.VitesTuru!.Ad), ("bi-fuel-pump", "Yakıt", a.YakitTuru!.Ad), ("bi-people", "Koltuk", a.KoltukSayisi + " kişi"), ("bi-palette", "Renk", a.Renk) })
                 {
-                    <div class="col-6 col-md-3"><div class="ozellik-kutusu"><i class="bi @ikon"></i><div class="etiket-yazi">@etiket</div><div class="deger">@deger</div></div></div>
+                    <div class="col-6 col-md-3" data-goster><div class="ozellik-kutusu"><i class="bi @ikon"></i><div class="etiket-yazi">@etiket</div><div class="deger">@deger</div></div></div>
                 }
                 @* Panelden eklenen özellikler (Yönetim → Filtreler ve Özellikler → "detayda göster") *@
                 @foreach (var oz in Model.Ozellikler)
@@ -34,11 +36,11 @@
                     var kayit = a.OzellikDegerleri.FirstOrDefault(d => d.OzellikId == oz.Id);
                     var yazi = oz.Tur == OzellikTuru.EvetHayir ? (kayit?.Deger == "true" ? "Var" : "Yok") : kayit?.Gosterim;
                     if (string.IsNullOrEmpty(yazi)) continue;   // bu araç için değer girilmemiş
-                    <div class="col-6 col-md-3"><div class="ozellik-kutusu"><i class="bi @oz.Ikon"></i><div class="etiket-yazi">@oz.Ad</div><div class="deger">@yazi</div></div></div>
+                    <div class="col-6 col-md-3" data-goster><div class="ozellik-kutusu"><i class="bi @oz.Ikon"></i><div class="etiket-yazi">@oz.Ad</div><div class="deger">@yazi</div></div></div>
                 }
             </div>
 
-            <div class="card">
+            <div class="card" data-goster>
                 <div class="card-header"><i class="bi bi-card-checklist me-2 metin-ana"></i>@Icerik.Metin("araclar.sartlar")</div>
                 <div class="card-body row g-3">
                     <div class="col-sm-4"><div class="kucuk-baslik">Sürücü yaşı</div><b>En az @a.Kategori.MinYas</b></div>
@@ -54,11 +56,11 @@
 
         @* ---------------- REZERVASYON / CANLI FİYAT KUTUSU ---------------- *@
         <div class="col-lg-4">
-            <form class="card yapiskan" method="get" action="/Rezervasyon/Yeni" data-fiyat-formu data-arac-id="@a.Id">
+            <form class="card yapiskan fiyat-karti parlayan-kenar" id="fiyat-kutusu" method="get" action="/Rezervasyon/Yeni" data-fiyat-formu data-arac-id="@a.Id">
                 <input type="hidden" name="aracId" value="@a.Id" />
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-baseline mb-3">
-                        <div class="fiyat fs-3">@Bicim.Para(a.GunlukFiyat) <small>@Icerik.Metin("araclar.gunluk")</small></div>
+                    <div class="d-flex justify-content-between align-items-baseline mb-3 ust-fiyat">
+                        <div class="fiyat">@Bicim.Para(a.GunlukFiyat) <small>@Icerik.Metin("araclar.gunluk")</small></div>
                         @if (Model.Musait == true) { <span class="durum durum-musait">Müsait</span> }
                         else if (Model.Musait == false) { <span class="durum durum-reddedildi">Dolu</span> }
                     </div>
@@ -117,14 +119,20 @@
 
     @if (Model.Benzerler.Count > 0)
     {
-        <h2 class="h4 mt-5 mb-3">@Icerik.Metin("araclar.benzer")</h2>
-        <div class="row g-4">
+        <h2 class="h4 mt-5 mb-3" data-goster>@Icerik.Metin("araclar.benzer")</h2>
+        <div class="row g-4 mobil-kaydir">
             @foreach (var b in Model.Benzerler)
             {
-                <div class="col-sm-6 col-lg-3"><partial name="_AracKarti" model="new AracKartiModeli { Arac = b, Filtre = Model.Filtre, Kampanya = Model.Kampanya }" /></div>
+                <div class="col-sm-6 col-lg-3" data-goster><partial name="_AracKarti" model="new AracKartiModeli { Arac = b, Filtre = Model.Filtre, Kampanya = Model.Kampanya }" /></div>
             }
         </div>
     }
+</div>
+
+@* Telefonda altta sabit çubuk: fiyat kutusuna kaydırır *@
+<div class="mobil-cubuk d-lg-none" data-mobil-cubuk="#fiyat-kutusu">
+    <div><div class="fiyat">@Bicim.Para(a.GunlukFiyat)</div><small class="text-muted">@Icerik.Metin("araclar.gunluk")</small></div>
+    <a href="#fiyat-kutusu" class="btn btn-primary">@Icerik.Metin("araclar.rezervasyon-yap") <i class="bi bi-arrow-right ms-1"></i></a>
 </div>
 
 @section Scripts { <script src="~/js/fiyat-hesapla.js" asp-append-version="true"></script> }

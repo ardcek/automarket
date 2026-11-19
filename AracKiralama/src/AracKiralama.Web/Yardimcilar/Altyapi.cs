@@ -26,6 +26,20 @@ public static class GuvenlikBasliklari
             basliklar["Referrer-Policy"] = "strict-origin-when-cross-origin";
             basliklar["X-Frame-Options"] = "SAMEORIGIN";
 
+            // Tarayıcı önbelleği: fotoğraflar ve kütüphaneler her sayfada sunucuya yeniden sorulmasın (sayfalar hızlı açılsın).
+            // ?v=... ekli css/js (asp-append-version) içerik değişince adresi de değiştiği için 1 yıl saklanabilir.
+            var yol = istek.Request.Path.Value ?? "";
+            var surumlu = istek.Request.Query.ContainsKey("v");
+            if (surumlu || yol.StartsWith("/img/") || yol.StartsWith("/lib/"))
+                istek.Response.OnStarting(() =>
+                {
+                    if (istek.Response.StatusCode is 200 or 304)
+                        istek.Response.Headers.CacheControl = surumlu ? "public, max-age=31536000, immutable"
+                            : yol.StartsWith("/lib/") ? "public, max-age=2592000"   // 30 gün
+                            : "public, max-age=86400";                             // fotoğraflar: 1 gün
+                    return Task.CompletedTask;
+                });
+
             // Swagger (API dokümantasyonu) kendi script'lerini kullandığı için orada uygulanmaz.
             if (!istek.Request.Path.StartsWithSegments("/swagger"))
                 basliklar["Content-Security-Policy"] =

@@ -148,6 +148,8 @@ public class AnaSayfaModeli
     public KampanyaBaglami Kampanya { get; set; } = KampanyaBaglami.Bos;   // öne çıkan kartlardaki indirim rozetleri
     public List<KategoriOzeti> Kategoriler { get; set; } = new();
     public List<Sube> Subeler { get; set; } = new();
+    public List<Marka> Markalar { get; set; } = new();   // kayan marka şeridi: filoda aracı ve logosu olan markalar
+    public string? CagriGorseli { get; set; }             // son çağrı bandının arka plan fotoğrafı: filodaki en pahalı araç
     public int AracSayisi { get; set; }
     public int TamamlananKiralama { get; set; }
 }

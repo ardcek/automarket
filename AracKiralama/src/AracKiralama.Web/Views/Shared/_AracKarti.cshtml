@@ -1,6 +1,8 @@
 @* ARAÇ KARTI: ana sayfa, araç listesi ve "benzer araçlar"da aynı kart kullanılır. Kartı değiştirmek = bu dosya.
    Kampanya varsa (Yönetim → Kampanyalar): uygulanan indirimde üstü çizili eski fiyat + yeşil rozet,
-   henüz uygulanmayan (örn. meslek seçilmemiş) kampanyada sadece rozet görünür. Karar: Servisler/KampanyaServisi.cs *@
+   henüz uygulanmayan (örn. meslek seçilmemiş) kampanyada sadece rozet görünür. Karar: Servisler/KampanyaServisi.cs
+   Görünüm: wwwroot/css/vitrin.css → "ARAÇ KARTI". data-egim: fareyle 3B eğilir, rozet ve fiyat öne çıkar (efektler.js).
+   Fotoğraf: hafif küçük kopya (Yardimcilar/Gorseller.cs). view-transition-name: detaya geçerken fotoğraf karttan "uçar". *@
 @model AracKartiModeli
 @{
     var a = Model.Arac;
@@ -8,32 +10,34 @@
     link["id"] = a.Id.ToString();
     var kampanya = Model.Kampanya?.Durum(a, Model.GunSayisi);
     var indirimliFiyat = kampanya?.Uygulanan == null ? (decimal?)null : Math.Round(a.GunlukFiyat * (1 - kampanya.Uygulanan.IndirimOrani));
+    // Panelden eklenen ve "kartta göster" işaretli özellikler (Yönetim → Filtreler ve Özellikler)
+    var ekOzellikler = a.OzellikDegerleri.Where(d => d.Ozellik is { Aktif: true, KarttaGoster: true } && d.Gosterim != null).OrderBy(d => d.Ozellik!.Sira).ToList();
 }
-<article class="arac-karti">
-    <a asp-controller="Araclar" asp-action="Detay" asp-all-route-data="link" class="gorsel">
-        <img src="@(a.GorselAdresi ?? "/img/placeholder.svg")" alt="@a.TamAd" loading="lazy" />
+<article class="arac-karti" data-egim>
+    <div class="gorsel">
+        <img src="@Gorseller.Kucuk(a.GorselAdresi)" srcset="@Gorseller.Secenekler(a.GorselAdresi)" sizes="(min-width: 1200px) 340px, (min-width: 576px) 50vw, 88vw"
+             alt="@a.TamAd" loading="lazy" decoding="async" style="view-transition-name: arac-@a.Id" />
+        <div class="kart-kimlik">
+            @* Bağlantı fotoğrafın tamamını kaplar: fotoğrafa ya da ada tıklamak detayı açar *@
+            <h3 class="baslik"><a asp-controller="Araclar" asp-action="Detay" asp-all-route-data="link">@a.TamAd</a></h3>
+            <div class="alt-satir"><span>@a.Yil</span><span><i class="bi bi-geo-alt me-1"></i>@a.Sube?.Ad</span></div>
+        </div>
+    </div>
+    <div class="kart-rozetler">
         <span class="etiket etiket-cam">@a.Kategori?.Ad</span>
         @if (kampanya?.Uygulanan != null) { <span class="kampanya-rozeti"><i class="bi bi-percent"></i>@kampanya.Uygulanan.Rozet</span> }
         else if (kampanya?.Olasi != null) { <span class="kampanya-rozeti olasi"><i class="bi bi-tag"></i>@kampanya.Olasi.Rozet</span> }
-    </a>
+    </div>
     <div class="govde">
-        <div>
-            <div class="d-flex justify-content-between gap-2">
-                <h3 class="baslik"><a asp-controller="Araclar" asp-action="Detay" asp-all-route-data="link" class="text-reset">@a.TamAd</a></h3>
-                <span class="small text-muted">@a.Yil</span>
-            </div>
-            <div class="small text-muted"><i class="bi bi-geo-alt me-1"></i>@a.Sube?.Ad</div>
-        </div>
-        <div class="ozellikler">
-            <span><i class="bi bi-gear-wide-connected"></i>@a.VitesTuru?.Ad</span>
-            <span><i class="bi bi-fuel-pump"></i>@a.YakitTuru?.Ad</span>
-            <span><i class="bi bi-people"></i>@a.KoltukSayisi kişi</span>
-            @* Panelden eklenen ve "kartta göster" işaretli özellikler *@
-            @foreach (var d in a.OzellikDegerleri.Where(d => d.Ozellik is { Aktif: true, KarttaGoster: true } && d.Gosterim != null).OrderBy(d => d.Ozellik!.Sira))
-            {
-                <span><i class="bi @d.Ozellik!.Ikon"></i>@d.Gosterim</span>
-            }
-        </div>
+        <ul class="kart-ozellik">
+            <li><i class="bi bi-gear-wide-connected"></i><b>@a.VitesTuru?.Ad</b></li>
+            <li><i class="bi bi-fuel-pump"></i><b>@a.YakitTuru?.Ad</b></li>
+            <li><i class="bi bi-people"></i><b>@a.KoltukSayisi kişi</b></li>
+        </ul>
+        @if (ekOzellikler.Count > 0)
+        {
+            <div class="kart-ek">@foreach (var d in ekOzellikler) { <span><i class="bi @d.Ozellik!.Ikon"></i>@d.Gosterim</span> }</div>
+        }
         <div class="alt">
             <div>
                 @if (Model.GunSayisi != null)
@@ -51,7 +55,8 @@
                     <div class="fiyat">@Bicim.Para(a.GunlukFiyat) <small>@Icerik.Metin("araclar.gunluk")</small></div>
                 }
             </div>
-            <a asp-controller="Araclar" asp-action="Detay" asp-all-route-data="link" class="btn btn-yumusak btn-sm text-nowrap">@Icerik.Metin("araclar.incele") <i class="bi bi-arrow-right"></i></a>
+            @* Aynı detay bağlantısı: klavyede bir kez durulsun diye sekme sırasından çıkarıldı *@
+            <a asp-controller="Araclar" asp-action="Detay" asp-all-route-data="link" class="kart-git" tabindex="-1" aria-hidden="true">@Icerik.Metin("araclar.incele") <span class="ok-daire"><i class="bi bi-arrow-up-right"></i></span></a>
         </div>
     </div>
 </article>

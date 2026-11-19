@@ -24,7 +24,7 @@
         {
             <div class="col-lg-6">
                 <div class="card h-100 p-3 d-flex flex-row gap-3">
-                    <img src="@r.Arac!.GorselAdresi" alt="" class="rounded-3 d-none d-sm-block" style="width:128px;height:84px;object-fit:cover" />
+                    <img src="@Gorseller.Kucuk(r.Arac!.GorselAdresi)" alt="" loading="lazy" class="rounded-3 d-none d-sm-block" style="width:128px;height:84px;object-fit:cover" />
                     <div class="flex-grow-1 min-w-0">
                         <div class="d-flex justify-content-between gap-2"><div><b>@r.Arac.TamAd</b><div class="small text-muted rakam">@r.Kod</div></div><partial name="_Durum" model="r" /></div>
                         <div class="small mt-2">@r.AlisSube!.Ad · @Bicim.TarihSaat(r.BaslangicTarihi)<br />@r.IadeSube!.Ad · @Bicim.TarihSaat(r.BitisTarihi)</div>

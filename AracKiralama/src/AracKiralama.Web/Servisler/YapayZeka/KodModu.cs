@@ -117,7 +117,7 @@ public class KodModu
             Sen bir ASP.NET Core MVC (C#) projesinde değişiklik yapacak yardımcının ilk adımısın.
             Kullanıcının isteğini yapmak için hangi dosyaların okunup değiştirilmesi gerektiğini PROJE HARİTASI'ndan seç (en fazla 6, en önemlisi önce).
             Proje Türkçe adlandırılmıştır: Controllers (sayfa adresleri), Views (sayfaların HTML'i, .cshtml), Modeller (veritabanı tabloları),
-            Servisler (iş kuralları), FormModelleri (formlar ve sayfa modelleri), wwwroot/css/stil.css (görünüm), wwwroot/js (tarayıcı kodu).
+            Servisler (iş kuralları), FormModelleri (formlar ve sayfa modelleri), wwwroot/css/vitrin.css (müşteri sitesinin görünümü ve efektleri), wwwroot/css/stil.css (ortak görünüm ve yönetim paneli), wwwroot/js (tarayıcı kodu).
             ÖNEMLİ: Views/ ve Controllers/ = MÜŞTERİNİN gördüğü site. Areas/Yonetim/ = YÖNETİM PANELİ.
             Kullanıcı "panel", "yönetim" ya da "admin" demediyse müşteri sitesindeki dosyaları (Views/...) seç.
             Araç detay sayfası = Views/Araclar/Detay.cshtml, araç listesi = Views/Araclar/Index.cshtml, araç kartı = Views/Shared/_AracKarti.cshtml.

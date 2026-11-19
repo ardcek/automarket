@@ -12,7 +12,7 @@
 
 <div class="container py-4">
     <a href="/Araclar/Detay/@a.Id" class="small"><i class="bi bi-arrow-left me-1"></i>@a.TamAd</a>
-    <h1 class="h3 mt-2 mb-4">@Icerik.Metin("rezervasyon.baslik")</h1>
+    <h1 class="h2 mt-2 mb-4">@Icerik.Metin("rezervasyon.baslik")</h1>
 
     @if (!Icerik.Ayarlar.RezervasyonaAcik)
     {
@@ -103,8 +103,9 @@
 
             @* ---- Sağ: araç özeti ve canlı fiyat ---- *@
             <div class="col-lg-4">
-                <div class="card yapiskan overflow-hidden">
-                    <img src="@a.GorselAdresi" alt="" style="aspect-ratio:16/9; object-fit:cover" />
+                <div class="card yapiskan overflow-hidden rezervasyon-ozeti">
+                    @* view-transition-name: detay sayfasındaki fotoğraf buraya "uçar" (vitrin.css) *@
+                    <img src="@Gorseller.Kucuk(a.GorselAdresi)" alt="" style="aspect-ratio:16/9; object-fit:cover; view-transition-name: arac-@a.Id" />
                     <div class="card-body">
                         <h3 class="h5">@a.TamAd</h3>
                         <div class="ozellikler mb-3"><span><i class="bi bi-gear-wide-connected"></i>@a.VitesTuru?.Ad</span><span><i class="bi bi-fuel-pump"></i>@a.YakitTuru?.Ad</span><span><i class="bi bi-people"></i>@a.KoltukSayisi</span></div>

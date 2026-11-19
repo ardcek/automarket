@@ -1,0 +1,12 @@
+@* KOYU BÖLÜMLERİN HAREKETLİ ARKA PLANI (ana sayfa üstü, son çağrı bandı, Araçlar ve içerik sayfalarının başlığı).
+   İki ışık bulutu, uzaktan geçen far izleri, ufka uzanan yol ızgarası (hepsi sadece transform/opacity ile hareket eder).
+   Tamamen süs: ekran okuyucular atlar (aria-hidden). Renkler ana renkten gelir. Görünüm: wwwroot/css/vitrin.css → "SAHNE ZEMİNİ".
+   Bu parçayı içeren bölüme data-sahne eklenirse ekranda değilken hareketler durur; data-derinlik ile fareyle hafif kayar. *@
+<div class="sahne-zemin" aria-hidden="true" data-derinlik="-12">
+    <span class="aurora aurora-1"></span>
+    <span class="aurora aurora-2"></span>
+    <span class="isik-izi" style="--y:66%; --sure:6.5s; --gecikme:-1.2s"></span>
+    <span class="isik-izi ters" style="--y:74%; --sure:8s; --gecikme:-4s"></span>
+    <span class="isik-izi" style="--y:84%; --sure:5.4s; --gecikme:-2.6s"></span>
+    <div class="yol"><div class="yol-izgara"></div></div>
+</div>

@@ -1,17 +1,28 @@
 @* SİTENİN ANA ŞABLONU: üst menü + sayfa içeriği (@RenderBody) + alt bilgi.
-   Menüdeki yazılar Yönetim → Site Metinleri'nden, menüye eklenen sayfalar Yönetim → Sayfalar'dan gelir. *@
+   Menüdeki yazılar Yönetim → Site Metinleri'nden, menüye eklenen sayfalar Yönetim → Sayfalar'dan gelir.
+   Görünüm ve efektler: wwwroot/css/vitrin.css + wwwroot/js/efektler.js (yönetim paneli bunları yüklemez).
+   Sayfa koyu bir bölümle başlıyorsa view'da ViewData["SaydamMenu"] = true yazılır: menü en üstte saydam olur. *@
 @{
     var a = Icerik.Ayarlar;
     var controller = ViewContext.RouteData.Values["controller"]?.ToString();
     var personelMi = User.IsInRole(Roller.Admin) || User.IsInRole(Roller.Personel);
+    var saydamMenu = ViewData["SaydamMenu"] is true;
 }
 <!DOCTYPE html>
-<html lang="tr" data-varsayilan-tema="@a.VarsayilanTema">
+<html lang="tr" data-varsayilan-tema="@a.VarsayilanTema" data-vitrin>
 <head>
+    @* Sayfalar arası geçiş efekti (vitrin.css → "Sayfalar arası geçiş"). En başta olmalı: tarayıcı yeni sayfayı çizmeye
+       başlarken bu kuralı görmezse geçişi iptal eder. Site içinden gelindiyse tema.js, ana içerik (#icerik-sonu)
+       okunana kadar ilk çizimi bekletir; böylece uçan araç fotoğrafı yeni sayfada yerini bulur. *@
+    <style>@@media (prefers-reduced-motion: no-preference) { @@view-transition { navigation: auto; } }</style>
     <partial name="_Head" />
+    <link rel="preload" href="~/lib/archivo/archivo-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="~/lib/archivo/archivo.css" />
+    <link rel="stylesheet" href="~/css/vitrin.css" asp-append-version="true" />
 </head>
-<body>
-    <header class="ust-menu">
+<body class="vitrin">
+    <header class="ust-menu @(saydamMenu ? "saydam-baslar" : "")">
+        <div class="kaydirma-cubugu" aria-hidden="true"></div>
         <nav class="navbar navbar-expand-lg">
             <div class="container">
                 <a class="logo" asp-controller="AnaSayfa" asp-action="Index">
@@ -72,13 +83,15 @@
     </header>
 
     <main>@RenderBody()</main>
+    <span id="icerik-sonu" hidden></span>
 
     <partial name="_AltBilgi" />
     <partial name="_Bildirim" />
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    @* jQuery burada yüklenmez (sayfalar hafif olsun); sadece form doğrulaması olan sayfalarda _FormDogrulama yükler. *@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/genel.js" asp-append-version="true"></script>
+    <script src="~/js/efektler.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

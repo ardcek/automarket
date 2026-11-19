@@ -4,7 +4,7 @@
  Tarih: 12 Kasım 2026
 ==========================================================================================
 
-Ekip: Mehmet Arda Çekiç (m255036001), Azra Ardıç (m255035059), Esra Ağlar (m255036077),
+Ekip: Mehmet Arda Çekiç (m255035001), Azra Ardıç (m255035059), Esra Ağlar (m255035077),
       Ömer Faruk Çelik (m265035083)
 Canlı site: https://automarket.ardcek.com   (ardcek.com/automarket buraya yönlenir)
 Kod: github.com/ardcek/automarket  →  AracKiralama\ klasörü

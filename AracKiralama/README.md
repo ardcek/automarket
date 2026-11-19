@@ -658,7 +658,7 @@ Render bunu görür, yeniden derler ve 5–10 dakika içinde canlıya alır. İl
 
 Uygulama her sayfaya **Content-Security-Policy** başlığı ekler: tarayıcı sadece bu sitenin kendi script, stil ve yazı tiplerini çalıştırır. Sayfaya dışarıdan zararlı kod sokulsa bile çalışmaz (XSS koruması). Bu yüzden:
 - Projede **hiç inline `<script>`** yoktur; bütün JavaScript `wwwroot/js/` altındaki dosyalardadır.
-- Bootstrap Icons, Inter yazı tipi ve Chart.js **CDN'den değil, projenin içinden** (`wwwroot/lib/`) yüklenir.
+- Bootstrap Icons, Inter ve Archivo yazı tipleri ve Chart.js **CDN'den değil, projenin içinden** (`wwwroot/lib/`) yüklenir.
 - Grafik verileri, çalıştırılmayan `<script type="application/json">` bloklarıyla sayfaya konur ve `grafikler.js` tarafından okunur.
 - Admin panelinde yazılan sayfa içerikleri HTML'e çevrilirken `<`, `>` gibi karakterler zararsız hale getirilir (`Bicim.Guvenli`); admin bile sayfaya script ekleyemez.
 - Yüklenen görsellerin gerçekten resim olup olmadığı dosyanın ilk baytlarından kontrol edilir; SVG kabul edilmez (içine script gizlenebildiği için).
@@ -729,11 +729,13 @@ Bütün yollar `AracKiralama/src/AracKiralama.Web/` klasörüne göredir.
 | Üst menü / alt bilgi | `Views/Shared/_Layout.cshtml`, `Views/Shared/_AltBilgi.cshtml` |
 | Araç kartının görünümü (her yerde aynı kart) | `Views/Shared/_AracKarti.cshtml` |
 | Yönetim paneli menüsü | `Views/Shared/_YonetimLayout.cshtml` |
-| Renklerin nerede kullanıldığı (CSS) | `wwwroot/css/stil.css` (renk değerleri panelden gelir) |
+| Renklerin nerede kullanıldığı (CSS) | `wwwroot/css/stil.css` (ortak parçalar + yönetim paneli; renk değerleri panelden gelir) |
+| Müşteri sitesinin tasarımı ve hareketli efektleri | `wwwroot/css/vitrin.css` (görünüm + kaydırmaya bağlı paralaks) + `wwwroot/js/efektler.js` (kaydırınca belirme, kart eğilmesi, fareyle derinlik, sayaçlar...) |
+| Kartlardaki küçük fotoğraflar / tarayıcı önbelleği | `Yardimcilar/Gorseller.cs` (`wwwroot/img/cars/k/*.webp`) / `Yardimcilar/Altyapi.cs` |
 | Hata mesajları | İlgili servis dosyasındaki `IsKuraliHatasi("...")` satırları |
 
 > Kod dosyasında (`.cs` veya `.cshtml`) değişiklik yaptıktan sonra siteyi kapatıp (`Ctrl + C`) tekrar `dotnet run` ile açın.
-> Sadece `stil.css` veya `.js` dosyalarında değişiklik yaptıysanız tarayıcıda `Ctrl + F5` yeterlidir.
+> Sadece `.css` veya `.js` dosyalarında değişiklik yaptıysanız tarayıcıda `Ctrl + F5` yeterlidir.
 
 Adım adım tarifler: **[docs/GELISTIRICI-REHBERI.md](docs/GELISTIRICI-REHBERI.md)** · Hangi dosya ne zaman çalışır: **[docs/KOD-HARITASI.md](docs/KOD-HARITASI.md)**
 
@@ -801,8 +803,9 @@ AracKiralama/
 │  ├─ Controllers/                Müşteri sayfaları + Api/ (REST API)
 │  ├─ Areas/Yonetim/              Yönetim paneli (controller + sayfalar)
 │  ├─ Views/                      Müşteri sayfaları + Shared/ (ortak parçalar, menü, araç kartı)
-│  └─ wwwroot/                    stil.css, js/ (genel, fiyat-hesapla, rezervasyon-adimlari, grafikler, tema),
-│                                 araç fotoğrafları, lib/ (Bootstrap, ikonlar, yazı tipi, Chart.js)
+│  └─ wwwroot/                    css/ (stil = ortak + panel, vitrin = müşteri sitesi ve efektler),
+│                                 js/ (genel, efektler, fiyat-hesapla, rezervasyon-adimlari, grafikler, tema),
+│                                 araç fotoğrafları, lib/ (Bootstrap, ikonlar, Inter ve Archivo yazı tipleri, Chart.js)
 └─ tests/AracKiralama.Tests/      Otomatik testler (66 adet)
 ```
 

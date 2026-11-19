@@ -1,67 +1,231 @@
 @* ANA SAYFA
-   - Yazılar: Yönetim → Site Metinleri → "Ana sayfa" grubu
+   - Yazılar: Yönetim → Site Metinleri → "Ana sayfa" grubu. Akan yazı bandı, marka şeridi ve son çağrı bandı:
+     başlıkları / yazıları boş bırakılırsa o bölüm gizlenir.
    - Bölümleri aç/kapa, görsel, öne çıkan araç sayısı: Yönetim → Ayarlar → Ana Sayfa
-   - Öne çıkan araçlar: Yönetim → Araçlar → Düzenle → "Ana sayfada öne çıkar" *@
+   - Öne çıkan araçlar: Yönetim → Araçlar → Düzenle → "Ana sayfada öne çıkar"
+   - Görünüm: wwwroot/css/vitrin.css · Fareyle hareketler: wwwroot/js/efektler.js (data-goster, data-sahne, data-derinlik...)
+   - Kaydırınca paralaks (katmanların farklı hızda kayması, kategorilerin yatay akması, yoldaki araç) vitrin.css'in sonunda. *@
 @model AnaSayfaModeli
 @{
     ViewData["Title"] = Icerik.Ayarlar.Slogan;
+    ViewData["SaydamMenu"] = true;   // üst menü, koyu üst bölümün üstünde saydam başlar
     var a = Icerik.Ayarlar;
     string M(string anahtar) => Icerik.Metin("anasayfa." + anahtar);   // kısaltma
+    // Kayan şerit boşluksuz dönsün diye logolar yan yana birkaç kez yazılır (en az ~12 logo)
+    var tekrarSayisi = Model.Markalar.Count == 0 ? 0 : (int)Math.Ceiling(12.0 / Model.Markalar.Count);
+    // Akan yazı bandı: "Şeffaf fiyat · Anında onay · ..." → parçalar
+    var akanlar = M("akan-yazilar").Split('·', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 }
 
-<section class="giris-alani">
-    <div class="container">
+@* ---------------- ÜST BÖLÜM (SAHNE): kaydırınca 5 katman farklı hızda kayar, fareyle derinlik kazanır ---------------- *@
+<section class="sahne ust-altinda" data-sahne>
+    <div class="katman-zemin"><partial name="_SahneZemini" /></div>
+    <div class="dev-ad" aria-hidden="true"><span data-derinlik="-26">@a.FirmaAdi</span></div>
+    <div class="container sahne-icerik">
         <div class="row align-items-center g-5">
             <div class="col-lg-6">
-                <span class="rozet-cam mb-4"><span class="nokta"></span> @M("rozet").Replace("{sube}", Model.Subeler.Count.ToString()).Replace("{arac}", Model.AracSayisi.ToString())</span>
-                <h1 class="mb-4">@M("baslik") <span class="vurgu">@M("baslik-vurgu")</span> @M("baslik-son")</h1>
-                <p class="lead mb-0">@M("aciklama")</p>
-                @if (a.IstatistikleriGoster)
-                {
-                    <div class="istatistikler">
-                        <div><strong>@Model.AracSayisi+</strong><span>@M("istatistik-arac")</span></div>
-                        <div><strong>@Bicim.Sayi(Model.TamamlananKiralama)</strong><span>@M("istatistik-kiralama")</span></div>
-                        <div><strong>@M("istatistik-ucuncu-deger")</strong><span>@M("istatistik-ucuncu")</span></div>
+                <div class="katman-yazi">
+                    <span class="rozet-cam mb-4" data-giris style="--i:0"><span class="nokta"></span> @M("rozet").Replace("{sube}", Model.Subeler.Count.ToString()).Replace("{arac}", Model.AracSayisi.ToString())</span>
+                    @* Başlığın 3 parçası sırayla "odaklanarak" belirir; ortadaki parça ışıltılı renkte *@
+                    <h1 class="sahne-baslik mb-4" data-giris style="--i:1"><span class="parca" style="--i:1">@M("baslik")</span> <span class="parca vurgu" style="--i:2">@M("baslik-vurgu")</span> <span class="parca" style="--i:3">@M("baslik-son")</span></h1>
+                    <p class="lead mb-0" data-giris style="--i:4">@M("aciklama")</p>
+                    <div class="sahne-butonlar" data-giris style="--i:5">
+                        @if (!string.IsNullOrWhiteSpace(M("cagri-buton"))) { <a href="/Araclar" class="btn btn-primary btn-lg" data-miknatis>@M("cagri-buton") <i class="bi bi-arrow-right ms-1"></i></a> }
+                        @if (a.NasilCalisirGoster) { <a href="#nasil-calisir" class="btn btn-cam btn-lg">@M("adimlar-ust")</a> }
                     </div>
-                }
+                    @if (a.IstatistikleriGoster)
+                    {
+                        <div class="istatistikler" data-giris style="--i:6">
+                            <div><strong data-sayac="@Model.AracSayisi" data-sonek="+">@Model.AracSayisi+</strong><span>@M("istatistik-arac")</span></div>
+                            <div><strong data-sayac="@Model.TamamlananKiralama">@Bicim.Sayi(Model.TamamlananKiralama)</strong><span>@M("istatistik-kiralama")</span></div>
+                            <div><strong>@M("istatistik-ucuncu-deger")</strong><span>@M("istatistik-ucuncu")</span></div>
+                        </div>
+                    }
+                </div>
             </div>
-            <div class="col-lg-6 d-none d-lg-block">
-                <div class="giris-gorseli">
-                    <img src="@a.AnaSayfaGorseli" alt="" />
-                    <div class="yuzen-kart" style="left:-28px; bottom:42px"><i class="bi bi-shield-check text-success fs-5"></i><div><b>@M("kart1-baslik")</b><div class="text-muted small">@M("kart1-metin")</div></div></div>
-                    <div class="yuzen-kart" style="right:-18px; top:28px"><i class="bi bi-lightning-charge-fill text-warning fs-5"></i><div><b>@M("kart2-baslik")</b><div class="text-muted small">@M("kart2-metin")</div></div></div>
+            <div class="col-lg-6">
+                @* Fotoğraf fareyle 3B döner (data-dondur), ışık halesi ve kartlar farklı derinlikte kayar (data-derinlik) *@
+                <div class="katman-arac">
+                    <div class="vitrin-arac" data-giris="sag" style="--i:2">
+                        <span class="hale" aria-hidden="true" data-derinlik="12"></span>
+                        <svg class="halka" viewBox="0 0 200 200" aria-hidden="true">
+                            <circle cx="100" cy="100" r="98" fill="none" stroke="currentColor" stroke-width=".5" stroke-dasharray="1 4" />
+                            <circle cx="100" cy="100" r="86" fill="none" stroke="currentColor" stroke-width=".25" />
+                        </svg>
+                        <div class="cerceve" data-dondur="8">
+                            <img src="@Gorseller.Kucuk(a.AnaSayfaGorseli)" srcset="@Gorseller.Secenekler(a.AnaSayfaGorseli)" sizes="(min-width: 992px) 46vw, 92vw" alt="" fetchpriority="high" />
+                        </div>
+                        <div class="yuzen-kart" style="left:-30px; bottom:60px" data-derinlik="30">
+                            <div class="ic">
+                                <span class="kart-ikon" style="background:rgba(22,163,74,.14); color:#16a34a"><i class="bi bi-shield-check"></i></span>
+                                <div><b>@M("kart1-baslik")</b><div class="text-muted small">@M("kart1-metin")</div></div>
+                            </div>
+                        </div>
+                        <div class="yuzen-kart" style="right:-20px; top:48px" data-derinlik="46">
+                            <div class="ic">
+                                <span class="kart-ikon" style="background:rgba(245,158,11,.16); color:#d97706"><i class="bi bi-lightning-charge-fill"></i></span>
+                                <div><b>@M("kart2-baslik")</b><div class="text-muted small">@M("kart2-metin")</div></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
+@* ---------------- ARAMA KUTUSU (üst kenarında ışık süzülür) ---------------- *@
 <div class="container">
-    <div class="arama-kutusu">
+    <div class="arama-kutusu parlayan-kenar" data-giris style="--i:7">
         <partial name="_AramaFormu" model="(new AracFiltresi(), Model.Subeler)" />
     </div>
 </div>
 
+@* ---------------- AKAN YAZI BANDI (kaydırdıkça iki satır ters yöne kayar) ---------------- *@
+@if (akanlar.Length > 0)
+{
+    <section class="akan-bant" aria-label="@M("akan-yazilar")">
+        @for (var satir = 0; satir < 2; satir++)
+        {
+            <div class="akan-satir @(satir == 1 ? "ters" : "")" aria-hidden="true">
+                @for (var tekrar = 0; tekrar < 4; tekrar++)
+                {
+                    foreach (var yazi in akanlar) { <span>@yazi</span><span class="ayrac"></span> }
+                }
+            </div>
+        }
+    </section>
+}
+
+@* ---------------- MARKA ŞERİDİ (sonsuz kayar, fareyle durur) ---------------- *@
+@if (Model.Markalar.Count > 0 && !string.IsNullOrWhiteSpace(M("markalar-baslik")))
+{
+    <section class="marka-seridi" aria-label="@M("markalar-baslik")">
+        <div class="container"><div class="kucuk-baslik text-center mb-3" data-goster>@M("markalar-baslik")</div></div>
+        <div class="serit" data-goster data-duraklat>
+            <div class="serit-ic">
+                @* İki eş yarım: şerit yarısı kadar kayınca başa sarar. Sadece ilk takım ekran okuyucuya ve klavyeye açıktır. *@
+                @for (var yarim = 0; yarim < 2; yarim++)
+                {
+                    for (var tekrar = 0; tekrar < tekrarSayisi; tekrar++)
+                    {
+                        var asil = yarim == 0 && tekrar == 0;
+                        foreach (var m in Model.Markalar)
+                        {
+                            <a class="marka @(asil ? "" : "kopya")" href="/Araclar?MarkaId=@m.Id" aria-hidden="@(asil ? null : "true")" tabindex="@(asil ? null : "-1")"><img src="@m.LogoAdresi" alt="" width="42" height="42" loading="lazy" decoding="async" />@m.Ad</a>
+                        }
+                    }
+                }
+            </div>
+        </div>
+    </section>
+}
+
+@* ---------------- KATEGORİLER: geniş ekranda bölüm yapışır, kartlar kaydırdıkça YATAY akar ---------------- *@
 @if (a.KategorileriGoster && Model.Kategoriler.Count > 0)
 {
-    <section class="bolum">
-        <div class="container">
-            <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
-                <div>
-                    <div class="bolum-ust mb-2">@M("kategoriler-ust")</div>
+    <section class="kategori-sahne" style="--adet: @Model.Kategoriler.Count">
+        <div class="kategori-sabit">
+            <div class="container kategori-giris">
+                <div data-goster>
+                    <div class="bolum-ust mb-3">@M("kategoriler-ust")</div>
                     <h2 class="bolum-baslik mb-0">@M("kategoriler-baslik")</h2>
+                    <p class="aciklama">@Model.Kategoriler.Count sınıf · @Model.AracSayisi araç</p>
+                </div>
+                <a href="/Araclar" class="btn btn-sade" data-goster>@M("tum-araclar") <i class="bi bi-arrow-right ms-1"></i></a>
+            </div>
+            <div class="container kategori-ray-kap">
+                <div class="kategori-izgara">
+                    @foreach (var (k, sira) in Model.Kategoriler.Select((k, i) => (k, i + 1)))
+                    {
+                        <a class="kategori-karti" href="/Araclar?KategoriId=@k.Kategori.Id" data-goster="olcek">
+                            <img src="@Gorseller.Kucuk(k.Kategori.GorselAdresi)" srcset="@Gorseller.Secenekler(k.Kategori.GorselAdresi)" sizes="(min-width: 992px) 75vw, (min-width: 768px) 50vw, 100vw" alt="" loading="lazy" decoding="async" />
+                            <span class="sira" aria-hidden="true">@sira.ToString("00")</span>
+                            <div class="icerik">
+                                <div class="min-w-0">
+                                    <h3><i class="bi @k.Kategori.Ikon me-2"></i>@k.Kategori.Ad</h3>
+                                    <div class="alt-yazi">@k.AracSayisi araç · @Bicim.Para(k.EnDusukFiyat)'den</div>
+                                </div>
+                                <span class="ok" aria-hidden="true"><i class="bi bi-arrow-right"></i></span>
+                            </div>
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+@* ---------------- ÖNE ÇIKAN ARAÇLAR (sütunlar farklı hızda kayar: .kayan / .kayan.hizli) ---------------- *@
+@if (a.OneCikanlariGoster && Model.OneCikanlar.Count > 0)
+{
+    <section class="bolum one-cikanlar @(a.KategorileriGoster && Model.Kategoriler.Count > 0 ? "pt-0" : "")">
+        <div class="container">
+            <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-5" data-goster>
+                <div>
+                    <div class="bolum-ust mb-3">@M("onecikan-ust")</div>
+                    <h2 class="bolum-baslik mb-0">@M("onecikan-baslik")</h2>
                 </div>
                 <a href="/Araclar" class="btn btn-sade">@M("tum-araclar") <i class="bi bi-arrow-right ms-1"></i></a>
             </div>
-            <div class="row g-3">
-                @foreach (var k in Model.Kategoriler)
+            <div class="row g-4 mobil-kaydir">
+                @foreach (var (arac, sira) in Model.OneCikanlar.Select((x, i) => (x, i)))
                 {
-                    <div class="col-6 col-md-4 col-xl">
-                        <a class="kategori-karti" href="/Araclar?KategoriId=@k.Kategori.Id">
-                            <img src="@(k.Kategori.GorselAdresi ?? "/img/placeholder.svg")" alt="@k.Kategori.Ad" loading="lazy" />
-                            <div class="icerik">
-                                <h3><i class="bi @k.Kategori.Ikon me-1"></i>@k.Kategori.Ad</h3>
-                                <div class="small">@k.AracSayisi araç · @Bicim.Para(k.EnDusukFiyat)'den</div>
+                    <div class="col-sm-6 col-lg-3" data-goster><div class="kayan @(sira % 2 == 1 ? "hizli" : "")"><partial name="_AracKarti" model="new AracKartiModeli { Arac = arac, Kampanya = Model.Kampanya }" /></div></div>
+                }
+            </div>
+        </div>
+    </section>
+}
+
+@* ---------------- NASIL ÇALIŞIR: kaydırdıkça araç yolda ilerler, duraklar sırayla yanar ---------------- *@
+@if (a.NasilCalisirGoster)
+{
+    <section class="bolum yolculuk" id="nasil-calisir">
+        <div class="container">
+            <div class="mb-5" data-goster>
+                <div class="bolum-ust mb-3">@M("adimlar-ust")</div>
+                <h2 class="bolum-baslik mb-0">@M("adimlar-baslik")</h2>
+            </div>
+            <div class="yol-seridi">
+                <div class="yol-hatti" aria-hidden="true"><span class="yol-dolgu"></span><span class="yol-arac-ray"><span class="yol-arac"><i class="bi bi-car-front-fill"></i></span></span></div>
+                <div class="duraklar">
+                    @* --bas / --son: aracın o durağa geldiği kaydırma aralığı (vitrin.css → "Yolculuk") *@
+                    @foreach (var (no, ikon, bas, son) in new[] { (1, "bi-calendar2-range", "19%", "28%"), (2, "bi-ui-checks-grid", "36%", "45%"), (3, "bi-key", "53%", "62%") })
+                    {
+                        <div class="durak" style="--bas:@bas; --son:@son">
+                            <span class="durak-ikon"><i class="bi @ikon"></i></span>
+                            <h3>@M($"adim{no}-baslik")</h3>
+                            <p>@M($"adim{no}-metin")</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+@* ---------------- ŞUBELER (kartın tamamı bağlantı; arkadaki şehir adı kaydırınca kayar) ---------------- *@
+@if (a.SubeleriGoster)
+{
+    <section class="bolum pt-0" id="subeler">
+        <div class="container">
+            <div class="mb-5" data-goster>
+                <div class="bolum-ust mb-3">@M("subeler-ust")</div>
+                <h2 class="bolum-baslik mb-0">@M("subeler-baslik")</h2>
+            </div>
+            <div class="row g-3">
+                @foreach (var s in Model.Subeler)
+                {
+                    <div class="col-md-6 col-lg-4" data-goster>
+                        <a class="sube-karti" href="/Araclar?AlisSubeId=@s.Id" data-egim="isik">
+                            <span class="sehir-arka" aria-hidden="true">@s.Sehir</span>
+                            <div class="ust"><span class="pin"><i class="bi bi-geo-alt-fill"></i></span><span class="kucuk-baslik">@s.Sehir</span></div>
+                            <h3>@s.Ad</h3>
+                            <p class="adres">@s.Adres</p>
+                            <div class="alt">
+                                <span class="text-muted"><i class="bi bi-telephone me-1"></i>@s.Telefon</span>
+                                <span class="git">@M("subeler-buton") <i class="bi bi-arrow-right"></i></span>
                             </div>
                         </a>
                     </div>
@@ -71,65 +235,20 @@
     </section>
 }
 
-@if (a.OneCikanlariGoster && Model.OneCikanlar.Count > 0)
+@* ---------------- SON ÇAĞRI BANDI (arkadaki fotoğraf ağır ağır kayar, başlık büyüyerek gelir) ---------------- *@
+@if (!string.IsNullOrWhiteSpace(M("cagri-baslik")))
 {
     <section class="bolum pt-0">
         <div class="container">
-            <div class="bolum-ust mb-2">@M("onecikan-ust")</div>
-            <h2 class="bolum-baslik mb-4">@M("onecikan-baslik")</h2>
-            <div class="row g-4">
-                @foreach (var arac in Model.OneCikanlar)
+            <div class="cagri" data-sahne data-goster="olcek">
+                @if (Model.CagriGorseli != null)
                 {
-                    <div class="col-sm-6 col-lg-3"><partial name="_AracKarti" model="new AracKartiModeli { Arac = arac, Kampanya = Model.Kampanya }" /></div>
+                    <div class="cagri-gorsel" aria-hidden="true"><img src="@Gorseller.Kucuk(Model.CagriGorseli)" srcset="@Gorseller.Secenekler(Model.CagriGorseli)" sizes="(min-width: 1200px) 1300px, 100vw" alt="" loading="lazy" decoding="async" /></div>
                 }
-            </div>
-        </div>
-    </section>
-}
-
-@if (a.NasilCalisirGoster)
-{
-    <section class="bolum pt-0">
-        <div class="container">
-            <div class="card p-3 p-md-4">
-                <div class="row g-3">
-                    @foreach (var (no, ikon) in new[] { (1, "bi-calendar2-range"), (2, "bi-ui-checks-grid"), (3, "bi-key") })
-                    {
-                        <div class="col-md-4">
-                            <div class="adim-karti">
-                                <span class="ikon"><i class="bi @ikon"></i></span>
-                                <h3 class="h5">@M($"adim{no}-baslik")</h3>
-                                <p class="text-muted mb-0">@M($"adim{no}-metin")</p>
-                            </div>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-    </section>
-}
-
-@if (a.SubeleriGoster)
-{
-    <section class="bolum pt-0" id="subeler">
-        <div class="container">
-            <div class="bolum-ust mb-2">@M("subeler-ust")</div>
-            <h2 class="bolum-baslik mb-4">@M("subeler-baslik")</h2>
-            <div class="row g-3">
-                @foreach (var s in Model.Subeler)
-                {
-                    <div class="col-md-6 col-lg-4">
-                        <div class="card h-100 p-3">
-                            <div class="kucuk-baslik">@s.Sehir</div>
-                            <h3 class="h6 mb-1">@s.Ad</h3>
-                            <div class="small text-muted mb-2">@s.Adres</div>
-                            <div class="d-flex flex-wrap gap-2">
-                                <span class="etiket"><i class="bi bi-telephone"></i>@s.Telefon</span>
-                                <a class="etiket" href="/Araclar?AlisSubeId=@s.Id">@M("subeler-buton") <i class="bi bi-arrow-right"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                }
+                <partial name="_SahneZemini" />
+                <h2>@M("cagri-baslik")</h2>
+                <p>@M("cagri-metin")</p>
+                <a href="/Araclar" class="btn btn-isik btn-lg" data-miknatis>@M("cagri-buton") <i class="bi bi-arrow-right ms-1"></i></a>
             </div>
         </div>
     </section>

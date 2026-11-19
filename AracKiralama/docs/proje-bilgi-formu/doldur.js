@@ -215,8 +215,9 @@ function birlestir(bloklar) {
   // ── 9) Başlıklar, kutu / tablolarından ayrı sayfaya düşmesin ─────────────
   ['AMAÇ VE HEDEFLER', 'YÖNTEM', 'Risk Yönetimi', 'Araştırma Olanakları', 'YAYGIN ETKİ', 'Projeden Elde Edilmesi Öngörülen Etkilere',
     'Sanayi İşbirliğine Yönelik', '6.4. Proje Çıktılarının', 'BELİRTMEK İSTEDİĞİNİZ DİĞER KONULAR'].forEach(birlikteTut);
-  // "3. YÖNTEM" yeni sayfadan başlasın (yoksa kutunun ilk satırı önceki sayfanın dibinde tek kalıyor)
-  {
+  // "3. YÖNTEM" yeni sayfadan başlasın (yoksa kutunun ilk satırı önceki sayfanın dibinde tek kalıyor).
+  // Metin kısaldığında gerek kalmaz: YONTEM_YENI_SAYFA=0 ile kapatılır.
+  if (process.env.YONTEM_YENI_SAYFA !== '0') {
     const ppr = Y.ilkCocuk(ust[metinIle('YÖNTEM')], 'pPr');
     const once = Y.ilkCocuk(ppr, 'keepLines') || Y.ilkCocuk(ppr, 'keepNext') || Y.ilkCocuk(ppr, 'pStyle');
     if (!Y.ilkCocuk(ppr, 'pageBreakBefore')) ppr.insertBefore(Y.yeni(dom, 'pageBreakBefore'), once ? once.nextSibling : ppr.firstChild);
@@ -241,7 +242,7 @@ function birlestir(bloklar) {
     ppr.insertBefore(Y.yeni(dom, 'pageBreakBefore'), kn ? kn.nextSibling : (Y.ilkCocuk(ppr, 'pStyle') || { nextSibling: ppr.firstChild }).nextSibling);
     const body = Y.govde(dom), sectPr = Y.ilkCocuk(body, 'sectPr');
     body.insertBefore(baslik, sectPr);
-    body.insertBefore(Y.paragraf(dom, { k: 'Ekler, formun 22 sayfalık sınırına dahil değildir.' }, { sonra: 120 }), sectPr);
+    body.insertBefore(Y.paragraf(dom, { k: 'Bu ek, 22 sayfalık sınıra dahil değildir.' }, { sonra: 120 }), sectPr);
     icerik.kaynaklar.forEach(k => body.insertBefore(Y.paragraf(dom, k, { hiza: 'left', sonra: 60, sol: 340, sag: 0 }), sectPr));
     // asılı girinti (ikinci satırlar içeride)
     Y.hepsi(body, 'p').slice(-icerik.kaynaklar.length).forEach(p => { const ind = Y.hepsi(p, 'ind')[0]; ind.setAttributeNS(W, 'w:hanging', '340'); });
@@ -263,6 +264,17 @@ function birlestir(bloklar) {
   }
 
   zip.file('word/document.xml', Y.yaz(dom));
+  // Belge özellikleri: son kaydeden proje lideri, tarih bugün (formu Word'de dolduran kişide de böyle yazar)
+  {
+    const CORE = 'docProps/core.xml';
+    if (zip.file(CORE)) {
+      const simdi = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
+      const x = (await zip.file(CORE).async('string'))
+        .replace(/<cp:lastModifiedBy>[^<]*<\/cp:lastModifiedBy>/, '<cp:lastModifiedBy>' + icerik.lider.ad + '</cp:lastModifiedBy>')
+        .replace(/(<dcterms:modified[^>]*>)[^<]*(<\/dcterms:modified>)/, '$1' + simdi + '$2');
+      zip.file(CORE, x);
+    }
+  }
   // Klasör kayıtlarını çıkar (Word bazı ortamlarda klasör kaydı olan .docx'i reddedebiliyor)
   for (const ad of Object.keys(zip.files)) if (zip.files[ad].dir) delete zip.files[ad];
   const cikan = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });

@@ -3,11 +3,11 @@
 @{ ViewData["Title"] = Icerik.Metin("hesap.giris-baslik"); }
 <div class="giris-sayfasi">
     <div class="giris-yan">
-        <h2>@Icerik.Metin("hesap.giris-yan-baslik")</h2>
-        <p class="opacity-75 mb-0">@Icerik.Metin("hesap.giris-yan-metin")</p>
+        <h2 data-giris style="--i:1">@Icerik.Metin("hesap.giris-yan-baslik")</h2>
+        <p class="opacity-75 mb-0" data-giris style="--i:2">@Icerik.Metin("hesap.giris-yan-metin")</p>
     </div>
     <div class="giris-form">
-        <div class="ic">
+        <div class="ic" data-giris style="--i:0">
             <h1 class="h3">@Icerik.Metin("hesap.giris-baslik")</h1>
             <p class="text-muted">Hesabınız yok mu? <a asp-action="Kayit" asp-route-donusAdresi="@Model.DonusAdresi">Üye olun</a></p>
             <form asp-action="Giris" method="post">

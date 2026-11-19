@@ -118,6 +118,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(s =>
 });
 
 var app = builder.Build();
+Gorseller.Yukle(app.Environment.WebRootPath);   // kartlardaki küçük fotoğraf kopyaları (Yardimcilar/Gorseller.cs)
 
 // Formdaki sayılar "1500.50" gelir → okuma kültürden bağımsız. Ekrandaki Türkçe biçim: Yardimcilar/Bicim.cs
 CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
