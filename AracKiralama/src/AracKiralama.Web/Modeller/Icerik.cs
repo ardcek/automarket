@@ -27,6 +27,16 @@ public class Sayfa
     public string Icerik { get; set; } = "";
 
     [Display(Name = "Üst menüde göster")] public bool MenudeGoster { get; set; }
+
+    /// <summary>Menüde başlık yerine görünecek kısa ad (örn. başlık "Sıkça Sorulan Sorular", menüde "SSS").</summary>
+    [Display(Name = "Menüdeki kısa adı (boşsa başlık)"), MaxLength(40)] public string? MenuAdi { get; set; }
+
+    /// <summary>Aynı grup adını taşıyan sayfalar üst menüde tek bir açılır menüde toplanır (örn. "Kurumsal"). Boşsa tek link.</summary>
+    [Display(Name = "Menü grubu (boşsa tek link)"), MaxLength(40)] public string? MenuGrubu { get; set; }
+
+    /// <summary>Açıksa "## " ile başlayan her satır bir soru, altındaki yazı cevabı olur (Sıkça Sorulan Sorular).</summary>
+    [Display(Name = "Soru-cevap düzeni (## Soru, altında cevap)")] public bool SoruCevapDuzeni { get; set; }
+
     [Display(Name = "Alt bilgide göster")] public bool AltBilgideGoster { get; set; } = true;
     [Display(Name = "İletişim kartlarını göster (telefon, e-posta, adres)")] public bool IletisimKartlari { get; set; }
     [Display(Name = "Sıra")] public int Sira { get; set; }

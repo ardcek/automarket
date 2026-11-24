@@ -1,39 +1,107 @@
-@* KAYIT SAYFASI. Form her zaman görünür. Yeni üyelik Yönetim → Ayarlar → Sunum → "Yeni üye kaydı açık" ile açılır;
-   kapalıyken gönderilen form kaydedilmez, HesapController uyarı gösterir. *@
+@* KAYIT SAYFASI
+   - Yazılar: Yönetim → Site Düzenleyici → "Giriş ve kayıt" (hesap.kayit-...)
+   - Üyelik aç/kapa: Yönetim → Ayarlar → Sunum → "Yeni üye kaydı açık". Kapalıyken üstte uyarı çıkar, buton pasif olur.
+   - Panelden eklenen sorular (Meslek vb.): Yönetim → Müşteri Bilgileri → "Kayıt formunda sor"
+   - Davranışlar wwwroot/js/genel.js'te: data-sifre-goster (göster/gizle), data-sifre-gucu (güç çubuğu),
+     data-telefon (yazarken 0532 123 45 67 biçimi), data-yukleniyor (gönderirken buton "oluşturuluyor..." olur) *@
 @model KayitFormu
 @{
     ViewData["Title"] = Icerik.Metin("hesap.kayit-baslik");
+    var a = Icerik.Ayarlar;
+    var kayitAcik = a.UyeKaydiAcik;
     var kvkkYayinda = Icerik.Sayfalar.Any(s => s.Adres == "kvkk");   // KVKK sayfası kapalıysa link yerine düz yazı
+    var maddeler = new[]
+    {
+        ("bi-gift", Icerik.Metin("hesap.kayit-madde1")),
+        ("bi-receipt", Icerik.Metin("hesap.kayit-madde2")),
+        ("bi-calendar2-x", Icerik.Metin("hesap.kayit-madde3").Replace("{saat}", a.UcretsizIptalSaati.ToString())),
+    };
 }
 <div class="giris-sayfasi">
     <div class="giris-yan">
         <h2 data-giris style="--i:1">@Icerik.Metin("hesap.kayit-yan-baslik")</h2>
-        <p class="opacity-75 mb-0" data-giris style="--i:2">@Icerik.Metin("hesap.kayit-yan-metin")</p>
+        <p class="opacity-75" data-giris style="--i:2">@Icerik.Metin("hesap.kayit-yan-metin")</p>
+        <ul class="guven-listesi" data-giris style="--i:3">
+            @foreach (var (ikon, yazi) in maddeler)
+            {
+                <li><span class="ikon"><i class="bi @ikon"></i></span>@yazi</li>
+            }
+        </ul>
     </div>
     <div class="giris-form">
         <div class="ic" data-giris style="--i:0">
             <h1 class="h3">@Icerik.Metin("hesap.kayit-baslik")</h1>
-            <p class="text-muted">Zaten üye misiniz? <a asp-action="Giris">Giriş yapın</a></p>
-            <form asp-action="Kayit" method="post" class="row g-3">
+            <p class="text-muted">Zaten üye misiniz? <a asp-action="Giris" asp-route-donusAdresi="@Model.DonusAdresi">Giriş yapın</a></p>
+
+            @if (!kayitAcik)
+            {
+                <div class="alert alert-warning d-flex gap-2 align-items-start small" role="status">
+                    <i class="bi bi-hourglass-split mt-1"></i><div>@Icerik.Metin("hesap.kayit-kapali")</div>
+                </div>
+            }
+
+            <form asp-action="Kayit" method="post" class="row g-3" data-yukleniyor="Hesabınız oluşturuluyor…">
                 <input type="hidden" asp-for="DonusAdresi" />
-                <div asp-validation-summary="ModelOnly" class="text-danger small col-12"></div>
-                <div class="col-6"><label asp-for="Ad" class="form-label"></label><input asp-for="Ad" class="form-control" /><span asp-validation-for="Ad"></span></div>
-                <div class="col-6"><label asp-for="Soyad" class="form-label"></label><input asp-for="Soyad" class="form-control" /><span asp-validation-for="Soyad"></span></div>
-                <div class="col-12"><label asp-for="Eposta" class="form-label"></label><input asp-for="Eposta" class="form-control" /><span asp-validation-for="Eposta"></span></div>
-                <div class="col-12"><label asp-for="Telefon" class="form-label"></label><input asp-for="Telefon" class="form-control" placeholder="05xx xxx xx xx" /><span asp-validation-for="Telefon"></span></div>
-                <div class="col-sm-6"><label asp-for="Sifre" class="form-label"></label><input asp-for="Sifre" class="form-control" /><span asp-validation-for="Sifre"></span></div>
-                <div class="col-sm-6"><label asp-for="SifreTekrar" class="form-label"></label><input asp-for="SifreTekrar" class="form-control" /><span asp-validation-for="SifreTekrar"></span></div>
+                <div asp-validation-summary="ModelOnly" class="hata-ozeti col-12" role="alert"></div>
+
+                <div class="col-6">
+                    <label asp-for="Ad" class="form-label"></label>
+                    <input asp-for="Ad" class="form-control" autocomplete="given-name" autocapitalize="words" />
+                    <span asp-validation-for="Ad"></span>
+                </div>
+                <div class="col-6">
+                    <label asp-for="Soyad" class="form-label"></label>
+                    <input asp-for="Soyad" class="form-control" autocomplete="family-name" autocapitalize="words" />
+                    <span asp-validation-for="Soyad"></span>
+                </div>
+                <div class="col-12">
+                    <label asp-for="Eposta" class="form-label"></label>
+                    <input asp-for="Eposta" type="email" class="form-control" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="ornek@eposta.com" />
+                    <span asp-validation-for="Eposta"></span>
+                </div>
+                <div class="col-12">
+                    <label asp-for="Telefon" class="form-label">Telefon <span class="istege-bagli">isteğe bağlı</span></label>
+                    <input asp-for="Telefon" type="tel" class="form-control" autocomplete="tel-national" inputmode="tel" placeholder="0532 123 45 67" data-telefon />
+                    <span asp-validation-for="Telefon"></span>
+                </div>
+                <div class="col-12">
+                    <label asp-for="Sifre" class="form-label"></label>
+                    <div class="sifre-kutusu">
+                        <input asp-for="Sifre" class="form-control" autocomplete="new-password" aria-describedby="sifre-gucu" />
+                        <button type="button" class="sifre-goster" data-sifre-goster aria-label="Şifreyi göster" aria-pressed="false"><i class="bi bi-eye"></i></button>
+                    </div>
+                    <div class="sifre-gucu" id="sifre-gucu" data-sifre-gucu="#Sifre" aria-live="polite">
+                        <span class="cubuk" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+                        <small>En az 6 karakter</small>
+                    </div>
+                    <span asp-validation-for="Sifre"></span>
+                </div>
+
                 @* Panelden eklenen sorular (Yönetim → Müşteri Bilgileri → "Kayıt formunda sor") *@
                 <partial name="_MusteriAlanlari" model="(Model.Alanlar, Model.Alan)" />
-                <div class="col-12 form-check ms-1">
-                    <input type="checkbox" name="KvkkOnay" id="KvkkOnay" value="true" class="form-check-input" checked="@Model.KvkkOnay" />
-                    <label for="KvkkOnay" class="form-check-label small">
-                        @if (kvkkYayinda) { <a href="/Sayfa/kvkk" target="_blank">KVKK aydınlatma metnini</a> } else { <span>KVKK aydınlatma metnini</span> }
-                        okudum, kabul ediyorum.
-                    </label>
-                    <div><span asp-validation-for="KvkkOnay"></span></div>
+
+                <div class="col-12">
+                    <div class="form-check">
+                        @* "required" + data-msg-required: tarayıcıdaki doğrulama işaretsiz kutuyu yakalar
+                           (ASP.NET'in data-val-required'ı onay kutularını bilerek atlar). Sunucu da [Range] ile kontrol eder. *@
+                        <input type="checkbox" name="KvkkOnay" id="KvkkOnay" value="true" class="form-check-input" checked="@Model.KvkkOnay"
+                               required data-msg-required="KVKK aydınlatma metnini onaylamalısınız." />
+                        <label for="KvkkOnay" class="form-check-label small">
+                            @if (kvkkYayinda) { <a href="/Sayfa/kvkk" target="_blank">KVKK aydınlatma metnini</a> } else { <span>KVKK aydınlatma metnini</span> }
+                            okudum, kabul ediyorum.
+                        </label>
+                    </div>
+                    <span asp-validation-for="KvkkOnay"></span>
                 </div>
-                <div class="col-12"><button class="btn btn-primary btn-lg w-100">@Icerik.Metin("menu.uyeol")</button></div>
+
+                <div class="col-12">
+                    <button class="btn btn-primary btn-lg w-100" disabled="@(!kayitAcik)">@Icerik.Metin("menu.uyeol") <i class="bi bi-arrow-right ms-1"></i></button>
+                    <p class="alt-not"><i class="bi bi-shield-lock"></i>@Icerik.Metin("hesap.kayit-alt-not")</p>
+                    @* Telefonda fotoğraf bölümü gizli; güven maddeleri burada kısa liste olarak görünür *@
+                    <ul class="guven-satiri d-lg-none">
+                        @foreach (var (_, yazi) in maddeler) { <li><i class="bi bi-check2-circle"></i>@yazi</li> }
+                    </ul>
+                </div>
             </form>
         </div>
     </div>

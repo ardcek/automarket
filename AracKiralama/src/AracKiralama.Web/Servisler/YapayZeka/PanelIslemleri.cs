@@ -1119,11 +1119,14 @@ public class SayfaEkle : PanelIslemi
     public override string Ikon => "bi-file-earmark-text";
     public override string Aciklama => "Siteye yeni bir yazı sayfası ekler (örn. Sıkça Sorulan Sorular). icerik: sayfanın metninin TAMAMI, en az birkaç paragraf; "
         + "boş satır = yeni paragraf, \"- \" ile başlayan satır = madde, \"## \" = ara başlık. adres boşsa başlıktan üretilir. "
-        + "Üst menüde görünmesi için menude_goster: true yeterli; menüdeki başka yazıları değiştirme.";
+        + "Üst menüde görünmesi için menude_goster: true yeterli; menüdeki başka yazıları değiştirme. "
+        + "menu_grubu: aynı grup adını taşıyan sayfalar menüde tek açılır menüde toplanır (örn. \"Kurumsal\"), boşsa tek link. "
+        + "soru_cevap: true ise \"## Soru?\" satırları açılır kapanır soru olur, altındaki satırlar cevabıdır (SSS sayfaları için).";
 
     public override (JsonObject, string[]) Parametreler() => (new JsonObject
     {
         ["baslik"] = Sema("string"), ["icerik"] = Sema("string"), ["adres"] = Sema("string"), ["menude_goster"] = EvetHayir(false),
+        ["menu_grubu"] = Sema("string"), ["soru_cevap"] = EvetHayir(false),
     }, ["baslik", "icerik"]);
 
     private static string AdresBul(JsonObject p) => AdresYap(Yazi(p, "adres") ?? Yazi(p, "baslik") ?? "");
@@ -1144,6 +1147,7 @@ public class SayfaEkle : PanelIslemi
         {
             Baslik = Yazi(p, "baslik")!, Adres = AdresBul(p), Icerik = Yazi(p, "icerik")!,
             MenudeGoster = Evet(p, "menude_goster", false), AltBilgideGoster = true, Aktif = true, Sira = await vt.Sayfalar.CountAsync() + 1,
+            MenuGrubu = Yazi(p, "menu_grubu"), SoruCevapDuzeni = Evet(p, "soru_cevap", false),
         };
         vt.Sayfalar.Add(sayfa);
         await vt.SaveChangesAsync();

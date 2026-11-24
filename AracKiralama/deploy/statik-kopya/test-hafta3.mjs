@@ -109,7 +109,7 @@ await sayfa.type("#Sifre", "Rota123!");
 await sayfa.click("form[data-statik-hesap] button");
 kontrol("Girişte 'yakında açılacak' uyarısı", (await sayfa.content()).includes("Üye girişi çok yakında açılacak") && sayfa.url().includes("giris.html"));
 await git(`${STATIK}kayit.html`);
-for (const [s, d] of [["#Ad", "Deneme"], ["#Soyad", "Kişi"], ["#Eposta", "deneme@ornek.com"], ["#Telefon", "05551112233"], ["#Sifre", "abc12345"], ["#SifreTekrar", "abc12345"]]) await sayfa.type(s, d);
+for (const [s, d] of [["#Ad", "Deneme"], ["#Soyad", "Kişi"], ["#Eposta", "deneme@ornek.com"], ["#Telefon", "05551112233"], ["#Sifre", "abc12345"]]) await sayfa.type(s, d);
 await sayfa.click("#KvkkOnay");
 await sayfa.click("form[data-statik-hesap] button");
 kontrol("Kayıtta 'yakında açılacak' uyarısı", (await sayfa.content()).includes("Üyelik sistemi çok yakında açılacak"));

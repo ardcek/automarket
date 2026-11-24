@@ -150,6 +150,10 @@ public static class DuzenleyiciTanimlari
         ["hesap.kayit-yan-baslik"] = ("Üye ol sayfası", "Fotoğraf üstündeki başlık"),
         ["hesap.kayit-yan-metin"] = ("Üye ol sayfası", "Fotoğraf üstündeki yazı"),
         ["hesap.kayit-kapali"] = ("Üye ol sayfası", "Kayıt kapalıyken çıkan uyarı"),
+        ["hesap.kayit-madde1"] = ("Üye ol sayfası", "Fotoğraf üstündeki 1. madde"),
+        ["hesap.kayit-madde2"] = ("Üye ol sayfası", "Fotoğraf üstündeki 2. madde"),
+        ["hesap.kayit-madde3"] = ("Üye ol sayfası", "Fotoğraf üstündeki 3. madde ({saat} = Fiyatlar'daki ücretsiz iptal süresi)"),
+        ["hesap.kayit-alt-not"] = ("Üye ol sayfası", "Butonun altındaki güven notu"),
         // Menü
         ["menu.anasayfa"] = ("Üst menü", "\"Ana Sayfa\" linki"),
         ["menu.araclar"] = ("Üst menü", "\"Araçlar\" linki"),

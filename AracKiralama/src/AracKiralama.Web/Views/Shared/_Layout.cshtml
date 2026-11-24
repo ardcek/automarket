@@ -7,6 +7,10 @@
     var controller = ViewContext.RouteData.Values["controller"]?.ToString();
     var personelMi = User.IsInRole(Roller.Admin) || User.IsInRole(Roller.Personel);
     var saydamMenu = ViewData["SaydamMenu"] is true;
+    var menuSayfalari = Icerik.Sayfalar.Where(s => s.MenudeGoster).ToList();
+    var cizilenGruplar = new HashSet<string>();
+    var acikSayfa = ViewContext.RouteData.Values["adres"]?.ToString();   // /Sayfa/{adres} açıksa o sayfanın adresi
+    string MenuAdi(Sayfa s) => string.IsNullOrWhiteSpace(s.MenuAdi) ? s.Baslik : s.MenuAdi;
 }
 <!DOCTYPE html>
 <html lang="tr" data-varsayilan-tema="@a.VarsayilanTema" data-vitrin>
@@ -26,22 +30,43 @@
         <nav class="navbar navbar-expand-lg">
             <div class="container">
                 <a class="logo" asp-controller="AnaSayfa" asp-action="Index">
-                    <span class="logo-isaret"><i class="bi @a.LogoIkonu"></i></span>
+                    <partial name="_LogoIsareti" />
                     @a.FirmaAdi <small>@a.Slogan</small>
                 </a>
                 <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#menu" aria-label="Menü"><i class="bi bi-list fs-3"></i></button>
 
                 <div class="collapse navbar-collapse" id="menu">
                     <ul class="navbar-nav mx-auto gap-lg-1 mt-3 mt-lg-0">
-                        <li class="nav-item"><a class="nav-link @(controller == "AnaSayfa" ? "active" : "")" asp-controller="AnaSayfa" asp-action="Index">@Icerik.Metin("menu.anasayfa")</a></li>
+                        <li class="nav-item"><a class="nav-link @(controller == "AnaSayfa" && acikSayfa == null ? "active" : "")" asp-controller="AnaSayfa" asp-action="Index">@Icerik.Metin("menu.anasayfa")</a></li>
                         <li class="nav-item"><a class="nav-link @(controller == "Araclar" ? "active" : "")" asp-controller="Araclar" asp-action="Index">@Icerik.Metin("menu.araclar")</a></li>
                         @if (a.SubeleriGoster)
                         {
                             <li class="nav-item"><a class="nav-link" href="/#subeler">@Icerik.Metin("menu.subeler")</a></li>
                         }
-                        @foreach (var sayfa in Icerik.Sayfalar.Where(s => s.MenudeGoster))
+                        @* Yönetim → Sayfalar: "Üst menüde göster" işaretli sayfalar. "Menü grubu" dolu olanlar (örn. Kurumsal)
+                           tek bir açılır menüde toplanır; grup, içindeki ilk sayfanın sırasında durur. *@
+                        @foreach (var sayfa in menuSayfalari)
                         {
-                            <li class="nav-item"><a class="nav-link" href="/Sayfa/@sayfa.Adres">@sayfa.Baslik</a></li>
+                            var grup = sayfa.MenuGrubu?.Trim();
+                            if (string.IsNullOrEmpty(grup))
+                            {
+                                <li class="nav-item"><a class="nav-link @(sayfa.Adres == acikSayfa ? "active" : "")" href="/Sayfa/@sayfa.Adres">@MenuAdi(sayfa)</a></li>
+                            }
+                            else if (cizilenGruplar.Add(grup))
+                            {
+                                var altSayfalar = menuSayfalari.Where(s => s.MenuGrubu?.Trim() == grup).ToList();
+                                <li class="nav-item dropdown">
+                                    <button class="nav-link menu-grubu @(altSayfalar.Any(s => s.Adres == acikSayfa) ? "active" : "")" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        @grup <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        @foreach (var alt in altSayfalar)
+                                        {
+                                            <li><a class="dropdown-item @(alt.Adres == acikSayfa ? "active" : "")" href="/Sayfa/@alt.Adres">@MenuAdi(alt)</a></li>
+                                        }
+                                    </ul>
+                                </li>
+                            }
                         }
                     </ul>
 

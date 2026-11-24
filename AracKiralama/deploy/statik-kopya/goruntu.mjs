@@ -25,7 +25,7 @@ await al("giris", "giris.html", { h: 900, once: async () => {
   await p.type("#Eposta", "musteri@rota.com"); await p.type("#Sifre", "Rota123!"); await p.click("form[data-statik-hesap] button");
 }});
 await al("kayit", "kayit.html", { h: 1000, once: async () => {
-  for (const [s, d] of [["#Ad", "Ayşe"], ["#Soyad", "Yılmaz"], ["#Eposta", "ayse@ornek.com"], ["#Telefon", "05551112233"], ["#Sifre", "abc12345"], ["#SifreTekrar", "abc12345"]]) await p.type(s, d);
+  for (const [s, d] of [["#Ad", "Ayşe"], ["#Soyad", "Yılmaz"], ["#Eposta", "ayse@ornek.com"], ["#Telefon", "05551112233"], ["#Sifre", "abc12345"]]) await p.type(s, d);
   await p.click("#KvkkOnay"); await p.click("form[data-statik-hesap] button");
 }});
 await al("mobil", "araclar.html", { w: 390, h: 844 });

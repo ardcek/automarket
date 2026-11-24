@@ -1,0 +1,13 @@
+@* LOGONUN RENKLİ KARESİ: seçilen amblem (Yardimcilar/LogoAmblemi.cs) ya da Bootstrap ikonu.
+   Üst menü, alt bilgi ve yönetim paneli kullanır. Seçim: Yönetim → Ayarlar → Görünüm → "Logo". *@
+@{ var logo = Icerik.Ayarlar.LogoIkonu; }
+<span class="logo-isaret">
+    @if (LogoAmblemi.AmblemMi(logo))
+    {
+        <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">@Html.Raw(LogoAmblemi.Cizim(logo))</svg>
+    }
+    else
+    {
+        <i class="bi @logo" aria-hidden="true"></i>
+    }
+</span>

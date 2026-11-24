@@ -633,14 +633,11 @@ git push ardcek main
 
 Render bunu görür, yeniden derler ve 5–10 dakika içinde canlıya alır. İlerlemeyi Render → servis → **Events / Logs** sekmesinden izleyebilirsiniz.
 
-> **Koda yeni bir tablo veya alan eklediyseniz:** canlı veritabanı kendiliğinden güncellenmez ("Demo verilerini sıfırla" da yetmez; o sadece verileri siler, tabloların yapısını değiştirmez). Yayından sonra:
-> 1. Neon → projeniz → soldan **SQL Editor** → şunu yazıp **Run**:
->    ```sql
->    DROP SCHEMA public CASCADE; CREATE SCHEMA public;
->    ```
-> 2. Render → servis → **Manual Deploy → Restart service**.
+> **Koda yeni bir tablo veya alan eklediyseniz bir şey yapmanız gerekmez.** Site açılırken `Veri/SemaGuncelleyici.cs` Neon'daki eksik tablo ve kolonları ekler; üyelere, rezervasyonlara ve panel ayarlarına dokunmaz. Render loglarında "Veritabanı şeması güncellendi, eklenenler: ..." satırını görürsünüz.
 >
-> Uygulama tabloları yeni haliyle oluşturup örnek verileri yükler. ⚠️ Bu işlem **her şeyi** (panelde yaptığınız ayarlar dahil) siler.
+> Sadece bir kolonu **silmek** veya **adını değiştirmek** otomatik değildir. O zaman (⚠️ canlıdaki **her şeyi**, üyeler dahil siler):
+> 1. Neon → projeniz → soldan **SQL Editor** → `DROP SCHEMA public CASCADE; CREATE SCHEMA public;` → **Run**
+> 2. Render → servis → **Manual Deploy → Restart service** (tablolar yeniden oluşur, örnek veriler yüklenir).
 
 ### 13.6. Yayınla ilgili dosyalar
 

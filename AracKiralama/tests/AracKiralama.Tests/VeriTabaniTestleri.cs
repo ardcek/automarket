@@ -31,6 +31,43 @@ public class VeriTabaniTestleri
         using var t = new TestVeriTabani();
         Assert.True(t.Vt.Araclar.Any());
     }
+
+    /// <summary>
+    /// Koda sonradan eklenen kolon / tablo, eski bir veritabanında eksikse SemaGuncelleyici ekler,
+    /// içindeki verilere dokunmaz. (Canlı sitede Neon'u koruyan adım: Veri/SemaGuncelleyici.cs)
+    /// </summary>
+    [Fact]
+    public async Task Sema_guncelleyici_eksik_kolon_ve_tabloyu_ekler_veriyi_korur()
+    {
+        using var t = new TestVeriTabani();
+        var aracSayisi = t.Vt.Araclar.Count();
+        // "Eski veritabanı" taklidi: bir kolon ve bir tablo silinir
+        await t.Vt.Database.ExecuteSqlRawAsync("ALTER TABLE Sayfalar DROP COLUMN MenuGrubu");
+        await t.Vt.Database.ExecuteSqlRawAsync("DROP TABLE YapayZekaKayitlari");
+
+        var eklenenler = await SemaGuncelleyici.EksikleriEkleAsync(t.Vt);
+
+        Assert.Contains("kolon Sayfalar.MenuGrubu", eklenenler);
+        Assert.Contains("tablo YapayZekaKayitlari", eklenenler);
+        Assert.Empty(await SemaGuncelleyici.EksikleriEkleAsync(t.Vt));   // ikinci çalıştırmada eklenecek bir şey kalmaz
+        Assert.Equal(aracSayisi, t.Vt.Araclar.Count());
+        Assert.Equal(0, t.Vt.YapayZekaKayitlari.Count());                // yeniden oluşan tablo okunabiliyor
+    }
+}
+
+public class BicimTestleri
+{
+    [Fact]
+    public void Soru_cevap_metni_giris_ve_sorulara_ayrilir()
+    {
+        var (giris, sorular) = Bicim.SoruCevaplar("Merhaba.\n\n## İptal?\nÜcretsiz.\n\n## Yakıt?\nAynı seviyede.\n- madde");
+
+        Assert.Equal("Merhaba.", giris.Trim());
+        Assert.Equal(2, sorular.Count);
+        Assert.Equal("İptal?", sorular[0].Soru);
+        Assert.Equal("Ücretsiz.", sorular[0].Cevap.Trim());
+        Assert.Contains("- madde", sorular[1].Cevap);
+    }
 }
 
 public class BaglantiTestleri

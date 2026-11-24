@@ -38,6 +38,7 @@ public class HesapController : TemelController
     public async Task<IActionResult> Giris(GirisFormu form)
     {
         if (!ModelState.IsValid) return View(form);
+        form.Eposta = form.Eposta.Trim();
 
         // Sunum modu: üye girişi kapalıyken yalnızca admin ve personel girebilir (yönetim paneli için).
         // Müşteriye (ya da sistemde olmayan bir e-postaya) aynı "yakında açılacak" uyarısı gösterilir.
@@ -83,11 +84,18 @@ public class HesapController : TemelController
         foreach (var hata in MusteriBilgisiServisi.Hatalar(form.Alanlar, form.Alan)) ModelState.AddModelError("", hata);
         if (!ModelState.IsValid) return View(form);
 
-        var kullanici = new Kullanici { UserName = form.Eposta, Email = form.Eposta, Ad = form.Ad.Trim(), Soyad = form.Soyad.Trim(), PhoneNumber = form.Telefon };
+        var eposta = form.Eposta.Trim().ToLowerInvariant();   // "Ayse@Ornek.com " ile "ayse@ornek.com" aynı hesap sayılsın
+        var kullanici = new Kullanici { UserName = eposta, Email = eposta, Ad = form.Ad.Trim(), Soyad = form.Soyad.Trim(), PhoneNumber = form.Telefon?.Trim() };
         var sonuc = await _kullanicilar.CreateAsync(kullanici, form.Sifre);
         if (!sonuc.Succeeded)
         {
-            foreach (var hata in sonuc.Errors) ModelState.AddModelError("", hata.Description);
+            // Hata, ilgili kutunun altında görünsün (e-posta zaten kayıtlı → e-posta kutusu, şifre kuralları → şifre kutusu)
+            foreach (var hata in sonuc.Errors)
+            {
+                if (hata.Code == "DuplicateUserName") continue;   // e-posta = kullanıcı adı; aynı hata iki kez yazılmasın
+                var alan = hata.Code.StartsWith("Password") ? nameof(form.Sifre) : hata.Code.Contains("Email") ? nameof(form.Eposta) : "";
+                ModelState.AddModelError(alan, hata.Description);
+            }
             return View(form);
         }
 

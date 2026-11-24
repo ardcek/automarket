@@ -25,7 +25,9 @@ Bütün yollar `AracKiralama/src/AracKiralama.Web/` klasörüne göredir. Kodun 
 | 13 | [Asistana yeni bir yetenek eklemek](#13-asistana-yeni-bir-yetenek-eklemek) | 1 |
 | 14 | [Sitenin görünümü ve hareketli efektler ("bu bölüm de kayarak gelsin")](#14-sitenin-görünümü-ve-hareketli-efektler) | 0–1 |
 
-**Her değişiklikten sonra:** siteyi kapatıp (`Ctrl + C`) tekrar `dotnet run --project src/AracKiralama.Web` ile açın. **Bir tabloya yeni alan / tablo eklediyseniz** `src/AracKiralama.Web/arackiralama.db` dosyasını silin (veritabanı yeni yapıyla baştan oluşur; canlı site için README → 13.5).
+**Her değişiklikten sonra:** siteyi kapatıp (`Ctrl + C`) tekrar `dotnet run --project src/AracKiralama.Web` ile açın. **Bir tabloya yeni alan / tablo eklediyseniz bir şey yapmanız gerekmez:** açılışta `Veri/SemaGuncelleyici.cs` eksik kolon ve tabloları kendiliğinden ekler (verilere dokunmaz). Bu hem bilgisayardaki SQLite'ta hem canlı sitedeki Neon'da çalışır; loga "Veritabanı şeması güncellendi, eklenenler: ..." yazar. Sadece bir kolonu **silmek** ya da **adını değiştirmek** elle yapılır (bilgisayarda en kolayı `arackiralama.db` dosyasını silmek).
+
+**Canlı site (Render) her şeyi Neon'da tutar** (`appsettings.Production.json` → `"SayfalarNeredenOkusun": "Neon"`): üyeler, rezervasyonlar ve panelden yapılan her değişiklik kalıcıdır. Bilgisayarınızdaki site (BASLAT.bat, `dotnet run`) internetsiz çalışsın diye SQLite kullanmaya devam eder.
 
 ---
 
@@ -306,6 +308,13 @@ Tabloya kolon eklenmediği için (hesaplanan değer) veritabanını silmeye gere
 
 İçerikte boş satır = paragraf, `- ` = madde, `## ` = ara başlık; `{firma}`, `{telefon}`, `{haftalik-indirim}` gibi yer tutucular ayarlardaki güncel değerle dolar.
 
+- **Açılır menü ("Kurumsal ▾"):** sayfaların **Menü grubu** kutusuna aynı adı yazın (örn. Hakkımızda ve İletişim → `Kurumsal`). Grup, içindeki ilk sayfanın sırasında durur. Boş bırakılan sayfa tek link olur.
+- **Menüde kısa ad:** başlık uzunsa **Menüdeki kısa adı** kutusunu doldurun (başlık "Sıkça Sorulan Sorular", menüde "SSS").
+- **Soru-cevap sayfası (SSS):** **Soru-cevap düzeni**'ni açın. Her `## Soru?` satırı açılır kapanır bir soru, altındaki satırlar cevabı olur. Yeni soru eklemek = yeni bir `## ` satırı yazmak.
+- Yapay Zekâ Asistanı da aynısını yapabilir: "SSS'ye 'Kasko dahil mi?' sorusunu ekle", "Kampanya koşulları diye bir sayfa aç, Kurumsal menüsüne koy".
+
+**Logo:** Yönetim → Ayarlar → Görünüm → **Logo**. "Rota amblemi" seçenekleri `Yardimcilar/LogoAmblemi.cs`'te çizilmiş SVG'lerdir; renkleri ana renkten gelir, sekme simgesi (favicon) de aynı amblemi kullanır.
+
 ---
 
 ## 10. Yeni API adresi
@@ -434,7 +443,9 @@ Hoca "kodda nerede?" derse:
 
 | Belirti | Sebep | Çözüm |
 |---|---|---|
-| `SQLite Error 1: 'no such column: ...'` | Tabloya alan eklendi, veritabanı eski | `arackiralama.db` dosyasını silin |
+| `SQLite Error 1: 'no such column: ...'` | Kolonun adı değişti ya da tür farkı var (eksik kolonları SemaGuncelleyici kendisi ekler) | Bilgisayarda `arackiralama.db` dosyasını silin |
+| Panelde açma/kapama düğmesi yerine "Aktif" yazan kutu çıkıyor | View'da `asp-for="@degisken"` yazıldı | `asp-for` özelliğin adını ister: `asp-for="Aktif"` |
+| Seçenek listesinde yazı ":" işaretinden sonra kesiliyor | `[Ayar(Secenekler = ...)]` görünen adında ":" var | Görünen adda ":" yerine parantez kullanın |
 | Filtre seçiliyor ama liste değişmiyor | View'daki `name="..."` ile `AracFiltresi`'ndeki ad farklı | İkisini birebir aynı yazın (büyük / küçük harf dahil) |
 | Formdaki yeni alan kaydedilmiyor | Controller'daki kopyalama satırı unutuldu | [3. tarif](#3-araca-yeni-alan), adım 3 |
 | Yeni ayar panelde görünmüyor | `[Ayar(...)]` etiketi yok veya özellik `public` değil | Etiketi ve `{ get; set; }`'i kontrol edin |

@@ -90,10 +90,22 @@ html.animasyon:has(> body.vitrin) { scroll-behavior: smooth; }
 }
 .ust-menu .nav-link:hover, .ust-menu .nav-link.active { color: var(--menu-vurgu, var(--ana-yazi)); }
 .ust-menu .nav-link:hover::after, .ust-menu .nav-link.active::after { transform: scaleX(1); }
+/* Açılır menü grubu (Yönetim → Sayfalar → "Menü grubu", örn. Kurumsal). Ok ayrı ikon: ::after alt çizgide kullanılıyor. */
+.ust-menu .menu-grubu { background: none; border: 0; display: inline-flex; align-items: center; gap: .3rem; }
+.ust-menu .menu-grubu i { font-size: .7em; transition: transform .3s var(--egri); }
+.ust-menu .menu-grubu[aria-expanded="true"] i { transform: rotate(180deg); }
+.ust-menu .dropdown-menu { --bs-dropdown-link-active-bg: var(--ana-acik); --bs-dropdown-link-active-color: var(--ana-yazi); min-width: 13rem; margin-top: .35rem !important; }
+.ust-menu .dropdown-item { padding: .6rem .8rem; }
+@media (max-width: 991.98px) {   /* telefonda açılır menü, menünün içinde girintili liste olur */
+    .ust-menu .navbar-nav .dropdown-menu { border: 0; box-shadow: none; background: transparent; padding: 0 0 .25rem .9rem; margin: 0 !important; }
+}
 .ust-menu .logo { color: var(--menu-yazi, var(--yazi)); font-family: var(--baslik-yazi); font-stretch: 112%; transition: color .3s; }
 .ust-menu .logo small { color: var(--menu-soluk, var(--soluk)); font-family: "Inter", system-ui, sans-serif; font-stretch: 100%; }
 .ust-menu .logo-isaret { transition: transform .6s var(--egri); }
-.ust-menu .logo:hover .logo-isaret { transform: rotate(-12deg) scale(1.06); }
+.ust-menu .logo:hover .logo-isaret { transform: scale(1.06); }
+/* Amblemdeki noktalı yol, fareyle üstüne gelince ileri akar (sadece bir kez, sürekli değil) */
+.logo .logo-isaret .amblem-yol { transition: stroke-dashoffset .8s var(--egri); }
+.logo:hover .logo-isaret .amblem-yol { stroke-dashoffset: -9.8; }
 .ust-menu .navbar-toggler { color: var(--menu-yazi, var(--yazi)); }
 .ust-menu .btn-sade { transition: color .3s, border-color .3s, background-color .3s; }
 /* Ana sayfada (ve koyu başlıklı sayfalarda, _Layout → "saydam-baslar") menü, koyu bölümün üstünde SAYDAM başlar; kaydırınca buzlu cama döner.
@@ -561,6 +573,50 @@ html:not(.animasyon) .serit .kopya { display: none; }
 .giris-form h1 { font-weight: 800; letter-spacing: -.03em; }
 @media (max-width: 991.98px) { .giris-sayfasi { grid-template-columns: 1fr; } .giris-yan { display: none; } }
 
+/* Sıkça Sorulan Sorular (Sayfa.cshtml, "Soru-cevap düzeni"): açılır kapanır sorular, JavaScript'siz (<details>) */
+.sss-madde { border-bottom: 1px solid var(--cizgi); }
+.sss-madde:last-child { border-bottom: 0; }
+.sss-madde summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.1rem 0; font-weight: 600; font-size: 1.02rem; color: var(--yazi); transition: color .2s; }
+.sss-madde summary::-webkit-details-marker { display: none; }
+.sss-madde summary:hover { color: var(--ana-yazi); }
+.sss-madde summary i { flex: none; width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--ana-acik); color: var(--ana-yazi); transition: transform .35s var(--egri), background-color .3s, color .3s; }
+.sss-madde[open] summary i { transform: rotate(45deg); background: var(--ana); color: #fff; }
+.sss-madde .icerik-metni { padding: 0 3rem 1.1rem 0; }
+.sss-madde .icerik-metni p:last-child { margin-bottom: 0; }
+
+/* Kayıt: fotoğraf üstündeki güven maddeleri (telefonda butonun altında küçük liste olarak tekrar çıkar) */
+.guven-listesi { list-style: none; padding: 0; margin: 1.5rem 0 0; display: grid; gap: .75rem; }
+.guven-listesi li { display: flex; align-items: center; gap: .75rem; font-weight: 500; }
+.guven-listesi .ikon { width: 36px; height: 36px; flex: none; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, .12); border: 1px solid rgba(255, 255, 255, .2); color: var(--isik); }
+.guven-satiri { list-style: none; padding: 0; margin: 1rem 0 0; display: grid; gap: .4rem; font-size: .85rem; color: var(--soluk); }
+.guven-satiri i { color: var(--yesil); margin-right: .4rem; }
+
+/* Form ayrıntıları: "isteğe bağlı" etiketi, hata özeti, geçerli / hatalı kutu, alt not */
+.istege-bagli { font-weight: 500; font-size: .75rem; color: var(--soluk); margin-left: .25rem; }
+.hata-ozeti.validation-summary-errors { display: flex; gap: .6rem; padding: .75rem .9rem; border-radius: calc(var(--yuvarlak) * .7); background: rgba(220, 38, 38, .08); border: 1px solid rgba(220, 38, 38, .25); color: var(--kirmizi); font-size: .88rem; }
+.hata-ozeti.validation-summary-errors::before { content: "\F333"; font-family: "bootstrap-icons"; }   /* bi-exclamation-circle */
+.hata-ozeti.validation-summary-valid { display: none; }
+.vitrin .form-control.input-validation-error { border-color: var(--kirmizi); }
+.vitrin .form-control.input-validation-error:focus { box-shadow: 0 0 0 4px rgba(220, 38, 38, .15); }
+.vitrin .form-control.valid:not(:placeholder-shown) { border-color: color-mix(in srgb, var(--yesil) 60%, var(--cizgi)); }
+.alt-not { display: flex; align-items: center; justify-content: center; gap: .4rem; margin: .85rem 0 0; font-size: .8rem; color: var(--soluk); text-align: center; }
+
+/* Şifre kutusu: sağda göster / gizle düğmesi (genel.js → data-sifre-goster) */
+.sifre-kutusu { position: relative; }
+.sifre-kutusu .form-control { padding-right: 3.1rem; }
+.sifre-goster { position: absolute; top: 50%; right: .3rem; translate: 0 -50%; width: 40px; height: 40px; border: 0; border-radius: 8px; background: transparent; color: var(--soluk); font-size: 1.1rem; display: inline-flex; align-items: center; justify-content: center; }
+.sifre-goster:hover { color: var(--yazi); background: var(--yuzey-2); }
+
+/* Şifre gücü: 4 parçalı çubuk + kısa yazı (genel.js → data-sifre-gucu). data-seviye 0-4 */
+.sifre-gucu { display: flex; align-items: center; gap: .6rem; margin-top: .45rem; min-height: 1.2rem; }
+.sifre-gucu .cubuk { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; width: 120px; flex: none; }
+.sifre-gucu .cubuk i { height: 5px; border-radius: 3px; background: var(--cizgi); transition: background-color .3s; }
+.sifre-gucu small { color: var(--soluk); font-size: .78rem; }
+.sifre-gucu[data-seviye="1"] .cubuk i:nth-child(-n+1) { background: var(--kirmizi); }
+.sifre-gucu[data-seviye="2"] .cubuk i:nth-child(-n+2) { background: var(--turuncu); }
+.sifre-gucu[data-seviye="3"] .cubuk i:nth-child(-n+3) { background: color-mix(in srgb, var(--yesil) 70%, var(--turuncu)); }
+.sifre-gucu[data-seviye="4"] .cubuk i { background: var(--yesil); }
+
 /* =====================================================================
    ALT BİLGİ
    ===================================================================== */
@@ -578,8 +634,10 @@ html:not(.animasyon) .serit .kopya { display: none; }
 .dev-yazi {   /* firmanın adı, kocaman ve içi boş; kaydırınca aşağıdan yükselir */
     font-family: var(--baslik-yazi); font-stretch: 125%; font-weight: 900; font-size: clamp(4.5rem, 19vw, 16rem); line-height: .8; letter-spacing: -.045em;
     text-align: center; white-space: nowrap; overflow: hidden; margin: 3rem 0 -.08em; user-select: none;
-    color: transparent; -webkit-text-stroke: 1px rgba(255, 255, 255, .14);
-    background: linear-gradient(180deg, rgba(var(--ana-rgb), .4), transparent 85%); -webkit-background-clip: text; background-clip: text;
+    /* İçi ana renkten aşağı doğru solan dolgu + ince açık kontur. Daha belirgin/silik yapmak için iki .7 / .3 değerini değiştirin. */
+    color: transparent; -webkit-text-stroke: 1.5px rgba(255, 255, 255, .3);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--isik) 70%, transparent), rgba(var(--ana-rgb), .3) 60%, rgba(var(--ana-rgb), .06) 92%);
+    -webkit-background-clip: text; background-clip: text;
 }
 
 /* ---------- Mobil ---------- */

@@ -58,8 +58,11 @@ public class SiteAyarlari
     [Ayar("Görünüm", "Varsayılan tema", Secenekler = "sistem:Ziyaretçinin cihazına göre|acik:Açık|koyu:Koyu")]
     public string VarsayilanTema { get; set; } = "sistem";
 
-    [Ayar("Görünüm", "Logo ikonu", Aciklama = "Bootstrap ikon adı, örn: bi-signpost-split-fill, bi-car-front-fill")]
-    public string LogoIkonu { get; set; } = "bi-signpost-split-fill";
+    // Amblemlerin çizimi: Yardimcilar/LogoAmblemi.cs. Listeye yeni ikon eklemek: "|bi-ikon-adi:Görünen ad" yazın
+    // (görünen adda ":" kullanmayın, ayırıcıdır).
+    [Ayar("Görünüm", "Logo", Aciklama = "Logodaki renkli karenin içi. Renk, yukarıdaki ana renktir.",
+        Secenekler = "amblem-r:Rota amblemi (R harfi ve yol)|amblem-rota:Rota amblemi (rota ve hedef iğnesi)|bi-signpost-split-fill:İkon (yol tabelası)|bi-car-front-fill:İkon (araba)|bi-key-fill:İkon (anahtar)|bi-geo-alt-fill:İkon (konum)")]
+    public string LogoIkonu { get; set; } = "amblem-r";
 
     // ---------------- ANA SAYFA ----------------
     [Ayar("Ana Sayfa", "Üst bölüm görseli", Aciklama = "Görsel adresi (Yönetim → Görseller'den yükleyip adresini kopyalayın)")]
@@ -90,13 +93,12 @@ public class SiteAyarlari
     [Ayar("Rezervasyon", "En uzun kiralama (gün)")] public int EnUzunKiralama { get; set; } = 90;
 
     // ---------------- SUNUM (hocanın gördüğü site) ----------------
-    // Bu haftaki sunumda site "temsili" çalışır: sayfalar görünür ama müşteri
-    // giriş / kayıt yapamaz. Hepsi Yönetim → Ayarlar → Sunum'dan tek tıkla açılır.
-    // Varsayılanlar bilerek "kapalı": sunucu yeniden başlasa da sunum görünümü korunur.
+    // Üye girişi ve kaydı varsayılan olarak AÇIK. "Temsili" sunum için (müşteri giriş / kayıt yapamasın)
+    // Yönetim → Ayarlar → Sunum'dan tek tıkla kapatılır.
     [Ayar("Sunum", "Üye girişi açık", Aciklama = "Kapalıyken giriş formu görünür ama müşteriler giriş yapamaz. Admin ve personel her zaman girebilir.")]
-    public bool UyeGirisiAcik { get; set; } = false;
-    [Ayar("Sunum", "Yeni üye kaydı açık", Aciklama = "Kapalıyken kayıt formu görünür ama gönderilince kayıt yapılmaz, uyarı çıkar.")]
-    public bool UyeKaydiAcik { get; set; } = false;
+    public bool UyeGirisiAcik { get; set; } = true;
+    [Ayar("Sunum", "Yeni üye kaydı açık", Aciklama = "Kapalıyken kayıt sayfasının üstünde uyarı çıkar ve form gönderilemez.")]
+    public bool UyeKaydiAcik { get; set; } = true;
     [Ayar("Sunum", "Giriş sayfasında demo hesapları göster")] public bool DemoHesaplariGoster { get; set; } = false;
     [Ayar("Sunum", "Alt bilgide API linkini göster")] public bool ApiLinkiniGoster { get; set; } = false;
 

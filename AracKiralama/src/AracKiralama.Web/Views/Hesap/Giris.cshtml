@@ -10,13 +10,30 @@
         <div class="ic" data-giris style="--i:0">
             <h1 class="h3">@Icerik.Metin("hesap.giris-baslik")</h1>
             <p class="text-muted">Hesabınız yok mu? <a asp-action="Kayit" asp-route-donusAdresi="@Model.DonusAdresi">Üye olun</a></p>
-            <form asp-action="Giris" method="post">
+            @if (!Icerik.Ayarlar.UyeGirisiAcik)
+            {
+                <div class="alert alert-warning d-flex gap-2 align-items-start small" role="status">
+                    <i class="bi bi-hourglass-split mt-1"></i><div>@Icerik.Metin("hesap.giris-kapali") Personel girişi açıktır.</div>
+                </div>
+            }
+            <form asp-action="Giris" method="post" data-yukleniyor="Giriş yapılıyor…">
                 <input type="hidden" asp-for="DonusAdresi" />
-                <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
-                <div class="mb-3"><label asp-for="Eposta" class="form-label"></label><input asp-for="Eposta" class="form-control" autocomplete="username" /><span asp-validation-for="Eposta"></span></div>
-                <div class="mb-3"><label asp-for="Sifre" class="form-label"></label><input asp-for="Sifre" class="form-control" autocomplete="current-password" /><span asp-validation-for="Sifre"></span></div>
+                <div asp-validation-summary="ModelOnly" class="hata-ozeti mb-3" role="alert"></div>
+                <div class="mb-3">
+                    <label asp-for="Eposta" class="form-label"></label>
+                    <input asp-for="Eposta" type="email" class="form-control" autocomplete="username" inputmode="email" autocapitalize="off" spellcheck="false" />
+                    <span asp-validation-for="Eposta"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Sifre" class="form-label"></label>
+                    <div class="sifre-kutusu">
+                        <input asp-for="Sifre" class="form-control" autocomplete="current-password" />
+                        <button type="button" class="sifre-goster" data-sifre-goster aria-label="Şifreyi göster" aria-pressed="false"><i class="bi bi-eye"></i></button>
+                    </div>
+                    <span asp-validation-for="Sifre"></span>
+                </div>
                 <div class="form-check mb-4"><input asp-for="BeniHatirla" class="form-check-input" /><label asp-for="BeniHatirla" class="form-check-label"></label></div>
-                <button class="btn btn-primary btn-lg w-100">@Icerik.Metin("hesap.giris-baslik")</button>
+                <button class="btn btn-primary btn-lg w-100">@Icerik.Metin("hesap.giris-baslik") <i class="bi bi-arrow-right ms-1"></i></button>
             </form>
             @if (Icerik.Ayarlar.DemoHesaplariGoster)
             {

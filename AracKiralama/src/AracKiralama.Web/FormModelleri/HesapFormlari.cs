@@ -31,11 +31,9 @@ public class KayitFormu
 
     [Display(Name = "Telefon"), Phone(ErrorMessage = "Geçerli bir telefon giriniz.")] public string? Telefon { get; set; }
 
+    // "Şifre (tekrar)" kutusu yok: yerine şifreyi göster/gizle düğmesi var (yazım hatası görülerek düzeltilir).
     [Display(Name = "Şifre"), Required(ErrorMessage = "Şifre zorunludur."), DataType(DataType.Password), MinLength(6, ErrorMessage = "Şifre en az 6 karakter olmalıdır.")]
     public string Sifre { get; set; } = "";
-
-    [Display(Name = "Şifre (tekrar)"), DataType(DataType.Password), Compare(nameof(Sifre), ErrorMessage = "Şifreler eşleşmiyor.")]
-    public string SifreTekrar { get; set; } = "";
 
     [Range(typeof(bool), "true", "true", ErrorMessage = "KVKK aydınlatma metnini onaylamalısınız.")]
     public bool KvkkOnay { get; set; }

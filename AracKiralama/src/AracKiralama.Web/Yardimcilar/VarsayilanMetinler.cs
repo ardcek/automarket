@@ -122,6 +122,10 @@ public static class VarsayilanMetinler
         ["hesap.kayit-baslik"] = "Hesap oluştur",
         ["hesap.kayit-yan-baslik"] = "Dakikalar içinde yola çıkın.",
         ["hesap.kayit-yan-metin"] = "Üyelik ücretsizdir. Ehliyet bilgilerinizi bir kez girin, sonraki rezervasyonlarınız tek tık.",
+        ["hesap.kayit-madde1"] = "Üyelik ücretsiz, kart bilgisi istenmez",
+        ["hesap.kayit-madde2"] = "Fiyatın tamamı baştan belli, gizli ücret yok",
+        ["hesap.kayit-madde3"] = "Alışa {saat} saat kalana kadar ücretsiz iptal",
+        ["hesap.kayit-alt-not"] = "Bilgileriniz yalnızca kiralama için kullanılır, kimseyle paylaşılmaz.",
         ["hesap.kayit-kapali"] = "Üyelik sistemi çok yakında açılacak. Şu anda yeni üye kaydı alınmamaktadır.",
         ["hesap.giris-kapali"] = "Üye girişi çok yakında açılacak. Şu anda giriş yapılamamaktadır.",
 

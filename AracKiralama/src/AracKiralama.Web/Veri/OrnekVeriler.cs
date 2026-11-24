@@ -24,12 +24,17 @@ public static class OrnekVeriler
     {
         var vt = servisler.GetRequiredService<VeriTabani>();
         await vt.Database.EnsureCreatedAsync();          // tablolar yoksa oluştur
+        var eklenenler = await SemaGuncelleyici.EksikleriEkleAsync(vt);   // koda sonradan eklenen tablo / kolonlar
+        if (eklenenler.Count > 0)
+            servisler.GetRequiredService<ILoggerFactory>().CreateLogger("Veritabani")
+                .LogWarning("Veritabanı şeması güncellendi, eklenenler: {Liste}", string.Join(", ", eklenenler));
 
         var roller = servisler.GetRequiredService<RoleManager<IdentityRole>>();
         foreach (var rol in new[] { Roller.Admin, Roller.Personel, Roller.Musteri })
             if (!await roller.RoleExistsAsync(rol)) await roller.CreateAsync(new IdentityRole(rol));
 
         if (!await vt.SiteAyarlari.AnyAsync()) await IcerikYukleAsync(vt);
+        else await EksikSayfalariEkleAsync(vt);
         if (!await vt.Araclar.AnyAsync()) await DemoYukleAsync(vt, servisler.GetRequiredService<UserManager<Kullanici>>());
     }
 
@@ -68,19 +73,19 @@ public static class OrnekVeriler
         vt.Sayfalar.AddRange(
             new Sayfa
             {
-                Baslik = "Hakkımızda", Adres = "hakkimizda", Sira = 1, MenudeGoster = true, Aktif = false,
+                Baslik = "Hakkımızda", Adres = "hakkimizda", Sira = 1, MenudeGoster = true, MenuGrubu = "Kurumsal",
                 Icerik = "{firma}, Türkiye'nin önemli havalimanlarında ve şehir merkezlerinde hizmet veren bir araç kiralama markasıdır.\n\n" +
                          "Ekonomik sınıftan lüks segmente, ticari araçlardan 9 kişilik minibüslere kadar geniş bir filoyla hizmet veriyoruz.\n\n" +
                          "## Neden biz?\n- Şeffaf fiyat: tüm ücretler en baştan gösterilir\n- Esnek iade: farklı şubeye bırakabilirsiniz\n- 7/24 yol yardımı",
             },
             new Sayfa
             {
-                Baslik = "İletişim", Adres = "iletisim", Sira = 2, MenudeGoster = true, IletisimKartlari = true, Aktif = false,
+                Baslik = "İletişim", Adres = "iletisim", Sira = 2, MenudeGoster = true, MenuGrubu = "Kurumsal", IletisimKartlari = true,
                 Icerik = "Rezervasyon, fatura veya kurumsal kiralama talepleriniz için bize ulaşın.",
             },
             new Sayfa
             {
-                Baslik = "Kiralama Koşulları", Adres = "kiralama-kosullari", Sira = 3, Aktif = false,
+                Baslik = "Kiralama Koşulları", Adres = "kiralama-kosullari", Sira = 3,
                 Icerik = "Aşağıdaki oranlar sistem ayarlarından otomatik gelir.\n\n" +
                          "- Başlayan her 24 saat 1 gün olarak ücretlendirilir.\n" +
                          "- {haftalik-gun} gün ve üzeri kiralamalarda {haftalik-indirim}, {aylik-gun} gün ve üzeri kiralamalarda {aylik-indirim} indirim uygulanır.\n" +
@@ -92,14 +97,41 @@ public static class OrnekVeriler
             },
             new Sayfa
             {
-                Baslik = "KVKK Aydınlatma Metni", Adres = "kvkk", Sira = 4, Aktif = false,
+                Baslik = "KVKK Aydınlatma Metni", Adres = "kvkk", Sira = 4,
                 Icerik = "6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında, veri sorumlusu olarak {firma} kişisel verilerinizi aşağıdaki çerçevede işler.\n\n" +
                          "## İşlenen veriler\nAd, soyad, T.C. kimlik numarası, iletişim bilgileri, doğum tarihi, ehliyet bilgileri ve kiralama geçmişi.\n\n" +
                          "## Haklarınız\nVerilerinize erişme, düzeltme ve silinmesini talep etme hakkına sahipsiniz. Talepleriniz için: {eposta}\n\n" +
                          "Bu metin proje ödevi kapsamında örnek olarak hazırlanmıştır.",
-            });
+            },
+            SssSayfasi());
         await vt.SaveChangesAsync();
     }
+
+    /// <summary>
+    /// Sonradan eklenen hazır sayfalar: daha önce kurulmuş veritabanlarında yoksa eklenir.
+    /// (Silinirse bir sonraki açılışta geri gelir; istemiyorsanız silmek yerine "Yayında" kutusunu kapatın.)
+    /// </summary>
+    private static async Task EksikSayfalariEkleAsync(VeriTabani vt)
+    {
+        if (await vt.Sayfalar.AnyAsync(s => s.Adres == "sss")) return;
+        vt.Sayfalar.Add(SssSayfasi());
+        await vt.SaveChangesAsync();
+    }
+
+    /// <summary>Sıkça Sorulan Sorular. "## " satırı soru, altı cevap; {...} alanları güncel ayarlarla dolar.</summary>
+    private static Sayfa SssSayfasi() => new()
+    {
+        Baslik = "Sıkça Sorulan Sorular", MenuAdi = "SSS", Adres = "sss", Sira = 5, MenudeGoster = true, SoruCevapDuzeni = true,
+        Icerik = "Aradığınız cevabı bulamazsanız {telefon} numarasından ya da {eposta} adresinden bize ulaşın.\n\n" +
+                 "## Araç kiralamak için hangi belgeler gerekiyor?\nGeçerli bir sürücü belgesi ve kimlik yeterlidir. Ehliyet bilgilerinizi üye olduktan sonra profilinize bir kez girersiniz; sonraki rezervasyonlarda tekrar sorulmaz.\n\n" +
+                 "## Fiyata neler dahil?\nAraç sayfasında gördüğünüz toplam fiyat, kira bedelini ve seçtiğiniz ek hizmetleri içerir. Gizli ücret yoktur; onay adımında fiyat değişmez.\n\n" +
+                 "## Rezervasyonumu iptal edebilir miyim?\nEvet. Alışa {iptal-saati} saatten fazla varken iptal ücretsizdir. Daha geç yapılan iptallerde 1 günlük ücret kesilir.\n\n" +
+                 "## Aracı farklı bir şubeye bırakabilir miyim?\nEvet. Farklı şubeye iadede {tek-yon} tek yön ücreti alınır; bu ücret rezervasyon özetinde baştan gösterilir.\n\n" +
+                 "## Uzun süreli kiralamada indirim var mı?\n{haftalik-gun} gün ve üzeri kiralamalarda {haftalik-indirim}, {aylik-gun} gün ve üzeri kiralamalarda {aylik-indirim} indirim kendiliğinden uygulanır.\n\n" +
+                 "## Aracı geç iade edersem ne olur?\nPlanlanan iade saatinden sonra {gecikme-tolerans} dakikaya kadar ek ücret alınmaz. Sonrasında başlayan her gün için günlük ücretin {gecikme-carpani} katı uygulanır.\n\n" +
+                 "## Yakıt politikası nedir?\nAracı teslim aldığınız yakıt seviyesiyle iade edersiniz. Eksik her çeyrek depo için {yakit-ucreti} alınır.\n\n" +
+                 "## En fazla kaç gün kiralayabilirim?\nTek rezervasyonla en fazla {en-uzun} gün kiralayabilirsiniz. Daha uzun süreler için {telefon} numarasından bize ulaşın.",
+    };
 
     // ===================================================================
     // 2) DEMO VERİLERİ

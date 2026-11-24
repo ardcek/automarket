@@ -11,6 +11,10 @@
 //   data-demo="e-posta"         → giriş sayfasında e-postayı doldurur
 //   data-gorsel-onizle="#id"    → dosya seçilince resmi önizler
 //   data-ikon-onizle="#id"      → ikon adı yazılınca ikonu gösterir
+//   data-sifre-goster           → (şifre kutusunun yanındaki buton) şifreyi göster / gizle
+//   data-sifre-gucu="#Sifre"    → şifre yazıldıkça 4 parçalı güç çubuğunu ve yazısını günceller
+//   data-telefon                → yazarken "0532 123 45 67" biçimine sokar
+//   data-yukleniyor="Yazı..."   → (form) gönderilince buton kilitlenir, dönen ikon ve bu yazı çıkar
 // =====================================================================
 
 // ---- Açık / koyu tema ----
@@ -98,4 +102,62 @@ document.querySelectorAll("[data-gorsel-onizle]").forEach(kutu => kutu.addEventL
 document.querySelectorAll("[data-ikon-onizle]").forEach(kutu => kutu.addEventListener("input", () => {
     const ikon = document.querySelector(kutu.dataset.ikonOnizle);
     if (ikon) ikon.className = "bi " + kutu.value;
+}));
+
+// ---- Şifreyi göster / gizle ----
+document.querySelectorAll("[data-sifre-goster]").forEach(buton => buton.addEventListener("click", () => {
+    const kutu = buton.parentElement.querySelector("input");
+    const goster = kutu.type === "password";
+    kutu.type = goster ? "text" : "password";
+    buton.setAttribute("aria-pressed", goster);
+    buton.setAttribute("aria-label", goster ? "Şifreyi gizle" : "Şifreyi göster");
+    buton.querySelector("i").className = goster ? "bi bi-eye-slash" : "bi bi-eye";
+    kutu.focus();
+}));
+
+// ---- Şifre gücü: uzunluk + harf/rakam karışımı + büyük harf + işaret → 0..4 ----
+document.querySelectorAll("[data-sifre-gucu]").forEach(gosterge => {
+    const kutu = document.querySelector(gosterge.dataset.sifreGucu);
+    const yazi = gosterge.querySelector("small");
+    if (!kutu || !yazi) return;
+    const ilkYazi = yazi.textContent;
+    kutu.addEventListener("input", () => {
+        const s = kutu.value;
+        let puan = 0;
+        if (s.length >= 6) puan++;
+        if (s.length >= 10) puan++;
+        if (/[a-zçğıöşü]/i.test(s) && /\d/.test(s)) puan++;
+        if (/[A-ZÇĞİÖŞÜ]/.test(s) && /[^A-Za-z0-9çğıöşüÇĞİÖŞÜ]/.test(s)) puan++;
+        if (s.length < 6) puan = s.length ? 1 : 0;
+        gosterge.dataset.seviye = puan;
+        yazi.textContent = !s.length ? ilkYazi
+            : s.length < 6 ? `${6 - s.length} karakter daha`
+            : ["", "Zayıf", "Orta: rakam veya büyük harf ekleyin", "İyi", "Güçlü şifre"][puan];
+    });
+});
+
+// ---- Telefon: sadece rakam, "0532 123 45 67" biçiminde ----
+document.querySelectorAll("[data-telefon]").forEach(kutu => kutu.addEventListener("input", () => {
+    let r = kutu.value.replace(/\D/g, "");
+    if (r.startsWith("90")) r = r.slice(2);           // +90 ile yapıştırıldıysa
+    if (r && !r.startsWith("0")) r = "0" + r;
+    r = r.slice(0, 11);
+    kutu.value = [r.slice(0, 4), r.slice(4, 7), r.slice(7, 9), r.slice(9, 11)].filter(Boolean).join(" ");
+}));
+
+// ---- Gönderilirken buton kilitlensin (iki kez tıklanıp iki kayıt olmasın) ----
+// Doğrulama formu durdurduysa (hatalı alan) buton kilitlenmez: kontrol, diğer dinleyiciler çalıştıktan sonra yapılır.
+document.querySelectorAll("form[data-yukleniyor]").forEach(form => form.addEventListener("submit", olay => setTimeout(() => {
+    if (olay.defaultPrevented) return;
+    const buton = form.querySelector("button:not([type=button])");
+    if (!buton) return;
+    buton.dataset.ilkHali = buton.innerHTML;
+    buton.disabled = true;
+    buton.innerHTML = `<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>${form.dataset.yukleniyor}`;
+})));
+// Tarayıcının "Geri" tuşuyla sayfaya dönülürse buton eski hâline gelsin
+window.addEventListener("pageshow", () => document.querySelectorAll("form[data-yukleniyor] button[data-ilk-hali]").forEach(buton => {
+    buton.innerHTML = buton.dataset.ilkHali;
+    buton.disabled = false;
+    delete buton.dataset.ilkHali;
 }));

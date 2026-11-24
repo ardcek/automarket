@@ -40,6 +40,30 @@ public static class Bicim
     /// boş satır = yeni paragraf, "- " = madde işareti, "## " = ara başlık.
     /// Yazılan her şey önce güvenli hale getirilir (HTML etiketi çalıştırılamaz).
     /// </summary>
+    /// <summary>
+    /// "Soru-cevap düzeni" açık sayfa (SSS): "## " ile başlayan satır soru, altındaki satırlar cevap.
+    /// İlk sorudan önceki yazı giriş metni olarak döner. Cevaplar Paragraflar() ile çizilir.
+    /// </summary>
+    public static (string Giris, List<(string Soru, string Cevap)> Sorular) SoruCevaplar(string? metin)
+    {
+        var giris = new StringBuilder();
+        var cevap = new StringBuilder();
+        var sorular = new List<(string, string)>();
+        string? soru = null;
+        foreach (var satir in (metin ?? "").Replace("\r", "").Split('\n'))
+        {
+            if (satir.TrimStart().StartsWith("## "))
+            {
+                if (soru != null) sorular.Add((soru, cevap.ToString()));
+                soru = satir.Trim()[3..].Trim();
+                cevap.Clear();
+            }
+            else (soru == null ? giris : cevap).Append(satir).Append('\n');
+        }
+        if (soru != null) sorular.Add((soru, cevap.ToString()));
+        return (giris.ToString(), sorular);
+    }
+
     public static IHtmlContent Paragraflar(string? metin)
     {
         var html = new StringBuilder();
