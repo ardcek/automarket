@@ -49,6 +49,9 @@ public class VeriTabani : IdentityDbContext<Kullanici>   // Identity: kullanıc�
     public DbSet<Metin> Metinler => Set<Metin>();
     public DbSet<Gorsel> Gorseller => Set<Gorsel>();
 
+    // ---- Oturum / form güvenlik anahtarları (sadece canlı sitede kullanılır: Veri/AnahtarDeposu.cs) ----
+    public DbSet<GuvenlikAnahtari> GuvenlikAnahtarlari => Set<GuvenlikAnahtari>();
+
     protected override void ConfigureConventions(ModelConfigurationBuilder ayar)
     {
         // SQLite'ta "decimal" türü yok; hesap yapabilmesi için sayıları double olarak saklıyoruz.

@@ -13,9 +13,11 @@ using AracKiralama.Servisler;
 using AracKiralama.Veri;
 using AracKiralama.Yardimcilar;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.WebEncoders;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -66,7 +68,14 @@ builder.Services.ConfigureApplicationCookie(secenek =>
 });
 
 // Oturum çerezlerinin şifreleme anahtarları diske yazılır (uygulama yeniden başlayınca oturum düşmesin).
-builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(veriKlasoru, "anahtarlar")));
+// Canlı sitede (Neon) anahtarlar veritabanında durur: Render'ın diski her uyanışta sıfırlanır, anahtar diskte
+// olsaydı herkesin oturumu kapanır, açık formlar reddedilirdi (Veri/AnahtarDeposu.cs).
+var koruma = builder.Services.AddDataProtection().SetApplicationName("RotaAracKiralama");
+if (sayfalarNeondan)
+    builder.Services.AddSingleton<IConfigureOptions<KeyManagementOptions>>(s => new ConfigureOptions<KeyManagementOptions>(
+        secenek => secenek.XmlRepository = new VeritabaniAnahtarDeposu(s.GetRequiredService<IServiceScopeFactory>())));
+else
+    koruma.PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(veriKlasoru, "anahtarlar")));
 
 // ---------------------------------------------------------------------------
 // 3) UYGULAMA SERVİSLERİ (iş kuralları — Servisler klasörü)
