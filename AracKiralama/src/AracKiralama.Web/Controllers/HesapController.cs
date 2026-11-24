@@ -60,9 +60,8 @@ public class HesapController : TemelController
 
         if (!string.IsNullOrEmpty(form.DonusAdresi) && Url.IsLocalUrl(form.DonusAdresi)) return Redirect(form.DonusAdresi);
 
-        // Personel ve admin doğrudan yönetim paneline gider
-        var personelMi = await _kullanicilar.IsInRoleAsync(kullanici, Roller.Admin) || await _kullanicilar.IsInRoleAsync(kullanici, Roller.Personel);
-        return personelMi ? RedirectToAction("Index", "Panel", new { area = "Yonetim" }) : RedirectToAction("Index", "AnaSayfa");
+        // Süper admin, admin ve personel doğrudan yönetim paneline gider
+        return await YonetimdeMiAsync(kullanici) ? RedirectToAction("Index", "Panel", new { area = "Yonetim" }) : RedirectToAction("Index", "AnaSayfa");
     }
 
     [HttpGet]
@@ -119,11 +118,14 @@ public class HesapController : TemelController
 
     public IActionResult ErisimEngellendi() => View();
 
-    /// <summary>Bu e-posta bir admin ya da personele mi ait? (Sunum modunda giriş izni için)</summary>
+    /// <summary>Bu e-posta yönetim paneline girebilen birine mi ait? (Sunum modunda giriş izni için)</summary>
     private async Task<bool> PersonelMiAsync(string eposta)
     {
         var kullanici = await _kullanicilar.FindByEmailAsync(eposta);
-        if (kullanici == null) return false;
-        return await _kullanicilar.IsInRoleAsync(kullanici, Roller.Admin) || await _kullanicilar.IsInRoleAsync(kullanici, Roller.Personel);
+        return kullanici != null && await YonetimdeMiAsync(kullanici);
     }
+
+    /// <summary>Süper admin, admin ya da personel mi? (veritabanındaki rollerine bakar)</summary>
+    private async Task<bool> YonetimdeMiAsync(Kullanici kullanici)
+        => (await _kullanicilar.GetRolesAsync(kullanici)).Any(r => r is Roller.SuperAdmin or Roller.Admin or Roller.Personel);
 }

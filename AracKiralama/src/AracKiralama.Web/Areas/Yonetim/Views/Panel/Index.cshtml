@@ -35,7 +35,16 @@
 @* ---------------- NE YAPMAK İSTİYORSUN? En sık yapılan işlere tek tıkla gitmek için ---------------- *@
 <h2 class="h6 text-muted text-uppercase fw-bold mb-2" style="letter-spacing:.08em">Ne yapmak istiyorsun?</h2>
 <div class="row g-3 mb-4">
-    @foreach (var (ikon, baslik, aciklama, link) in new[]
+    @* Süper admin site düzenleme kısayollarını, admin / personel günlük iş kısayollarını görür *@
+    @foreach (var (ikon, baslik, aciklama, link) in !User.IsInRole(Roller.SuperAdmin) ? new[]
+    {
+        ("bi-journal-check", "Rezervasyon taleplerini yönet", "Onay bekleyenleri onayla, aracı teslim et, iadeyi al.", "/Yonetim/Rezervasyonlar?Durum=OnayBekliyor"),
+        ("bi-calendar3-range", "Doluluk takvimine bak", "Hangi araç hangi gün dolu, tek bakışta.", "/Yonetim/Takvim"),
+        ("bi-car-front", "Araç ekle veya düzenle", "Fiyat, fotoğraf, şube, öne çıkarma.", "/Yonetim/Araclar"),
+        ("bi-tools", "Bakım kaydı aç", "Aracı servise al; bakım bitene kadar kiralanamaz.", "/Yonetim/Bakim"),
+        ("bi-wallet2", "Ödemeleri gör", "Alınan ödemeler, depozitolar, iadeler.", "/Yonetim/Odemeler"),
+        ("bi-people", "Müşterileri gör", "Müşteri bilgileri, kiralama geçmişi, kara liste.", "/Yonetim/Musteriler"),
+    } : new[]
     {
         ("bi-stars", "Yapay zekâya söyle, o yapsın", "İnternetsiz asistan: \"meslek gruplarına indirim yap\" gibi istekleri hazırlar.", "/Yonetim/YapayZeka"),
         ("bi-magic", "Sitedeki yazıları değiştir", "Başlıklar, butonlar, menü, alt bilgi. Sağda anında görerek.", "/Yonetim/Duzenleyici"),

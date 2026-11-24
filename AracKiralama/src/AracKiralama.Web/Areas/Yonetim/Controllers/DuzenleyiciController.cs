@@ -12,11 +12,13 @@ using AracKiralama.Modeller;
 using AracKiralama.Servisler;
 using AracKiralama.Veri;
 using AracKiralama.Yardimcilar;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace AracKiralama.Areas.Yonetim.Controllers;
 
+[Authorize(Roles = Roller.SuperAdmin)]   // sadece Süper Admin (Yardimcilar/Genel.cs → Roller)
 public class DuzenleyiciController : YonetimController
 {
     private readonly VeriTabani _vt;

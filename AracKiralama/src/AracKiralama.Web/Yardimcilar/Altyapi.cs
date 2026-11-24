@@ -2,6 +2,7 @@
 // ALTYAPI YARDIMCILARI (bir kere yazılır, pek değişmez)
 // - GuvenlikBasliklari : her sayfaya güvenlik başlığı (CSP) ekler
 // - Turkce...Mesajlari : giriş/kayıt ve form hata mesajlarının Türkçesi
+// - SuperAdminAyniZamandaAdmin : SuperAdmin rolü Admin'i de kapsar
 // ============================================================================
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
@@ -108,5 +109,20 @@ public class TurkceDogrulamaMesajlari : IValidationMetadataProvider
             else if (etiket is PhoneAttribute) etiket.ErrorMessage = "Geçerli bir telefon numarası giriniz.";
             else if (etiket is CompareAttribute) etiket.ErrorMessage = "{0} ile {1} aynı olmalıdır.";
         }
+    }
+}
+
+/// <summary>
+/// SuperAdmin rolündeki kullanıcı aynı zamanda Admin sayılır: Admin'in gördüğü her sayfayı görür.
+/// Böylece veritabanında sadece "SuperAdmin" satırı eklemek yeter (README → "Süper Admin").
+/// Her istekte, giriş çerezinden okunan kimliğe "Admin" rolü eklenir (veritabanına yazılmaz).
+/// </summary>
+public class SuperAdminAyniZamandaAdmin : Microsoft.AspNetCore.Authentication.IClaimsTransformation
+{
+    public Task<System.Security.Claims.ClaimsPrincipal> TransformAsync(System.Security.Claims.ClaimsPrincipal kullanici)
+    {
+        if (kullanici.IsInRole(Roller.SuperAdmin) && !kullanici.IsInRole(Roller.Admin) && kullanici.Identity is System.Security.Claims.ClaimsIdentity kimlik)
+            kimlik.AddClaim(new System.Security.Claims.Claim(kimlik.RoleClaimType, Roller.Admin));
+        return Task.FromResult(kullanici);
     }
 }

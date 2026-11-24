@@ -35,7 +35,7 @@
 
             @* Panelden eklenen özellikler (Yönetim → Filtreler ve Özellikler). Kutunun adı Ozellikler[özellik numarası]. *@
             @{ var ozellikler = (List<AracOzelligi>)ViewBag.Ozellikler; }
-            <div class="card mt-3"><div class="card-header d-flex justify-content-between"><span>Ek özellikler</span><a href="/Yonetim/Ozellikler" class="small">Özellikleri yönet</a></div><div class="card-body row g-3">
+            <div class="card mt-3"><div class="card-header d-flex justify-content-between"><span>Ek özellikler</span>@if (User.IsInRole(Roller.SuperAdmin)) { <a href="/Yonetim/Ozellikler" class="small">Özellikleri yönet</a> }</div><div class="card-body row g-3">
                 @if (ozellikler.Count == 0) { <div class="col-12 small text-muted">Henüz özellik eklenmedi. Yönetim → Filtreler ve Özellikler'den ekleyebilirsin.</div> }
                 @foreach (var oz in ozellikler)
                 {

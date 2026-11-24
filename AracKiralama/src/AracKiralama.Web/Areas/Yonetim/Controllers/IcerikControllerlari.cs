@@ -29,6 +29,7 @@ public class AyarAlani
 }
 
 // =============================== AYARLAR ===============================
+[Authorize(Roles = Roller.SuperAdmin)]   // sadece Süper Admin (Yardimcilar/Genel.cs → Roller)
 public class AyarlarController : YonetimController
 {
     private readonly VeriTabani _vt;
@@ -109,6 +110,7 @@ public class AyarlarController : YonetimController
 }
 
 // =============================== SAYFALAR ===============================
+[Authorize(Roles = Roller.SuperAdmin)]   // sadece Süper Admin (Yardimcilar/Genel.cs → Roller)
 public class SayfalarController : YonetimController
 {
     private readonly VeriTabani _vt;
@@ -165,6 +167,7 @@ public class SayfalarController : YonetimController
 }
 
 // =============================== SİTE METİNLERİ ===============================
+[Authorize(Roles = Roller.SuperAdmin)]   // sadece Süper Admin (Yardimcilar/Genel.cs → Roller)
 public class MetinlerController : YonetimController
 {
     private readonly VeriTabani _vt;
@@ -201,6 +204,7 @@ public class MetinlerController : YonetimController
 }
 
 // =============================== GÖRSELLER ===============================
+[Authorize(Roles = Roller.SuperAdmin)]   // sadece Süper Admin (Yardimcilar/Genel.cs → Roller)
 public class GorsellerController : YonetimController
 {
     private readonly VeriTabani _vt;

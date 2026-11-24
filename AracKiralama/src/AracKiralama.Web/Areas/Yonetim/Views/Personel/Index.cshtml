@@ -1,7 +1,31 @@
-@* PERSONEL VE ROLLER (sadece Admin görür) *@
+@* PERSONEL VE ROLLER (Admin ve Süper Admin görür). İşlemler: Areas/Yonetim/Controllers/KullaniciControllerlari.cs → PersonelController
+   Panelden sadece Admin / Personel verilir. Süper Admin satırları kilitlidir; o yetki sadece veritabanından verilir. *@
 @model List<(Kullanici Kullanici, string Rol)>
-@{ ViewData["Title"] = "Personel"; }
-<div class="sayfa-baslik"><div><h1>Personel ve Roller</h1><div class="alt-yazi">Admin her şeye erişir; Personel bu sayfa hariç her şeye erişir.</div></div><a href="/Yonetim/Personel/Ekle" class="btn btn-primary"><i class="bi bi-person-plus me-1"></i>Personel ekle</a></div>
+@using System.Security.Claims
+@{
+    ViewData["Title"] = "Personel";
+    var benimId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+}
+<div class="sayfa-baslik">
+    <div><h1>Personel ve Roller</h1><div class="alt-yazi">Admin: operasyon, kayıtlar ve bu sayfa. Personel: bu sayfa hariç aynısı. Süper Admin: hepsi + site düzenleme.</div></div>
+    <a href="/Yonetim/Personel/Ekle" class="btn btn-primary"><i class="bi bi-person-plus me-1"></i>Yeni personel hesabı</a>
+</div>
+
+@* Sitede üye olmuş birine yetki vermek *@
+<div class="card mb-4"><div class="card-body">
+    <h2 class="h6 mb-1"><i class="bi bi-person-check me-1"></i>Üye olmuş birine yetki ver</h2>
+    <p class="small text-muted mb-3">Kişi önce sitede kendi e-postası ve şifresiyle üye olur; siz burada e-postasını yazarsınız. Yetki, kişi bir kez çıkış yapıp tekrar girince görünür.</p>
+    <form asp-action="YetkiVer" method="post" class="row g-2 align-items-end">
+        <div class="col-md-6"><label for="eposta" class="form-label">E-posta</label><input id="eposta" name="eposta" type="email" class="form-control" required autocomplete="off" placeholder="ornek@eposta.com" /></div>
+        <div class="col-md-3"><label for="rol" class="form-label">Yetki</label>
+            <select id="rol" name="rol" class="form-select">
+                @foreach (var rol in Roller.PaneldenVerilebilir) { <option value="@rol">@rol</option> }
+            </select>
+        </div>
+        <div class="col-md-3"><button class="btn btn-primary w-100" data-onay="Bu kişiye yetki verilsin mi?">Yetki ver</button></div>
+    </form>
+</div></div>
+
 <div class="card tablo-karti"><div class="table-responsive"><table class="table align-middle">
     <thead><tr><th>Ad Soyad</th><th>E-posta</th><th>Rol</th><th></th></tr></thead>
     <tbody>
@@ -9,8 +33,24 @@
         {
             <tr>
                 <td class="fw-semibold">@k.TamAd</td><td>@k.Email</td>
-                <td><span class="durum @(rol == Roller.Admin ? "durum-onaylandi" : "durum-kirada")">@rol</span></td>
-                <td class="text-end"><form asp-action="RolDegistir" asp-route-id="@k.Id" method="post"><button class="btn btn-sm btn-sade" data-onay="Rol değiştirilsin mi?">@(rol == Roller.Admin ? "Personel yap" : "Admin yap")</button></form></td>
+                <td><span class="durum @(rol == Roller.SuperAdmin ? "durum-tamamlandi" : rol == Roller.Admin ? "durum-onaylandi" : "durum-kirada")">@(rol == Roller.SuperAdmin ? "Süper Admin" : rol)</span></td>
+                <td class="text-end">
+                    @if (rol == Roller.SuperAdmin)
+                    {
+                        <span class="small text-muted"><i class="bi bi-lock me-1"></i>Sadece veritabanından değişir</span>
+                    }
+                    else if (k.Id == benimId)
+                    {
+                        <span class="small text-muted">Siz</span>
+                    }
+                    else
+                    {
+                        <div class="d-inline-flex gap-1">
+                            <form asp-action="RolDegistir" asp-route-id="@k.Id" method="post"><button class="btn btn-sm btn-sade" data-onay="Rol değiştirilsin mi?">@(rol == Roller.Admin ? "Personel yap" : "Admin yap")</button></form>
+                            <form asp-action="YetkiAl" asp-route-id="@k.Id" method="post"><button class="btn btn-sm btn-sade text-danger" data-onay="Yetkisi alınsın mı? Kişi panele giremez, normal müşteri olur.">Yetkiyi al</button></form>
+                        </div>
+                    }
+                </td>
             </tr>
         }
     </tbody>

@@ -9,7 +9,7 @@ Her şey **C#** dilinde, **ASP.NET Core MVC** ile yazılmıştır. **Kodun tamam
 
 Bilgisayarınızda veritabanı kurmanıza **gerek yoktur**; program ilk açıldığında kendi veritabanını oluşturur ve içini örnek verilerle doldurur.
 
-> 🌐 **Canlı adres:** **https://automarket.ardcek.com** (kısa yol: https://ardcek.com/automarket/). Admin girişi `admin@rota.com` / `Rota123!`
+> 🌐 **Canlı adres:** **https://automarket.ardcek.com** (kısa yol: https://ardcek.com/automarket/). Canlıda demo hesaplar **yoktur**: sitede üye olun; yetkiyi bir admin ya da Neon'dan süper admin verir ([4.1](#41-süper-admin-ve-admin-iki-panel)).
 > Ayrıntı: [13. Canlı yayın](#13-canlı-yayın-internette-yayınlamak).
 
 > **Bu dosyayı baştan sona sırayla okuyun.** Hiçbir şey bilmiyor olsanız bile 10 dakika içinde projeyi bilgisayarınızda çalıştırmış olacaksınız.
@@ -164,12 +164,13 @@ Programı çalıştırmak için düzenleyici **şart değildir**; terminal yeter
 
 ## 4. Giriş bilgileri (kullanıcı adları ve şifreler)
 
-> 🔑 **Bütün hazır hesapların şifresi aynıdır: `Rota123!`** (büyük R, sonda ünlem işareti)
+> 🔑 **Bütün hazır hesapların şifresi aynıdır: `Rota123!`** (büyük R, sonda ünlem işareti). Bu hesaplar **sadece bilgisayardaki örnek veride** vardır; canlı sitede (Neon) silindi, çünkü şifre bu depoda herkese açık yazıyor.
 
 | Rol | E-posta (kullanıcı adı) | Şifre | Ne yapabilir? |
 |---|---|---|---|
-| 👑 **Admin** (yönetici) | `admin@rota.com` | `Rota123!` | **Her şey.** Yönetim panelinin tamamı + personel ekleme / rol değiştirme + demo verilerini sıfırlama. |
-| 🧑‍💼 **Personel** (şube çalışanı) | `personel@rota.com` | `Rota123!` | Yönetim paneli (rezervasyon, araç, müşteri, rapor, site içeriği...). Sadece "Personel ve Roller" sayfasını göremez. |
+| ⭐ **Süper Admin** | `superadmin@rota.com` | `Rota123!` | **Her şey:** Admin'in gördükleri + Yapay Zekâ Asistanı, Site Düzenleyici, Filtreler ve Özellikler, Kampanyalar, Müşteri Bilgileri, bütün ayarlar / yazılar / sayfalar / görseller. |
+| 👑 **Admin** (yönetici, "hocanın paneli") | `admin@rota.com` | `Rota123!` | Doluluk takvimi, rezervasyon, bakım, ödeme, müşteri, rapor; araçlar ve tanımlar; **Personel ve Roller** (sadece Admin / Personel yetkisi verebilir). Site düzenleme araçlarını **görmez**. |
+| 🧑‍💼 **Personel** (şube çalışanı) | `personel@rota.com` | `Rota123!` | Admin'in gördüklerinin aynısı; sadece "Personel ve Roller" sayfasını göremez. |
 | 🙂 **Müşteri** | `musteri@rota.com` | `Rota123!` | Araç arar, rezervasyon yapar, iptal eder, sözleşme indirir. Yönetim paneline **giremez**. |
 | 🧒 **Genç müşteri** (20 yaşında) | `genc@rota.com` | `Rota123!` | Normal müşteri ama yaşı küçük olduğu için **SUV ve lüks araçları kiralayamaz**. Kuralı göstermek için var. |
 
@@ -185,6 +186,34 @@ Ayrıca 20 tane örnek müşteri daha var; hepsinin şifresi yine `Rota123!`. E-
 **Çıkış yapmak:** Sağ üstteki **Hesabım** → **Çıkış Yap**. (Yönetim panelinde: sol alttaki çıkış ikonu.)
 
 **Yeni hesap açmak:** Sağ üstte **Üye Ol**. Yeni açılan her hesap **müşteri** olur. Yeni bir **personel** veya **admin** hesabını sadece admin, yönetim panelindeki **Personel ve Roller** sayfasından açabilir. (Üye kaydı **Ayarlar → Rezervasyon** sekmesinden kapatılabilir.)
+
+### 4.1. Süper Admin ve Admin (iki panel)
+
+Yönetim paneli girene göre iki farklı görünür:
+
+| | Admin / Personel ("hocanın paneli") | Süper Admin |
+|---|---|---|
+| Ana ekran, Doluluk Takvimi, Rezervasyonlar, Bakım, Ödemeler, Müşteriler, Raporlar | ✅ | ✅ |
+| Araçlar, Kategoriler, Markalar, Yakıt ve Vites, Şubeler, Ek Hizmetler | ✅ | ✅ |
+| Personel ve Roller | ✅ (Personel hariç) | ✅ |
+| Yapay Zekâ Asistanı, Site Düzenleyici, Filtreler ve Özellikler, Kampanyalar, Müşteri Bilgileri | ❌ | ✅ |
+| Bütün ayarlar, Bütün yazılar, Sayfalar, Görseller | ❌ | ✅ |
+
+Admin bu sayfaların adresini elle yazsa bile "Erişim engellendi" görür (controller'larda `[Authorize(Roles = Roller.SuperAdmin)]`).
+
+**Admin / Personel yetkisi vermek (panelden):** Yönetim → **Personel ve Roller** → "Üye olmuş birine yetki ver" kutusuna e-postayı yazın. Kişi önce sitede üye olmuş olmalı; yetki, bir kez çıkış yapıp girince görünür. Aynı sayfadan rol değiştirilir ya da yetki geri alınır.
+
+**Süper Admin yetkisi vermek (SADECE veritabanından):** Panelde böyle bir seçenek yoktur; Admin, Süper Admin hesaplarını değiştiremez. Neon → projeniz → **SQL Editor**'de e-postayı değiştirip çalıştırın:
+
+```sql
+INSERT INTO "AspNetUserRoles" ("UserId", "RoleId")
+SELECT u."Id", r."Id" FROM "AspNetUsers" u, "AspNetRoles" r
+WHERE u."NormalizedEmail" = UPPER('ornek@eposta.com') AND r."Name" = 'SuperAdmin'
+ON CONFLICT DO NOTHING;
+```
+
+Geri almak için aynı koşulla `DELETE FROM "AspNetUserRoles" WHERE "UserId" = (SELECT "Id" FROM "AspNetUsers" WHERE "NormalizedEmail" = UPPER('ornek@eposta.com')) AND "RoleId" = (SELECT "Id" FROM "AspNetRoles" WHERE "Name" = 'SuperAdmin');`
+Süper Admin aynı zamanda Admin sayılır; ayrıca Admin satırı eklemeye gerek yoktur. Kişi bir kez çıkış yapıp tekrar girince Süper Panel açılır.
 
 **Şifremi unuttum?** Bu projede şifre sıfırlama yok. Hazır hesapların şifresi her zaman `Rota123!`'dir. Kendi açtığınız bir hesabın şifresini unuttuysanız [demo verilerini sıfırlayın](#12-veritabanını-sıfırlamak).
 
@@ -449,7 +478,7 @@ Veritabanı boşsa program ilk açıldığında otomatik oluşturulur (`Veri/Orn
 - **5 şube**: İstanbul Havalimanı, Kadıköy, Ankara Esenboğa, İzmir Adnan Menderes, Antalya Havalimanı.
 - **6 ek hizmet**: Tam Kasko (350 ₺/gün), Ek Sürücü (150), Bebek Koltuğu (120), Mobil Wi-Fi (110), Navigasyon (90), Kar Zinciri (80).
 - **4 içerik sayfası**: Hakkımızda, İletişim, Kiralama Koşulları, KVKK.
-- **24 kullanıcı**: 1 admin, 1 personel, 22 müşteri (bkz. [Giriş bilgileri](#4-giriş-bilgileri-kullanıcı-adları-ve-şifreler)).
+- **25 kullanıcı**: 1 süper admin, 1 admin, 1 personel, 22 müşteri (bkz. [Giriş bilgileri](#4-giriş-bilgileri-kullanıcı-adları-ve-şifreler)).
 - **~1.600 kiralama**: son 12 aya yayılmış; tamamlanmış, iptal edilmiş, reddedilmiş, şu an kirada olan, gelecekteki onaylı ve bekleyen talepler. Grafikler bu sayede dolu görünür.
 - **Hazır "bugün" senaryoları**: bugün teslim edilecek 2 araç, bugün iade alınacak 2 araç, **gecikmiş 2 kiralama**, onay bekleyen talepler ve şu an bakımda olan 1 araç. Sunumda doğrudan gösterebilirsiniz.
 

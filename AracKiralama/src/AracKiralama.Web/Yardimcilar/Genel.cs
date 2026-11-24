@@ -5,15 +5,28 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AracKiralama.Yardimcilar;
 
-/// <summary>Rol adları. Kullanım: [Authorize(Roles = Roller.Admin)]</summary>
+/// <summary>
+/// Rol adları. Kullanım: [Authorize(Roles = Roller.Admin)]
+///   SuperAdmin : her şey. Yapay Zekâ Asistanı, Site Düzenleyici, Filtreler ve Özellikler, Kampanyalar,
+///                Müşteri Bilgileri, Ayarlar, Yazılar, Sayfalar, Görseller SADECE onda.
+///                Panelden VERİLEMEZ; sadece veritabanından (AspNetUserRoles tablosu) verilir: README → "Süper Admin".
+///                SuperAdmin aynı zamanda Admin sayılır (Yardimcilar/Altyapi.cs → SuperAdminAyniZamandaAdmin).
+///   Admin      : hocanın paneli: operasyon (takvim, rezervasyon, bakım, ödeme, müşteri, rapor), araçlar ve tanımlar,
+///                personel. Panelden başkasına sadece Admin / Personel yetkisi verebilir.
+///   Personel   : Admin'in gördüğü her şey, Personel sayfası hariç.
+/// </summary>
 public static class Roller
 {
+    public const string SuperAdmin = "SuperAdmin";
     public const string Admin = "Admin";
     public const string Personel = "Personel";
     public const string Musteri = "Musteri";
 
     /// <summary>Yönetim paneline girebilenler.</summary>
-    public const string Yonetim = Admin + "," + Personel;
+    public const string Yonetim = SuperAdmin + "," + Admin + "," + Personel;
+
+    /// <summary>Panelden verilebilecek yetkiler (SuperAdmin bilerek yok).</summary>
+    public static readonly string[] PaneldenVerilebilir = [Admin, Personel];
 }
 
 /// <summary>

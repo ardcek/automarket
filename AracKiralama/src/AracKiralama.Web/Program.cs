@@ -58,6 +58,8 @@ builder.Services.AddIdentity<Kullanici, IdentityRole>(secenek =>
     .AddEntityFrameworkStores<VeriTabani>()
     .AddErrorDescriber<TurkceIdentityMesajlari>()
     .AddDefaultTokenProviders();
+// SuperAdmin aynı zamanda Admin sayılır (veritabanında sadece SuperAdmin satırı olması yeter). Roller: Yardimcilar/Genel.cs
+builder.Services.AddTransient<Microsoft.AspNetCore.Authentication.IClaimsTransformation, SuperAdminAyniZamandaAdmin>();
 
 builder.Services.ConfigureApplicationCookie(secenek =>
 {

@@ -30,7 +30,7 @@ public static class OrnekVeriler
                 .LogWarning("Veritabanı şeması güncellendi, eklenenler: {Liste}", string.Join(", ", eklenenler));
 
         var roller = servisler.GetRequiredService<RoleManager<IdentityRole>>();
-        foreach (var rol in new[] { Roller.Admin, Roller.Personel, Roller.Musteri })
+        foreach (var rol in new[] { Roller.SuperAdmin, Roller.Admin, Roller.Personel, Roller.Musteri })   // eksik rol varsa eklenir (canlıda da)
             if (!await roller.RoleExistsAsync(rol)) await roller.CreateAsync(new IdentityRole(rol));
 
         if (!await vt.SiteAyarlari.AnyAsync()) await IcerikYukleAsync(vt);
@@ -299,6 +299,10 @@ public static class OrnekVeriler
         }
 
         await vt.SaveChangesAsync();
+
+        // Süper Admin demo hesabı (sadece bilgisayardaki örnek veride; canlıda süper admin veritabanından verilir).
+        // En sonda ve ayrı rastgele sayıyla: yukarıdaki örnek veriler eskisiyle birebir aynı kalsın.
+        await KullaniciEkleAsync(kullanicilar, "superadmin@rota.com", "Deniz", "Yücel", Roller.SuperAdmin, new DateTime(1988, 6, 1), new Random(7));
     }
 
     // ===================== Yardımcılar =====================

@@ -15,12 +15,14 @@ using AracKiralama.FormModelleri;
 using AracKiralama.Modeller;
 using AracKiralama.Veri;
 using AracKiralama.Yardimcilar;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace AracKiralama.Areas.Yonetim.Controllers;
 
 // =============================== KAMPANYALAR ===============================
+[Authorize(Roles = Roller.SuperAdmin)]   // sadece Süper Admin (Yardimcilar/Genel.cs → Roller)
 public class KampanyalarController : YonetimController
 {
     private readonly VeriTabani _vt;
@@ -145,6 +147,7 @@ public class KampanyalarController : YonetimController
 }
 
 // =============================== MÜŞTERİ BİLGİLERİ ===============================
+[Authorize(Roles = Roller.SuperAdmin)]   // sadece Süper Admin (Yardimcilar/Genel.cs → Roller)
 public class MusteriAlanlariController : YonetimController
 {
     private readonly VeriTabani _vt;
