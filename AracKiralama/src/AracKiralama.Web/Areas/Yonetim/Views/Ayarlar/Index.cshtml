@@ -2,8 +2,12 @@
    Yeni ayar = SiteAyarlari.cs'e bir satır. Buraya dokunmanız gerekmez.
    Her alan türü için uygun kutu çizilir: açma/kapama, renk seçici, sayı, açılır liste, metin. *@
 @model List<AyarAlani>
+@using Microsoft.EntityFrameworkCore
+@inject AracKiralama.Veri.VeriTabani Vt
 @{
     ViewData["Title"] = "Ayarlar";
+    // Canlı site (Neon / PostgreSQL) mi? Orada "Demo verilerini sıfırla" yok: gerçek üyeleri silerdi.
+    var canliVeritabani = Vt.Database.IsNpgsql();
     var gruplar = Model.GroupBy(a => a.Bilgi.Grup).ToList();
 }
 <div class="sayfa-baslik"><div><h1>Ayarlar</h1><div class="alt-yazi">Kaydettiğiniz her değişiklik sitede hemen geçerli olur.</div></div></div>
@@ -78,7 +82,7 @@
     <div class="card-header text-danger"><i class="bi bi-exclamation-triangle me-1"></i>Dikkatli kullanın</div>
     <div class="card-body d-flex flex-wrap gap-3">
         <form asp-action="VarsayilanaDon" method="post"><button class="btn btn-sade" data-onay="Bütün ayarlar ilk haline dönsün mü?">Ayarları varsayılana döndür</button></form>
-        @if (User.IsInRole(Roller.Admin))
+        @if (User.IsInRole(Roller.Admin) && !canliVeritabani)
         {
             <form asp-action="DemoSifirla" method="post">
                 <button class="btn btn-sade text-danger" data-onay="Bütün araçlar, kullanıcılar ve rezervasyonlar silinip örnek veriler yeniden yüklenecek. Emin misiniz?">Demo verilerini sıfırla</button>

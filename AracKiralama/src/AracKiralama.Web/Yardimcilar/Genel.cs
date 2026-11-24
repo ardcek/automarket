@@ -61,6 +61,9 @@ public static class PostgreBaglantisi
     {
         if (string.IsNullOrWhiteSpace(baglanti)) return null;
         baglanti = baglanti.Trim();
+        // Neon'un "Connect" penceresinden komut olarak kopyalanırsa: psql 'postgresql://...' → sadece adres
+        if (baglanti.StartsWith("psql ")) baglanti = baglanti[5..].Trim();
+        baglanti = baglanti.Trim('\'', '"', ' ');
         if (!baglanti.StartsWith("postgres://") && !baglanti.StartsWith("postgresql://")) return baglanti;   // zaten "Host=..." biçiminde
 
         var adres = new Uri(baglanti);

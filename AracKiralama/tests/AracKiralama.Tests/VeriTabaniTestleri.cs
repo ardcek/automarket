@@ -79,6 +79,15 @@ public class BaglantiTestleri
         Assert.Equal("Host=ep-ornek.eu-central-1.aws.neon.tech;Port=5432;Database=arackiralama;Username=kullanici;Password=gizli!;SSL Mode=Require;Channel Binding=Require", sonuc);
     }
 
+    [Theory]   // Neon'un "Connect" penceresinden psql komutu ya da tırnaklı olarak kopyalanan adres de okunur
+    [InlineData("psql 'postgresql://k:s@ep-ornek.neon.tech/neondb?sslmode=require'")]
+    [InlineData("\"postgresql://k:s@ep-ornek.neon.tech/neondb?sslmode=require\"")]
+    [InlineData("  postgresql://k:s@ep-ornek.neon.tech/neondb?sslmode=require  ")]
+    public void Neon_adresi_psql_ve_tirnakla_yapistirilsa_da_okunur(string yapistirilan)
+    {
+        Assert.Equal("Host=ep-ornek.neon.tech;Port=5432;Database=neondb;Username=k;Password=s;SSL Mode=Require", PostgreBaglantisi.Duzenle(yapistirilan));
+    }
+
     [Fact]
     public void Npgsql_bicimi_ve_bos_deger_oldugu_gibi_kalir()
     {

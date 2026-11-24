@@ -1,6 +1,9 @@
 @* GÖSTERGE PANELİ. Rakamlar: Servisler/RaporServisi.cs → PanelVerileriAsync · Grafikler: wwwroot/js/grafikler.js *@
 @model PanelVerileri
 @using System.Text.Json
+@using Microsoft.EntityFrameworkCore
+@inject AracKiralama.Veri.VeriTabani Vt
+@inject IWebHostEnvironment Env
 @{
     ViewData["Title"] = "Gösterge Paneli";
     var degisim = Model.GecenAyAyniDonemGelir == 0 ? 0 : (double)((Model.BuAyGelir - Model.GecenAyAyniDonemGelir) / Model.GecenAyAyniDonemGelir);
@@ -17,6 +20,17 @@
     <div><h1>Gösterge Paneli</h1><div class="alt-yazi">@Bicim.Tarih(DateTime.Today), @DateTime.Today.ToString("dddd", Bicim.Tr)</div></div>
     <div class="d-flex gap-2"><a href="/Yonetim/Takvim" class="btn btn-sade"><i class="bi bi-calendar3-range me-1"></i>Takvim</a><a href="/Yonetim/Araclar/Ekle" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Araç ekle</a></div>
 </div>
+
+@* Canlı sitede (Production) Neon'a bağlanılamadıysa site geçici SQLite'la çalışır: her yeniden başlatmada
+   üyeler, rezervasyonlar ve panel değişiklikleri silinir. Bu durumda en üstte kırmızı uyarı çıkar. *@
+@if (Env.IsProduction() && !Vt.Database.IsNpgsql())
+{
+    <div class="alert alert-danger d-flex gap-2 align-items-start" role="alert">
+        <i class="bi bi-exclamation-octagon-fill fs-5"></i>
+        <div><b>Site geçici veritabanıyla çalışıyor.</b> Neon bağlantı adresi tanımlı değil; sunucu her yeniden başladığında üyeler, rezervasyonlar ve buradaki değişiklikler silinir.
+            Çözüm: Render → servis → <b>Environment</b> → <code>ConnectionStrings__PostgreSql</code> değerine Neon bağlantı adresini yazın (README → 13.3).</div>
+    </div>
+}
 
 @* ---------------- NE YAPMAK İSTİYORSUN? En sık yapılan işlere tek tıkla gitmek için ---------------- *@
 <h2 class="h6 text-muted text-uppercase fw-bold mb-2" style="letter-spacing:.08em">Ne yapmak istiyorsun?</h2>

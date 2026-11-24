@@ -74,6 +74,13 @@ public class AyarlarController : YonetimController
     [HttpPost, ValidateAntiForgeryToken, Authorize(Roles = Roller.Admin)]
     public async Task<IActionResult> DemoSifirla([FromServices] UserManager<Kullanici> kullanicilar, [FromServices] SignInManager<Kullanici> giris)
     {
+        // Canlı sitede (Neon) KAPALI: bütün kullanıcıları (gerçek üyeler ve admin dahil) siler ve
+        // şifresi herkese açık depoda yazan demo hesapları geri yükler. Sadece bilgisayardaki SQLite'ta çalışır.
+        if (_vt.Database.IsNpgsql())
+        {
+            Hata("Canlı veritabanında demo verileri yüklenemez: gerçek üyeler ve admin hesabı silinirdi.");
+            return RedirectToAction(nameof(Index));
+        }
         await OrnekVeriler.DemoSifirlaAsync(_vt, kullanicilar);
         await giris.SignOutAsync();   // kullanıcılar yeniden oluşturulduğu için oturumu kapatıyoruz
         TempData["Basarili"] = "Demo verileri yeniden yüklendi. Lütfen tekrar giriş yapın.";

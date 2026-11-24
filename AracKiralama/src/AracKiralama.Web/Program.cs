@@ -145,6 +145,14 @@ using (var kapsam = app.Services.CreateScope())
     var sure = System.Diagnostics.Stopwatch.StartNew();
     await OrnekVeriler.YukleAsync(kapsam.ServiceProvider);
     app.Logger.LogInformation("Sayfaların veritabanı hazır ({Tur}, {Ms} ms).", sayfalarNeondan ? "PostgreSQL / Neon" : "SQLite / örnek veri", sure.ElapsedMilliseconds);
+    if (sayfalarNeondan)   // hangi Neon veritabanına bağlanıldığı (şifre yazılmaz): Render loglarında kontrol için
+    {
+        var neon = new Npgsql.NpgsqlConnectionStringBuilder(postgreBaglantisi);
+        app.Logger.LogInformation("Neon: sunucu {Sunucu}, veritabanı {Veritabani}", neon.Host, neon.Database);
+    }
+    if (app.Environment.IsProduction() && !sayfalarNeondan)
+        app.Logger.LogError("DİKKAT: Canlı site GEÇİCİ SQLite ile açıldı. Neon adresi (ConnectionStrings__PostgreSql) boş; " +
+                            "yeniden başlatınca üyeler ve panel değişiklikleri silinir. Render → Environment'a ekleyin (README 13.3).");
 }
 
 // Neon adresi varsa ama sayfalar henüz örnek veriden okunuyorsa: Neon'a bağlan, tabloları oluştur (veri yazılmaz).
