@@ -4,7 +4,7 @@
    - Bölümleri aç/kapa, görsel, öne çıkan araç sayısı: Yönetim → Ayarlar → Ana Sayfa
    - Öne çıkan araçlar: Yönetim → Araçlar → Düzenle → "Ana sayfada öne çıkar"
    - Görünüm: wwwroot/css/vitrin.css · Fareyle hareketler: wwwroot/js/efektler.js (data-goster, data-sahne, data-derinlik...)
-   - Kaydırınca paralaks (katmanların farklı hızda kayması, kategorilerin yatay akması, yoldaki araç) vitrin.css'in sonunda. *@
+   - Kaydırınca paralaks (katmanların farklı hızda kayması, kategorilerin yatay akması) vitrin.css'in sonunda. *@
 @model AnaSayfaModeli
 @{
     ViewData["Title"] = Icerik.Ayarlar.Slogan;
@@ -178,28 +178,40 @@
     </section>
 }
 
-@* ---------------- NASIL ÇALIŞIR: kaydırdıkça araç yolda ilerler, duraklar sırayla yanar ---------------- *@
+@* ---------------- NASIL ÇALIŞIR: üç adım kartı (numara, ikon, başlık, yazı, güvence etiketi) + altta eylem ----------------
+   Yazılar: anasayfa.adim1..3-baslik / -metin / -etiket, adimlar-aciklama, adimlar-buton, adimlar-sss.
+   Etiket boş bırakılırsa o kartta etiket çıkmaz. Görünüm: vitrin.css → "NASIL ÇALIŞIR". *@
 @if (a.NasilCalisirGoster)
 {
-    <section class="bolum yolculuk" id="nasil-calisir">
+    var sssYayinda = Icerik.Sayfalar.Any(s => s.Adres == "sss");
+    <section class="bolum nasil" id="nasil-calisir" aria-labelledby="nasil-baslik">
         <div class="container">
-            <div class="mb-5" data-goster>
-                <div class="bolum-ust mb-3">@M("adimlar-ust")</div>
-                <h2 class="bolum-baslik mb-0">@M("adimlar-baslik")</h2>
-            </div>
-            <div class="yol-seridi">
-                <div class="yol-hatti" aria-hidden="true"><span class="yol-dolgu"></span><span class="yol-arac-ray"><span class="yol-arac"><i class="bi bi-car-front-fill"></i></span></span></div>
-                <div class="duraklar">
-                    @* --bas / --son: aracın o durağa geldiği kaydırma aralığı (vitrin.css → "Yolculuk") *@
-                    @foreach (var (no, ikon, bas, son) in new[] { (1, "bi-calendar2-range", "19%", "28%"), (2, "bi-ui-checks-grid", "36%", "45%"), (3, "bi-key", "53%", "62%") })
-                    {
-                        <div class="durak" style="--bas:@bas; --son:@son">
-                            <span class="durak-ikon"><i class="bi @ikon"></i></span>
-                            <h3>@M($"adim{no}-baslik")</h3>
-                            <p>@M($"adim{no}-metin")</p>
-                        </div>
-                    }
+            <div class="nasil-ust" data-goster>
+                <div>
+                    <div class="bolum-ust mb-3">@M("adimlar-ust")</div>
+                    <h2 class="bolum-baslik mb-0" id="nasil-baslik">@M("adimlar-baslik")</h2>
                 </div>
+                <p class="nasil-aciklama">@M("adimlar-aciklama")</p>
+            </div>
+            <ol class="nasil-adimlar">
+                @foreach (var (no, ikon) in new[] { (1, "bi-calendar2-range"), (2, "bi-ui-checks-grid"), (3, "bi-key") })
+                {
+                    var etiket = M($"adim{no}-etiket");
+                    <li class="nasil-adim" data-goster>
+                        <span class="nasil-no" aria-hidden="true">@no.ToString("00")</span>
+                        <div class="nasil-ikon-satiri">
+                            <span class="nasil-ikon"><i class="bi @ikon" aria-hidden="true"></i></span>
+                            <span class="kucuk-baslik">Adım @no</span>
+                        </div>
+                        <h3>@M($"adim{no}-baslik")</h3>
+                        <p>@M($"adim{no}-metin")</p>
+                        @if (!string.IsNullOrWhiteSpace(etiket)) { <span class="nasil-etiket"><i class="bi bi-check2-circle" aria-hidden="true"></i>@etiket</span> }
+                    </li>
+                }
+            </ol>
+            <div class="nasil-eylem" data-goster>
+                <a href="/Araclar" class="btn btn-primary btn-lg">@M("adimlar-buton") <i class="bi bi-arrow-right ms-1"></i></a>
+                @if (sssYayinda) { <a href="/Sayfa/sss" class="nasil-sss">@M("adimlar-sss") <i class="bi bi-arrow-right"></i></a> }
             </div>
         </div>
     </section>

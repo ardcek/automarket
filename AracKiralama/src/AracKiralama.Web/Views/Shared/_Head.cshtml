@@ -15,5 +15,4 @@
 <style>
     :root { --ana: @a.AnaRenk; --ana-rgb: @Bicim.RgbDegeri(a.AnaRenk); --koyu: @a.KoyuRenk; --yuvarlak: @(a.KoseYuvarlakligi)px; }
 </style>
-@* Sekme simgesi: logodaki amblem (Yardimcilar/LogoAmblemi.cs); ikon seçiliyse firma adının ilk harfi *@
-<link rel="icon" href="@LogoAmblemi.FaviconAdresi(a.LogoIkonu, a.AnaRenk, a.FirmaAdi)" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='@a.AnaRenk.Replace("#", "%23")'/><text x='16' y='22' font-size='16' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>@(a.FirmaAdi.Length > 0 ? a.FirmaAdi[..1] : "R")</text></svg>" />

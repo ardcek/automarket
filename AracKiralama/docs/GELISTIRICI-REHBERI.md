@@ -313,8 +313,6 @@ Tabloya kolon eklenmediği için (hesaplanan değer) veritabanını silmeye gere
 - **Soru-cevap sayfası (SSS):** **Soru-cevap düzeni**'ni açın. Her `## Soru?` satırı açılır kapanır bir soru, altındaki satırlar cevabı olur. Yeni soru eklemek = yeni bir `## ` satırı yazmak.
 - Yapay Zekâ Asistanı da aynısını yapabilir: "SSS'ye 'Kasko dahil mi?' sorusunu ekle", "Kampanya koşulları diye bir sayfa aç, Kurumsal menüsüne koy".
 
-**Logo:** Yönetim → Ayarlar → Görünüm → **Logo**. "Rota amblemi" seçenekleri `Yardimcilar/LogoAmblemi.cs`'te çizilmiş SVG'lerdir; renkleri ana renkten gelir, sekme simgesi (favicon) de aynı amblemi kullanır.
-
 ---
 
 ## 10. Yeni API adresi
@@ -434,7 +432,7 @@ Hoca "kodda nerede?" derse:
 | Karttan detaya uçan fotoğraf (sayfa geçişi) | `_AracKarti.cshtml` ve `Araclar/Detay.cshtml`'deki `view-transition-name: arac-@id` + `vitrin.css` → "Sayfalar arası geçiş" |
 | Tema butonunda daire gibi açılan yeni tema | `wwwroot/js/genel.js` → "Açık / koyu tema" |
 | "Hareketi azalt" açık cihazda her şeyin durması | `wwwroot/js/tema.js` (`animasyon` sınıfı) |
-| Kategorilerin yatay akması, yoldaki araç, katmanların farklı hızda kayması | `vitrin.css` → "KAYDIRMAYA BAĞLI PARALAKS" |
+| Kategorilerin yatay akması, katmanların farklı hızda kayması | `vitrin.css` → "KAYDIRMAYA BAĞLI PARALAKS" |
 | Kartlardaki küçük fotoğraf, tarayıcı önbelleği | `Yardimcilar/Gorseller.cs`, `Yardimcilar/Altyapi.cs` |
 
 ---

@@ -8,7 +8,7 @@
     <div class="container">
         <div class="row g-4">
             <div class="col-lg-4">
-                <a class="logo mb-3" href="/"><partial name="_LogoIsareti" /> @a.FirmaAdi</a>
+                <a class="logo mb-3" href="/"><span class="logo-isaret"><i class="bi @a.LogoIkonu"></i></span> @a.FirmaAdi</a>
                 <p class="small mb-3">@Icerik.Metin("altbilgi.aciklama")</p>
                 <div class="d-flex gap-2 sosyal">
                     @if (!string.IsNullOrEmpty(a.InstagramAdresi)) { <a href="@a.InstagramAdresi" target="_blank" rel="noopener" aria-label="Instagram"><i class="bi bi-instagram"></i></a> }

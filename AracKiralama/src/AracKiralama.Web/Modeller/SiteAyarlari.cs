@@ -58,11 +58,8 @@ public class SiteAyarlari
     [Ayar("Görünüm", "Varsayılan tema", Secenekler = "sistem:Ziyaretçinin cihazına göre|acik:Açık|koyu:Koyu")]
     public string VarsayilanTema { get; set; } = "sistem";
 
-    // Amblemlerin çizimi: Yardimcilar/LogoAmblemi.cs. Listeye yeni ikon eklemek: "|bi-ikon-adi:Görünen ad" yazın
-    // (görünen adda ":" kullanmayın, ayırıcıdır).
-    [Ayar("Görünüm", "Logo", Aciklama = "Logodaki renkli karenin içi. Renk, yukarıdaki ana renktir.",
-        Secenekler = "amblem-r:Rota amblemi (R harfi ve yol)|amblem-rota:Rota amblemi (rota ve hedef iğnesi)|bi-signpost-split-fill:İkon (yol tabelası)|bi-car-front-fill:İkon (araba)|bi-key-fill:İkon (anahtar)|bi-geo-alt-fill:İkon (konum)")]
-    public string LogoIkonu { get; set; } = "amblem-r";
+    [Ayar("Görünüm", "Logo ikonu", Aciklama = "Bootstrap ikon adı, örn: bi-signpost-split-fill, bi-car-front-fill")]
+    public string LogoIkonu { get; set; } = "bi-signpost-split-fill";
 
     // ---------------- ANA SAYFA ----------------
     [Ayar("Ana Sayfa", "Üst bölüm görseli", Aciklama = "Görsel adresi (Yönetim → Görseller'den yükleyip adresini kopyalayın)")]
