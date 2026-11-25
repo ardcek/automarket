@@ -78,9 +78,9 @@ public class RezervasyonServisi
             hatalar.Add($"Rezervasyon için profilinizi tamamlayın; eksik: {string.Join(", ", eksik)}.");
             return hatalar;
         }
-        if (YilFarki(kullanici.DogumTarihi.Value, tarih) < kategori.MinYas)
+        if (YilFarki(kullanici.DogumTarihi!.Value, tarih) < kategori.MinYas)
             hatalar.Add($"{kategori.Ad} sınıfı araçlar için en az {kategori.MinYas} yaşında olmalısınız.");
-        if (YilFarki(kullanici.EhliyetTarihi.Value, tarih) < kategori.MinEhliyetYili)
+        if (YilFarki(kullanici.EhliyetTarihi!.Value, tarih) < kategori.MinEhliyetYili)
             hatalar.Add($"{kategori.Ad} sınıfı araçlar için en az {kategori.MinEhliyetYili} yıllık ehliyet gereklidir.");
         return hatalar;
     }
