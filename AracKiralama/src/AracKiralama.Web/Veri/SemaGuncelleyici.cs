@@ -64,8 +64,9 @@ public static class SemaGuncelleyici
                     ClrType = tur,
                     ColumnType = kolon.StoreType,
                     IsNullable = kolon.IsNullable,
-                    // Dolu tablolarda NOT NULL kolon eklenebilmesi için varsayılan değer şart (0, false, "" ...)
-                    DefaultValue = kolon.IsNullable ? null : kolon.DefaultValue ?? VarsayilanDeger(tur)
+                    // Dolu tablolarda NOT NULL kolon eklenebilmesi için varsayılan değer şart. Önce KODDAKİ varsayılan
+                    // kullanılır (örn. [Ayar] ... { get; set; } = true → mevcut satırlar da true olur), yoksa 0 / false / "".
+                    DefaultValue = kolon.IsNullable ? null : kolon.DefaultValue ?? KoddakiVarsayilan(kolon) ?? VarsayilanDeger(tur)
                 });
                 eklenenler.Add($"kolon {tablo.Name}.{kolon.Name}");
             }
@@ -106,6 +107,25 @@ public static class SemaGuncelleyici
         }
         finally { if (kapat) await baglanti.CloseAsync(); }
         return sonuc;
+    }
+
+    /// <summary>
+    /// Kolonun C# sınıfındaki başlangıç değeri: new SiteAyarlari().OzelImlec gibi. Sınıf boş oluşturulamıyorsa
+    /// ya da değer okunamıyorsa null. Enum gibi dönüştürülerek saklananlar veritabanı biçimine çevrilir.
+    /// </summary>
+    private static object? KoddakiVarsayilan(IColumn kolon)
+    {
+        try
+        {
+            var ozellik = kolon.PropertyMappings.First().Property;
+            var sinif = ozellik.DeclaringType.ClrType;
+            if (ozellik.PropertyInfo == null || sinif.GetConstructor(Type.EmptyTypes) == null) return null;
+            var deger = ozellik.PropertyInfo.GetValue(Activator.CreateInstance(sinif));
+            if (deger == null) return null;
+            var cevirici = ozellik.GetTypeMapping().Converter;
+            return cevirici != null ? cevirici.ConvertToProvider(deger) : deger;
+        }
+        catch { return null; }
     }
 
     private static object VarsayilanDeger(Type tur) =>

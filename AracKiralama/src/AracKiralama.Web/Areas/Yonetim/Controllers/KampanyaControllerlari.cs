@@ -147,7 +147,7 @@ public class KampanyalarController : YonetimController
 }
 
 // =============================== MÜŞTERİ BİLGİLERİ ===============================
-[Authorize(Roles = Roller.SuperAdmin)]   // sadece Süper Admin (Yardimcilar/Genel.cs → Roller)
+// Admin ve Personel de kullanır (müşteriye sorulan ek bilgiler, örn. Meslek) — "hocanın paneli"nde
 public class MusteriAlanlariController : YonetimController
 {
     private readonly VeriTabani _vt;

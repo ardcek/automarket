@@ -163,6 +163,7 @@ public static class OrnekVeriler
             new() { Ad = "Ankara Esenboğa", Sehir = "Ankara", Adres = "Esenboğa Havalimanı Dış Hatlar, Çubuk", Telefon = "0312 555 30 30" },
             new() { Ad = "İzmir Adnan Menderes", Sehir = "İzmir", Adres = "Dokuz Eylül Mah. Havalimanı Cad., Gaziemir", Telefon = "0232 555 40 40" },
             new() { Ad = "Antalya Havalimanı", Sehir = "Antalya", Adres = "Yenigöl Mah. Havalimanı Yolu, Muratpaşa", Telefon = "0242 555 50 50" },
+            new() { Ad = "Bursa Merkez", Sehir = "Bursa", Adres = "Kükürtlü Mah. Uludağ Cad. No:18, Osmangazi", Telefon = "0224 555 60 60" },
         };
         var ekstralar = new List<Ekstra>
         {

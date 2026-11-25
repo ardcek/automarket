@@ -133,12 +133,18 @@ public static class VarsayilanMetinler
         ["hesap.kayit-madde2"] = "Fiyatın tamamı baştan belli, gizli ücret yok",
         ["hesap.kayit-madde3"] = "Alışa {saat} saat kalana kadar ücretsiz iptal",
         ["hesap.kayit-alt-not"] = "Bilgileriniz yalnızca kiralama için kullanılır, kimseyle paylaşılmaz.",
+        ["hesap.unuttum-baslik"] = "Şifrenizi mi unuttunuz?",
+        ["hesap.unuttum-metin"] = "Üye olurken kullandığınız e-postayı yazın; şifrenizi yenilemeniz için bir bağlantı gönderelim.",
+        ["hesap.sifirla-baslik"] = "Yeni şifrenizi belirleyin",
+        ["hesap.yeni-sifre-baslik"] = "Kendi şifrenizi belirleyin",
+        ["hesap.yeni-sifre-metin"] = "Hesabınız size geçici bir şifreyle açıldı. Devam etmeden önce yalnızca sizin bildiğiniz bir şifre belirleyin.",
         ["hesap.kayit-kapali"] = "Üyelik sistemi çok yakında açılacak. Şu anda yeni üye kaydı alınmamaktadır.",
         ["hesap.giris-kapali"] = "Üye girişi çok yakında açılacak. Şu anda giriş yapılamamaktadır.",
 
         // ---- Hesabım ----
         ["profil.merhaba"] = "Merhaba",
         ["profil.aciklama"] = "Rezervasyonlarınızı buradan takip edebilir, iptal edebilir veya sözleşmenizi indirebilirsiniz.",
+        ["profil.aktif-baslik"] = "Yaklaşan ve devam eden kiralamalar",
         ["profil.eksik-bilgi"] = "Rezervasyon yapabilmek için doğum tarihi ve ehliyet bilgilerinizi tamamlayın.",
 
         // ---- Alt bilgi ----

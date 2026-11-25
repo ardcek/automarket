@@ -57,7 +57,13 @@ builder.Services.AddIdentity<Kullanici, IdentityRole>(secenek =>
     })
     .AddEntityFrameworkStores<VeriTabani>()
     .AddErrorDescriber<TurkceIdentityMesajlari>()
+    .AddClaimsPrincipalFactory<KimlikFabrikasi>()   // geçici şifreyle girene "yeni şifre belirle" (Yardimcilar/SifreKontrolu.cs)
     .AddDefaultTokenProviders();
+// "Şifremi unuttum" linki 2 saat geçerli (varsayılan 1 gün)
+builder.Services.Configure<DataProtectionTokenProviderOptions>(s => s.TokenLifespan = TimeSpan.FromHours(2));
+// E-posta gönderimi (şifre sıfırlama linki). Ayarları appsettings.json → "Eposta"; canlıda Render → Environment.
+builder.Services.Configure<EpostaAyarlari>(builder.Configuration.GetSection("Eposta"));
+builder.Services.AddScoped<EpostaServisi>();
 // SuperAdmin aynı zamanda Admin sayılır (veritabanında sadece SuperAdmin satırı olması yeter). Roller: Yardimcilar/Genel.cs
 builder.Services.AddTransient<Microsoft.AspNetCore.Authentication.IClaimsTransformation, SuperAdminAyniZamandaAdmin>();
 
@@ -185,6 +191,7 @@ app.UseStatusCodePagesWithReExecute("/AnaSayfa/Durum", "?kod={0}");   // 404 vb.
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication();
+app.UseSifreKontrolu();   // geçici şifreyle giren kişi önce yeni şifresini belirler
 app.UseAuthorization();
 
 app.MapStaticAssets();

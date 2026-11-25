@@ -1,7 +1,7 @@
 // ============================================================================
 // MÜŞTERİLER ve PERSONEL
-//   /Yonetim/Musteriler  → müşteri listesi, detay, kara liste
-//   /Yonetim/Personel    → personel / admin hesapları ve roller (SADECE Admin görür)
+//   /Yonetim/Musteriler  → bütün kullanıcılar (müşteri + personel), detay (geçmiş, ödemeler, hasarlar), kara liste
+//   /Yonetim/Personel    → yetkiler, yeni kullanıcı, geçici şifre, hesabı dondur / sil (SADECE Admin ve Süper Admin)
 // ============================================================================
 using AracKiralama.FormModelleri;
 using AracKiralama.Modeller;
@@ -25,9 +25,12 @@ public class MusterilerController : YonetimController
         _kullanicilar = kullanicilar;
     }
 
-    public async Task<IActionResult> Index(string? arama, bool karaListe = false)
+    public async Task<IActionResult> Index(string? arama, bool karaListe = false, string? rol = null)
     {
-        var musteriler = (await _kullanicilar.GetUsersInRoleAsync(Roller.Musteri)).AsEnumerable();
+        // Her kullanıcının en yüksek rolü (Süper Admin > Admin > Personel > Müşteri)
+        var roller = await RolleriAsync();
+        var musteriler = (await _vt.Users.AsNoTracking().ToListAsync()).AsEnumerable();
+        if (!string.IsNullOrEmpty(rol)) musteriler = musteriler.Where(k => roller.GetValueOrDefault(k.Id, Roller.Musteri) == rol);
         if (!string.IsNullOrWhiteSpace(arama))
             musteriler = musteriler.Where(k => k.TamAd.Contains(arama, StringComparison.CurrentCultureIgnoreCase)
                                            || (k.Email ?? "").Contains(arama, StringComparison.OrdinalIgnoreCase) || (k.PhoneNumber ?? "").Contains(arama));
@@ -39,20 +42,39 @@ public class MusterilerController : YonetimController
         var satirlar = musteriler.Select(k => new MusteriSatiri
         {
             Kullanici = k,
+            Rol = roller.GetValueOrDefault(k.Id, Roller.Musteri),
             KiralamaSayisi = tamamlananlar.Count(r => r.MusteriId == k.Id),
             ToplamHarcama = tamamlananlar.Where(r => r.MusteriId == k.Id).Sum(r => r.ToplamTutar),
         }).OrderByDescending(s => s.ToplamHarcama).ToList();
 
         ViewBag.Arama = arama;
         ViewBag.KaraListe = karaListe;
+        ViewBag.Rol = rol;
         return View(satirlar);
+    }
+
+    /// <summary>Kullanıcı numarası → en yüksek rolü.</summary>
+    private async Task<Dictionary<string, string>> RolleriAsync()
+    {
+        var sira = new[] { Roller.SuperAdmin, Roller.Admin, Roller.Personel, Roller.Musteri };
+        var satirlar = await (from ur in _vt.UserRoles join r in _vt.Roles on ur.RoleId equals r.Id select new { ur.UserId, r.Name }).ToListAsync();
+        return satirlar.GroupBy(s => s.UserId)
+            .ToDictionary(g => g.Key, g => sira.FirstOrDefault(s => g.Any(x => x.Name == s)) ?? Roller.Musteri);
     }
 
     public async Task<IActionResult> Detay(string id)
     {
-        var kullanici = await _vt.Users.Include(k => k.Rezervasyonlar).ThenInclude(r => r.Arac).ThenInclude(a => a!.Marka)
-            .AsNoTracking().FirstOrDefaultAsync(k => k.Id == id);
+        // Kişinin bütün geçmişi: rezervasyonlar + araç, şubeler, ödemeler, hasarlar, ek hizmetler
+        var kullanici = await _vt.Users
+            .Include(k => k.Rezervasyonlar).ThenInclude(r => r.Arac).ThenInclude(a => a!.Marka)
+            .Include(k => k.Rezervasyonlar).ThenInclude(r => r.AlisSube)
+            .Include(k => k.Rezervasyonlar).ThenInclude(r => r.IadeSube)
+            .Include(k => k.Rezervasyonlar).ThenInclude(r => r.Odemeler)
+            .Include(k => k.Rezervasyonlar).ThenInclude(r => r.Hasarlar)
+            .Include(k => k.Rezervasyonlar).ThenInclude(r => r.Ekstralar).ThenInclude(e => e.Ekstra)
+            .AsSplitQuery().AsNoTracking().FirstOrDefaultAsync(k => k.Id == id);
         if (kullanici == null) return NotFound();
+        ViewBag.Rol = (await RolleriAsync()).GetValueOrDefault(id, Roller.Musteri);
 
         // Panelden eklenen bilgiler (Meslek vb.): SELECT a."Ad", d."Deger" FROM "MusteriAlanDegerleri" d JOIN "MusteriAlanlari" a ... WHERE d."KullaniciId" = @id
         ViewBag.MusteriBilgileri = await _vt.MusteriAlanDegerleri.Where(d => d.KullaniciId == id)
@@ -76,7 +98,9 @@ public class MusterilerController : YonetimController
 /// <summary>
 /// PERSONEL VE ROLLER (Admin ve Süper Admin görür).
 /// Kim ne verebilir: Roller.Verebilecegi → Süper Admin: Süper Admin / Admin / Personel · Admin: Admin / Personel.
-/// Admin, Süper Admin hesaplarını değiştiremez. Kimse kendi yetkisini değiştiremez (kendini kilitlemesin diye).
+/// Herkesi Müşteri'ye (yetkisiz) çevirebilir. Admin, Süper Admin hesaplarını değiştiremez. Kimse kendi hesabına dokunamaz.
+/// Hesap işlemleri: yeni kullanıcı (geçici şifreyle), geçici şifre ver, hesabı dondur / aç, hesabı sil.
+/// İşlem sonrası "donus" alanı varsa oraya (örn. müşteri detayı), yoksa bu listeye dönülür.
 /// </summary>
 [Authorize(Roles = Roller.Admin)]
 public class PersonelController : YonetimController
@@ -99,10 +123,12 @@ public class PersonelController : YonetimController
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Ekle(PersonelFormu form)
     {
-        if (!Roller.Verebilecegi(User).Contains(form.Rol)) ModelState.AddModelError(nameof(form.Rol), "Bu yetkiyi veremezsiniz.");
+        if (form.Rol != Roller.Musteri && !Roller.Verebilecegi(User).Contains(form.Rol)) ModelState.AddModelError(nameof(form.Rol), "Bu yetkiyi veremezsiniz.");
         if (!ModelState.IsValid) return View(form);
 
-        var kullanici = new Kullanici { UserName = form.Eposta, Email = form.Eposta, EmailConfirmed = true, Ad = form.Ad.Trim(), Soyad = form.Soyad.Trim() };
+        // Geçici şifre: kişi ilk girişte kendi şifresini belirler (Yardimcilar/SifreKontrolu.cs)
+        var eposta = form.Eposta.Trim().ToLowerInvariant();
+        var kullanici = new Kullanici { UserName = eposta, Email = eposta, EmailConfirmed = true, Ad = form.Ad.Trim(), Soyad = form.Soyad.Trim(), SifreDegistirmeli = true };
         var sonuc = await _kullanicilar.CreateAsync(kullanici, form.Sifre);
         if (!sonuc.Succeeded)
         {
@@ -110,7 +136,7 @@ public class PersonelController : YonetimController
             return View(form);
         }
         await _kullanicilar.AddToRoleAsync(kullanici, form.Rol);
-        Basarili($"{kullanici.TamAd} ({Roller.Ad(form.Rol)}) hesabı oluşturuldu.");
+        Basarili($"{kullanici.TamAd} ({Roller.Ad(form.Rol)}) hesabı oluşturuldu. İlk girişte geçici şifreyle girip kendi şifresini belirleyecek.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -128,7 +154,7 @@ public class PersonelController : YonetimController
     public async Task<IActionResult> RolDegistir(string id, string rol)
     {
         var kullanici = await _kullanicilar.FindByIdAsync(id);
-        if (kullanici == null) { Hata("Kullanıcı bulunamadı."); return RedirectToAction(nameof(Index)); }
+        if (kullanici == null) { Hata("Kullanıcı bulunamadı."); return Geri(); }
         return await RolVerAsync(kullanici, rol);
     }
 
@@ -138,24 +164,100 @@ public class PersonelController : YonetimController
     {
         var kullanici = await _kullanicilar.FindByIdAsync(id);
         var engel = kullanici == null ? "Kullanıcı bulunamadı." : await EngelAsync(kullanici);
-        if (engel != null) { Hata(engel); return RedirectToAction(nameof(Index)); }
+        if (engel != null) { Hata(engel); return Geri(); }
 
         await RolleriAyarlaAsync(kullanici!, Roller.Musteri);
         Basarili($"{kullanici!.TamAd} artık panele giremez (müşteri).");
-        return RedirectToAction(nameof(Index));
+        return Geri();
     }
 
-    /// <summary>Ortak kontroller + rol verme. Verilen rol, verenin verebileceklerinden olmalı.</summary>
+    /// <summary>Ortak kontroller + rol verme. Verilen rol, verenin verebileceklerinden (ya da Müşteri) olmalı.</summary>
     private async Task<IActionResult> RolVerAsync(Kullanici kullanici, string rol)
     {
-        var engel = !Roller.Verebilecegi(User).Contains(rol)
+        var engel = rol != Roller.Musteri && !Roller.Verebilecegi(User).Contains(rol)
             ? (User.IsInRole(Roller.SuperAdmin) ? "Geçersiz yetki." : "Admin sadece Admin ya da Personel yetkisi verebilir.")
             : await EngelAsync(kullanici);
-        if (engel != null) { Hata(engel); return RedirectToAction(nameof(Index)); }
+        if (engel != null) { Hata(engel); return Geri(); }
 
         await RolleriAyarlaAsync(kullanici, rol);
         Basarili($"{kullanici.TamAd} artık {Roller.Ad(rol)}. Yetkinin görünmesi için bir kez çıkış yapıp tekrar girmesi gerekir.");
-        return RedirectToAction(nameof(Index));
+        return Geri();
+    }
+
+    /// <summary>
+    /// Geçici şifre verir: rastgele bir şifre üretilir, ekranda BİR KEZ gösterilir (admin kişiye iletir).
+    /// Kişi bu şifreyle girince kendi şifresini belirlemeden devam edemez. Açık oturumları kapanır.
+    /// </summary>
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> GeciciSifre(string id)
+    {
+        var kullanici = await _kullanicilar.FindByIdAsync(id);
+        var engel = kullanici == null ? "Kullanıcı bulunamadı." : await EngelAsync(kullanici);
+        if (engel != null) { Hata(engel); return Geri(); }
+
+        var sifre = GeciciSifreUret();
+        var kod = await _kullanicilar.GeneratePasswordResetTokenAsync(kullanici!);
+        var sonuc = await _kullanicilar.ResetPasswordAsync(kullanici!, kod, sifre);   // güvenlik damgası da yenilenir → açık oturumlar kapanır
+        if (!sonuc.Succeeded) { Hata(string.Join(" ", sonuc.Errors.Select(h => h.Description))); return Geri(); }
+        kullanici!.SifreDegistirmeli = true;
+        await _kullanicilar.UpdateAsync(kullanici);
+        TempData["GeciciSifre"] = sifre;
+        TempData["GeciciSifreKime"] = $"{kullanici.TamAd} ({kullanici.Email})";
+        return Geri();
+    }
+
+    /// <summary>Hesabı dondurur (giriş yapamaz) ya da çözer. Kayıtları silinmez.</summary>
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Dondur(string id)
+    {
+        var kullanici = await _kullanicilar.FindByIdAsync(id);
+        var engel = kullanici == null ? "Kullanıcı bulunamadı." : await EngelAsync(kullanici);
+        if (engel != null) { Hata(engel); return Geri(); }
+
+        var donukMu = await _kullanicilar.IsLockedOutAsync(kullanici!);
+        await _kullanicilar.SetLockoutEnabledAsync(kullanici!, true);
+        await _kullanicilar.SetLockoutEndDateAsync(kullanici!, donukMu ? null : DateTimeOffset.MaxValue);
+        if (!donukMu) await _kullanicilar.UpdateSecurityStampAsync(kullanici!);   // açık oturumu da kapansın
+        Basarili(donukMu ? $"{kullanici!.TamAd} hesabı yeniden açıldı." : $"{kullanici!.TamAd} hesabı donduruldu; giriş yapamaz.");
+        return Geri();
+    }
+
+    /// <summary>
+    /// Hesabı tamamen siler. Rezervasyonu olan hesap silinemez (kiralama ve ödeme kayıtları kaybolmasın):
+    /// onun yerine dondurun.
+    /// </summary>
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Sil(string id, [FromServices] VeriTabani vt)
+    {
+        var kullanici = await _kullanicilar.FindByIdAsync(id);
+        var engel = kullanici == null ? "Kullanıcı bulunamadı." : await EngelAsync(kullanici);
+        if (engel == null && await vt.Rezervasyonlar.AnyAsync(r => r.MusteriId == id))
+            engel = "Bu kişinin rezervasyon kayıtları var; silinirse kiralama geçmişi kaybolur. Bunun yerine hesabı dondurun.";
+        if (engel != null) { Hata(engel); return Geri(); }
+
+        // Kişiye bağlı küçük kayıtlar: panelden eklenen bilgileri, personelse yaptığı işlemlerdeki adı
+        await vt.MusteriAlanDegerleri.Where(d => d.KullaniciId == id).ExecuteDeleteAsync();
+        await vt.Rezervasyonlar.Where(r => r.IslemYapanId == id).ExecuteUpdateAsync(s => s.SetProperty(r => r.IslemYapanId, (string?)null));
+        await vt.Odemeler.Where(o => o.AlanKullaniciId == id).ExecuteUpdateAsync(s => s.SetProperty(o => o.AlanKullaniciId, (string?)null));
+        await _kullanicilar.DeleteAsync(kullanici!);
+        Basarili($"{kullanici!.TamAd} ({kullanici.Email}) hesabı silindi.");
+        // Silinen kişinin detay sayfasına geri dönülmez
+        return Request.Form["donus"].ToString().Contains("/Musteriler/Detay/") ? Redirect("/Yonetim/Musteriler") : Geri();
+    }
+
+    /// <summary>İşlemden sonra formdaki "donus" adresine (örn. müşteri detayı) ya da Personel listesine döner.</summary>
+    private IActionResult Geri()
+    {
+        var donus = Request.HasFormContentType ? Request.Form["donus"].ToString() : "";
+        return !string.IsNullOrEmpty(donus) && Url.IsLocalUrl(donus) ? Redirect(donus) : RedirectToAction(nameof(Index));
+    }
+
+    /// <summary>Okunması kolay geçici şifre: "kemr-4827" gibi (harf + rakam; şifre kurallarına uyar).</summary>
+    private static string GeciciSifreUret()
+    {
+        const string harfler = "abcdefghjkmnprstuvyz";   // birbirine benzeyen harfler (l, o, i) yok
+        var harf = string.Concat(Enumerable.Range(0, 4).Select(_ => harfler[System.Security.Cryptography.RandomNumberGenerator.GetInt32(harfler.Length)]));
+        return harf + "-" + System.Security.Cryptography.RandomNumberGenerator.GetInt32(1000, 10000);
     }
 
     /// <summary>Bu kişinin yetkisi değiştirilebilir mi? Değilse sebebini döndürür.</summary>

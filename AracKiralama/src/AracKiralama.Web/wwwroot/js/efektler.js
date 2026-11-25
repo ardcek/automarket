@@ -11,6 +11,7 @@
 //   data-duraklat          → ekranda değilken sürekli hareketi durur (örn. marka şeridi)
 //   data-miknatis          → buton fareye doğru hafifçe çekilir
 //   data-mobil-cubuk="#id" → telefondaki alt çubuk, #id ekranda görününce gizlenir
+//   <body data-imlec="acik"> → özel fare imleci (Yönetim → Ayarlar → Görünüm → "Özel fare imleci")
 //   .ust-menu.saydam-baslar → üst menü sayfanın en üstünde saydam, kaydırınca buzlu cam (view'da ViewData["SaydamMenu"] = true)
 // "Hareketi azalt" açıksa (tema.js <html>'e "animasyon" eklemez) sadece menü ve alt çubuk çalışır.
 // PERFORMANS: fare hareketinde sadece ilgili öğelerin translate / transform değeri yazılır (kare başına bir kez).
@@ -145,4 +146,44 @@
         });
         buton.addEventListener("pointerleave", () => buton.style.translate = "");
     });
+
+    // ---- 9) Özel fare imleci: nokta fareyi anında, halka yumuşakça izler; tıklanabilir şeyin üstünde büyür ----
+    // Aç / kapa: Yönetim → Ayarlar → Görünüm → "Özel fare imleci" (_Layout <body data-imlec="acik">).
+    // Dokunmatik ekranda ve "hareketi azalt" açıkken hiç çalışmaz. Görünüm: vitrin.css → "Özel fare imleci".
+    // PERFORMANS: sadece iki küçük öğenin transform değeri yazılır; halka durunca döngü de durur.
+    if (fareVar && hareket && document.body.dataset.imlec === "acik") {
+        const nokta = document.createElement("div"), halka = document.createElement("div");
+        nokta.className = "imlec-nokta";
+        halka.className = "imlec-halka";
+        nokta.setAttribute("aria-hidden", "true");
+        halka.setAttribute("aria-hidden", "true");
+        document.body.append(nokta, halka);
+        kok.classList.add("ozel-imlec");
+
+        let x = -100, y = -100, hx = -100, hy = -100, donuyor = false;
+        const adim = () => {
+            hx += (x - hx) * .2;
+            hy += (y - hy) * .2;
+            halka.style.transform = `translate(${hx.toFixed(1)}px, ${hy.toFixed(1)}px)`;
+            if (Math.abs(x - hx) + Math.abs(y - hy) > .4) requestAnimationFrame(adim); else donuyor = false;
+        };
+        addEventListener("pointermove", olay => {
+            if (olay.pointerType !== "mouse") return;
+            x = olay.clientX;
+            y = olay.clientY;
+            nokta.style.transform = `translate(${x}px, ${y}px)`;
+            kok.classList.add("imlec-gorunur");
+            if (!donuyor) { donuyor = true; requestAnimationFrame(adim); }
+        }, { passive: true });
+
+        const tiklanabilir = "a, button, [role=button], label, select, summary, [data-egim], .kategori-karti";
+        const yaziKutusu = "input:not([type=checkbox]):not([type=radio]):not([type=submit]), textarea, [contenteditable]";
+        document.addEventListener("pointerover", olay => {
+            kok.classList.toggle("imlec-buyuk", !!olay.target.closest(tiklanabilir));
+            kok.classList.toggle("imlec-yazi", !!olay.target.closest(yaziKutusu));   // yazı kutusunda normal imleç
+        });
+        document.addEventListener("pointerdown", () => kok.classList.add("imlec-bas"));
+        document.addEventListener("pointerup", () => kok.classList.remove("imlec-bas"));
+        document.documentElement.addEventListener("mouseleave", () => kok.classList.remove("imlec-gorunur"));
+    }
 })();

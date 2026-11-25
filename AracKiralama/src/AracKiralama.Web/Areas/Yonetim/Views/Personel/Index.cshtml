@@ -11,7 +11,7 @@
 }
 <div class="sayfa-baslik">
     <div><h1>Personel ve Roller</h1><div class="alt-yazi">Süper Admin: her şey + site düzenleme. Admin: operasyon, kayıtlar ve bu sayfa. Personel: bu sayfa hariç Admin'in gördükleri.</div></div>
-    <a href="/Yonetim/Personel/Ekle" class="btn btn-primary"><i class="bi bi-person-plus me-1"></i>Yeni personel hesabı</a>
+    <a href="/Yonetim/Personel/Ekle" class="btn btn-primary"><i class="bi bi-person-plus me-1"></i>Yeni kullanıcı</a>
 </div>
 
 @* Sitede üye olmuş birine yetki vermek *@
@@ -38,7 +38,7 @@
         @foreach (var (k, rol) in Model)
         {
             <tr>
-                <td class="fw-semibold">@k.TamAd</td><td>@k.Email</td>
+                <td class="fw-semibold"><a href="/Yonetim/Musteriler/Detay/@k.Id" class="text-reset">@k.TamAd</a></td><td>@k.Email</td>
                 <td><span class="durum @(rol == Roller.SuperAdmin ? "durum-tamamlandi" : rol == Roller.Admin ? "durum-onaylandi" : "durum-kirada")">@Roller.Ad(rol)</span></td>
                 <td class="text-end">
                     @if (k.Id == benimId)

@@ -25,7 +25,10 @@
                     <span asp-validation-for="Eposta"></span>
                 </div>
                 <div class="mb-3">
-                    <label asp-for="Sifre" class="form-label"></label>
+                    <div class="d-flex justify-content-between align-items-baseline">
+                        <label asp-for="Sifre" class="form-label"></label>
+                        <a asp-action="SifremiUnuttum" class="small">Şifremi unuttum</a>
+                    </div>
                     <div class="sifre-kutusu">
                         <input asp-for="Sifre" class="form-control" autocomplete="current-password" />
                         <button type="button" class="sifre-goster" data-sifre-goster aria-label="Şifreyi göster" aria-pressed="false"><i class="bi bi-eye"></i></button>

@@ -1,6 +1,6 @@
 // ============================================================================
 // PROFİL ("Hesabım"): rezervasyonlarım, profil/ehliyet bilgileri, iptal, sözleşme
-//   /Profil  ·  /Profil/Duzenle  ·  /Profil/IptalEt/5 (POST)  ·  /Profil/Sozlesme/5
+//   /Profil  ·  /Profil/Duzenle  ·  /Profil/Sifre  ·  /Profil/IptalEt/5 (POST)  ·  /Profil/Sozlesme/5
 // ============================================================================
 using AracKiralama.FormModelleri;
 using AracKiralama.Modeller;
@@ -106,6 +106,30 @@ public class ProfilController : TemelController
         {
             Hata(hata.Message);
         }
+        return RedirectToAction(nameof(Index));
+    }
+
+    // ---- Şifremi değiştir: /Profil/Sifre ----
+    [HttpGet]
+    public IActionResult Sifre() => View(new SifreDegistirFormu());
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Sifre(SifreDegistirFormu form, [FromServices] SignInManager<Kullanici> giris)
+    {
+        if (!ModelState.IsValid) return View(form);
+        var k = await _kullanicilar.GetUserAsync(User);
+        if (k == null) return Challenge();
+
+        var sonuc = await _kullanicilar.ChangePasswordAsync(k, form.MevcutSifre, form.YeniSifre);
+        if (!sonuc.Succeeded)
+        {
+            foreach (var h in sonuc.Errors)
+                ModelState.AddModelError(h.Code == "PasswordMismatch" ? nameof(form.MevcutSifre) : nameof(form.YeniSifre),
+                    h.Code == "PasswordMismatch" ? "Şu anki şifreniz hatalı." : h.Description);
+            return View(form);
+        }
+        await giris.RefreshSignInAsync(k);   // oturum açık kalsın
+        Basarili("Şifreniz değiştirildi.");
         return RedirectToAction(nameof(Index));
     }
 

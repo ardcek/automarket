@@ -53,6 +53,24 @@ public class VeriTabaniTestleri
         Assert.Equal(aracSayisi, t.Vt.Araclar.Count());
         Assert.Equal(0, t.Vt.YapayZekaKayitlari.Count());                // yeniden oluşan tablo okunabiliyor
     }
+
+    /// <summary>Yeni eklenen kolon, mevcut satırlara KODDAKİ varsayılanla eklenir (örn. bir ayar "= true" ise true).</summary>
+    [Fact]
+    public async Task Sema_guncelleyici_koddaki_varsayilani_kullanir()
+    {
+        using var t = new TestVeriTabani();
+        t.Vt.SiteAyarlari.Add(new AracKiralama.Modeller.SiteAyarlari());
+        await t.Vt.SaveChangesAsync();
+        await t.Vt.Database.ExecuteSqlRawAsync("ALTER TABLE SiteAyarlari DROP COLUMN OzelImlec");          // kodda: = true
+        await t.Vt.Database.ExecuteSqlRawAsync("ALTER TABLE SiteAyarlari DROP COLUMN VarsayilanSiralama"); // kodda: = "fiyat-artan"
+
+        await SemaGuncelleyici.EksikleriEkleAsync(t.Vt);
+
+        t.Vt.ChangeTracker.Clear();
+        var ayar = await t.Vt.SiteAyarlari.AsNoTracking().FirstAsync();
+        Assert.True(ayar.OzelImlec);
+        Assert.Equal("fiyat-artan", ayar.VarsayilanSiralama);
+    }
 }
 
 public class BicimTestleri

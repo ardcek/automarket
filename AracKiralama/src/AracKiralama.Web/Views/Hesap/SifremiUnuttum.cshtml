@@ -1,0 +1,38 @@
+@* ŞİFREMİ UNUTTUM: e-posta yazılır, 2 saat geçerli sıfırlama linki gönderilir (HesapController → SifremiUnuttum).
+   E-posta ayarı yoksa (appsettings.json → "Eposta") link loga yazılır; bilgisayarda (Development) aşağıda da görünür.
+   Yazılar: Yönetim → Site Düzenleyici → "Giriş ve kayıt" → Şifre işlemleri *@
+@model SifremiUnuttumFormu
+@{ ViewData["Title"] = Icerik.Metin("hesap.unuttum-baslik"); }
+<div class="giris-sayfasi">
+    <div class="giris-yan">
+        <h2 data-giris style="--i:1">@Icerik.Metin("hesap.unuttum-baslik")</h2>
+        <p class="opacity-75 mb-0" data-giris style="--i:2">Endişelenmeyin, birkaç dakikada yeni şifrenizi belirleyebilirsiniz.</p>
+    </div>
+    <div class="giris-form">
+        <div class="ic" data-giris style="--i:0">
+            <a asp-action="Giris" class="small"><i class="bi bi-arrow-left me-1"></i>Giriş sayfasına dön</a>
+            <h1 class="h3 mt-2">@Icerik.Metin("hesap.unuttum-baslik")</h1>
+            <p class="text-muted">@Icerik.Metin("hesap.unuttum-metin")</p>
+
+            @if (TempData["SifirlamaLinki"] is string link)
+            {
+                <div class="alert alert-info small" role="status">
+                    <b><i class="bi bi-tools me-1"></i>Sadece bu bilgisayarda görünür:</b> e-posta ayarı yapılmadığı için gönderilecek bağlantı:
+                    <a href="@link" class="d-block text-break mt-1">@link</a>
+                </div>
+            }
+
+            <form asp-action="SifremiUnuttum" method="post" data-yukleniyor="Gönderiliyor…">
+                <div asp-validation-summary="ModelOnly" class="hata-ozeti mb-3" role="alert"></div>
+                <div class="mb-3">
+                    <label asp-for="Eposta" class="form-label"></label>
+                    <input asp-for="Eposta" type="email" class="form-control" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="ornek@eposta.com" />
+                    <span asp-validation-for="Eposta"></span>
+                </div>
+                <button class="btn btn-primary btn-lg w-100">Sıfırlama bağlantısı gönder <i class="bi bi-send ms-1"></i></button>
+            </form>
+            <p class="alt-not"><i class="bi bi-shield-lock"></i>Bağlantı tek kullanımlıktır ve 2 saat sonra geçersiz olur.</p>
+        </div>
+    </div>
+</div>
+@section Scripts { <partial name="_FormDogrulama" /> }

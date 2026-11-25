@@ -20,6 +20,10 @@ public class PanelController : YonetimController
     public PanelController(RaporServisi rapor) { _rapor = rapor; }
 
     public async Task<IActionResult> Index() => View(await _rapor.PanelVerileriAsync());
+
+    /// <summary>İkon seçici penceresinin listesi (JSON): /Yonetim/Panel/Ikonlar. Seçici: wwwroot/js/genel.js</summary>
+    [ResponseCache(Duration = 86400)]
+    public IActionResult Ikonlar([FromServices] IWebHostEnvironment ortam) => Json(OzellikSablonlari.Ikonlar(ortam.WebRootPath));
 }
 
 public class RaporlarController : YonetimController

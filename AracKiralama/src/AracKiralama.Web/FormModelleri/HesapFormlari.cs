@@ -45,6 +45,40 @@ public class KayitFormu
     [ValidateNever] public List<MusteriAlani> Alanlar { get; set; } = new();   // sadece ekranda göstermek için
 }
 
+// ---- ŞİFRE İŞLEMLERİ (HesapController ve ProfilController) ----
+
+/// <summary>"Şifremi unuttum": e-posta yazılır, sıfırlama linki gönderilir.</summary>
+public class SifremiUnuttumFormu
+{
+    [Display(Name = "E-posta"), Required(ErrorMessage = "E-posta zorunludur."), EmailAddress(ErrorMessage = "Geçerli bir e-posta giriniz.")]
+    public string Eposta { get; set; } = "";
+}
+
+/// <summary>E-postadaki linkten gelinir: yeni şifre belirlenir. Kod, linkteki tek kullanımlık şifre sıfırlama kodudur.</summary>
+public class SifreSifirlaFormu
+{
+    public string Eposta { get; set; } = "";
+    public string Kod { get; set; } = "";
+    [Display(Name = "Yeni şifre"), Required(ErrorMessage = "Şifre zorunludur."), DataType(DataType.Password), MinLength(6, ErrorMessage = "Şifre en az 6 karakter olmalıdır.")]
+    public string Sifre { get; set; } = "";
+}
+
+/// <summary>Geçici şifreyle ilk giriş: kişi kendi şifresini belirler (mevcut şifre sorulmaz, zaten az önce girdi).</summary>
+public class YeniSifreFormu
+{
+    [Display(Name = "Yeni şifre"), Required(ErrorMessage = "Şifre zorunludur."), DataType(DataType.Password), MinLength(6, ErrorMessage = "Şifre en az 6 karakter olmalıdır.")]
+    public string Sifre { get; set; } = "";
+}
+
+/// <summary>Profil → Şifremi değiştir.</summary>
+public class SifreDegistirFormu
+{
+    [Display(Name = "Şu anki şifre"), Required(ErrorMessage = "Şu anki şifrenizi giriniz."), DataType(DataType.Password)]
+    public string MevcutSifre { get; set; } = "";
+    [Display(Name = "Yeni şifre"), Required(ErrorMessage = "Yeni şifre zorunludur."), DataType(DataType.Password), MinLength(6, ErrorMessage = "Şifre en az 6 karakter olmalıdır.")]
+    public string YeniSifre { get; set; } = "";
+}
+
 public class ProfilFormu
 {
     [Display(Name = "Ad"), Required(ErrorMessage = "Ad zorunludur.")] public string Ad { get; set; } = "";

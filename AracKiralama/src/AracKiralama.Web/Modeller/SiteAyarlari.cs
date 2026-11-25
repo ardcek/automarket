@@ -58,6 +58,9 @@ public class SiteAyarlari
     [Ayar("Görünüm", "Varsayılan tema", Secenekler = "sistem:Ziyaretçinin cihazına göre|acik:Açık|koyu:Koyu")]
     public string VarsayilanTema { get; set; } = "sistem";
 
+    [Ayar("Görünüm", "Özel fare imleci", Aciklama = "Bilgisayarda farenin yerine renkli nokta + halka. Telefonda ve 'hareketi azalt' açık cihazlarda zaten çıkmaz.")]
+    public bool OzelImlec { get; set; } = true;
+
     [Ayar("Görünüm", "Logo ikonu", Aciklama = "Bootstrap ikon adı, örn: bi-signpost-split-fill, bi-car-front-fill")]
     public string LogoIkonu { get; set; } = "bi-signpost-split-fill";
 

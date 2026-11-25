@@ -71,6 +71,18 @@ html.animasyon:has(> body.vitrin) { scroll-behavior: smooth; }
 [data-miknatis] { transition: translate .5s var(--egri), transform .35s var(--egri), box-shadow .35s; }
 .vitrin .btn-yumusak { transition: background-color .3s, color .3s; }
 
+/* ---------- Özel fare imleci (efektler.js → 9; aç / kapa: Ayarlar → Görünüm) ----------
+   Nokta fareyi anında, halka yumuşakça izler. Tıklanabilir şeyin üstünde halka büyür, basınca küçülür.
+   Sadece fareli bilgisayarda ve "hareketi azalt" kapalıyken; yazı kutularında normal imleç görünür. */
+.imlec-nokta, .imlec-halka { position: fixed; left: 0; top: 0; z-index: 3000; pointer-events: none; opacity: 0; transition: opacity .25s; will-change: transform; }
+.imlec-gorunur:not(.imlec-yazi) .imlec-nokta, .imlec-gorunur:not(.imlec-yazi) .imlec-halka { opacity: 1; }
+.imlec-nokta { width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: var(--ana); box-shadow: 0 0 0 2px rgba(255, 255, 255, .7); }
+.imlec-halka { width: 38px; height: 38px; margin: -19px 0 0 -19px; }
+.imlec-halka::before { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 1.5px solid rgba(var(--ana-rgb), .55); transition: transform .4s var(--egri), background-color .3s, border-color .3s; }
+.imlec-buyuk .imlec-halka::before { transform: scale(1.55); background: rgba(var(--ana-rgb), .1); border-color: rgba(var(--ana-rgb), .85); }
+.imlec-bas .imlec-halka::before { transform: scale(.75); }
+.ozel-imlec.imlec-gorunur:not(.imlec-yazi), .ozel-imlec.imlec-gorunur:not(.imlec-yazi) * { cursor: none !important; }
+
 /* =====================================================================
    ÜST MENÜ
    ===================================================================== */
@@ -272,11 +284,20 @@ html.animasyon:has(> body.vitrin) { scroll-behavior: smooth; }
 .animasyon [data-goster].hemen { transition: none; }   /* sayfa geçişiyle gelindi: ilk ekrandakiler beklemeden */
 
 /* ---------- Akan yazı bandı: kaydırdıkça iki satır ters yönlere kayar ---------- */
-.akan-bant { padding: 4.5rem 0 1rem; overflow: hidden; }
-.akan-satir { display: flex; align-items: center; gap: 2.2rem; width: max-content; white-space: nowrap; font-family: var(--baslik-yazi); font-stretch: 125%; font-weight: 900; font-size: clamp(2.6rem, 7.2vw, 6.6rem); line-height: 1.05; letter-spacing: -.045em; text-transform: uppercase; color: var(--yazi); transform: translateX(-6%); }
-.akan-satir.ters { color: transparent; -webkit-text-stroke: 1.5px color-mix(in srgb, var(--yazi) 55%, transparent); transform: translateX(-16%); margin-top: .2rem; }
-.akan-satir .ayrac { flex: none; width: .5em; height: .5em; border-radius: 50%; background: linear-gradient(135deg, var(--ana), var(--vurgu-2)); }
-.akan-satir.ters .ayrac { background: none; border: 1.5px solid color-mix(in srgb, var(--yazi) 55%, transparent); }
+/* ---------- Akan bant: iki çapraz şerit ters yönlere SÜREKLİ akar (Views/AnaSayfa/Index.cshtml → "AKAN BANT") ----------
+   Hareket sadece transform: içerik 4 kez yazılı, şerit yarısı kadar kayınca başa döner (kesintisiz). Ekranda değilken durur. */
+.akan-bant { position: relative; padding: 5rem 0 3.5rem; overflow: hidden; isolation: isolate; }
+.akan-serit { position: relative; padding: 1.05rem 0; transform: rotate(-2.5deg); background: linear-gradient(100deg, var(--ana), var(--vurgu-2)); box-shadow: 0 24px 50px -24px rgba(var(--ana-rgb), .75); z-index: 2; margin: 0 -2vw; }
+.akan-serit.ters { transform: rotate(1.8deg); margin-top: -1.6rem; background: var(--yuzey); border-block: 1px solid var(--cizgi); box-shadow: 0 18px 40px -30px rgba(15, 23, 42, .45); z-index: 1; }
+.akan-satir { display: flex; align-items: center; gap: 1.6rem; width: max-content; white-space: nowrap; font-family: var(--baslik-yazi); font-stretch: 120%; font-weight: 900; font-size: clamp(1.6rem, 3.6vw, 3rem); line-height: 1; letter-spacing: -.03em; text-transform: uppercase; color: #fff; }
+.akan-serit.ters .akan-satir { color: transparent; -webkit-text-stroke: 1.5px var(--yazi); }
+.akan-satir .ayrac { font-size: .5em; flex: none; opacity: .9; }
+.akan-serit.ters .ayrac { color: var(--ana-yazi); -webkit-text-stroke: 0; font-size: .3em; }
+.animasyon .akan-satir { animation: akan-dongu 38s linear infinite; }
+.animasyon .akan-serit.ters .akan-satir { animation-duration: 46s; animation-direction: reverse; }
+.animasyon .akan-bant:hover .akan-satir { animation-play-state: paused; }   /* üstüne gelince durur, okunabilsin */
+.duraklat .akan-satir { animation-play-state: paused !important; }        /* ekranda değilken işlemci yorulmasın */
+@keyframes akan-dongu { to { transform: translateX(-50%); } }
 
 /* ---------- Marka şeridi: sonsuz kayan logolar ---------- */
 .marka-seridi { padding: 3.5rem 0 0; }
@@ -440,6 +461,28 @@ html:not(.animasyon) .serit .kopya { display: none; }
 .nasil-adim p { color: var(--soluk); line-height: 1.6; margin-bottom: 1.25rem; }
 .nasil-etiket { margin-top: auto; align-self: flex-start; display: inline-flex; align-items: center; gap: .4rem; padding: .35rem .75rem; border-radius: 999px; font-size: .82rem; font-weight: 600; background: rgba(22, 163, 74, .1); color: #15803d; }
 [data-bs-theme="dark"] .nasil-etiket { background: rgba(74, 222, 128, .12); color: #4ade80; }
+/* Adımın küçük canlı önizlemesi (tarih / fiyat / onay çipleri) */
+.nasil-onizleme { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin: -.25rem 0 1.1rem; padding: .7rem; border-radius: calc(var(--yuvarlak) * .8); background: var(--yuzey-2); border: 1px dashed var(--cizgi); }
+.nasil-onizleme .cip { display: inline-flex; align-items: center; gap: .35rem; padding: .3rem .6rem; border-radius: 999px; font-size: .78rem; font-weight: 600; background: var(--yuzey); border: 1px solid var(--cizgi); color: var(--yazi); }
+.nasil-onizleme .cip i { color: var(--ana-yazi); }
+.nasil-onizleme .cip.soluk { color: var(--soluk); }
+.nasil-onizleme .cip.vurgu { background: var(--ana); border-color: transparent; color: #fff; }
+.nasil-onizleme .cip.vurgu i { color: #fff; }
+.nasil-onizleme .cip.yesil { background: rgba(22, 163, 74, .12); border-color: transparent; color: #15803d; }
+.nasil-onizleme .cip.yesil i { color: inherit; }
+[data-bs-theme="dark"] .nasil-onizleme .cip.yesil { color: #4ade80; }
+.nasil-onizleme .ok { color: var(--soluk); font-size: .8rem; }
+/* Fareyi izleyen yumuşak ışık (efektler.js → data-egim="isik" --mx / --my yazar) */
+.nasil-adim { background-image: radial-gradient(320px circle at var(--mx, 85%) var(--my, 0%), rgba(var(--ana-rgb), .1), transparent 62%); }
+/* Üstte renkli çizgi: kart görününce soldan sağa dolar; kartlar sırayla (1 → 2 → 3) */
+.nasil-adim::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; border-radius: 3px 3px 0 0; background: linear-gradient(90deg, var(--ana), var(--vurgu-2)); transform-origin: 0 50%; transform: scaleX(0); transition: transform 1s var(--egri) calc(var(--sira, 1) * 220ms); }
+.nasil-adim.gorundu::before, html:not(.animasyon) .nasil-adim::before { transform: none; }
+.nasil-adim:hover .nasil-no { color: rgba(var(--ana-rgb), .1); }
+.nasil-no { transition: color .4s; }
+/* Kartlar arasındaki oklar hafifçe nabız atar (sadece transform; bölüm ekranda değilken durur) */
+.animasyon .nasil-adim:not(:last-child)::after { animation: nasil-nabiz 2.4s ease-in-out infinite; animation-delay: calc(var(--sira, 1) * .6s); }
+.duraklat .nasil-adim::after { animation-play-state: paused !important; }
+@keyframes nasil-nabiz { 50% { transform: scale(1.14); } }
 .nasil-eylem { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 1rem 1.75rem; margin-top: 2.5rem; }
 .nasil-sss { display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; font-weight: 600; color: var(--ana-yazi); }
 @media (max-width: 991.98px) {
@@ -632,6 +675,25 @@ html:not(.animasyon) .serit .kopya { display: none; }
 .sifre-gucu[data-seviye="4"] .cubuk i { background: var(--yesil); }
 
 /* =====================================================================
+   HESABIM (Views/Profil/Index.cshtml): profil kartı, tamamlanma çubuğu, istatistikler
+   ===================================================================== */
+.hesap-kart { position: relative; overflow: hidden; display: grid; gap: 1.25rem; padding: 1.5rem; border-radius: calc(var(--yuvarlak) * 1.4); background: var(--yuzey); border: 1px solid var(--cizgi); box-shadow: 0 24px 50px -36px rgba(15, 23, 42, .45); }
+.hesap-kart::before { content: ""; position: absolute; inset: 0 0 auto; height: 4px; background: linear-gradient(90deg, var(--ana), var(--vurgu-2)); }
+.hesap-kimlik { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+.hesap-avatar { width: 64px; height: 64px; flex: none; border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; font-family: var(--baslik-yazi); font-weight: 800; font-size: 1.4rem; color: #fff; background: linear-gradient(135deg, var(--ana), var(--vurgu-2)); box-shadow: 0 14px 30px -14px rgba(var(--ana-rgb), .8); }
+.hesap-kimlik > .min-w-0 { flex: 1 1 220px; }
+.hesap-islemler { display: flex; flex-wrap: wrap; gap: .5rem; }
+.hesap-tamamlama .progress { height: 10px; border-radius: 999px; }
+.hesap-tamamlama .progress-bar { background: linear-gradient(90deg, var(--ana), var(--vurgu-2)); border-radius: 999px; }
+.hesap-istatistik { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .75rem; }
+.hesap-istatistik > div { display: grid; gap: .15rem; padding: .9rem 1rem; border-radius: var(--yuvarlak); background: var(--yuzey-2); border: 1px solid var(--cizgi); }
+.hesap-istatistik i { color: var(--ana-yazi); font-size: 1.15rem; }
+.hesap-istatistik b { font-family: var(--baslik-yazi); font-size: 1.35rem; letter-spacing: -.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hesap-istatistik span { font-size: .8rem; color: var(--soluk); }
+@media (max-width: 767.98px) { .hesap-istatistik { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.tc-bilgi { display: block; margin-top: .3rem; font-size: .8rem; min-height: 1.1rem; }
+
+/* =====================================================================
    ALT BİLGİ
    ===================================================================== */
 .alt-bilgi { position: relative; isolation: isolate; overflow: hidden; background: var(--koyu); color: rgba(255, 255, 255, .7); padding: 4.5rem 0 1.5rem; margin-top: 6rem; }
@@ -649,7 +711,7 @@ html:not(.animasyon) .serit .kopya { display: none; }
     font-family: var(--baslik-yazi); font-stretch: 125%; font-weight: 900; font-size: clamp(4.5rem, 19vw, 16rem); line-height: .8; letter-spacing: -.045em;
     text-align: center; white-space: nowrap; overflow: hidden; margin: 3rem 0 -.08em; user-select: none;
     color: transparent; -webkit-text-stroke: 1px rgba(255, 255, 255, .14);
-    background: linear-gradient(180deg, rgba(var(--ana-rgb), .4), transparent 85%); -webkit-background-clip: text; background-clip: text; background-clip: text;
+    background: linear-gradient(180deg, rgba(var(--ana-rgb), .4), transparent 85%); -webkit-background-clip: text; background-clip: text;
 }
 
 /* ---------- Mobil ---------- */
@@ -692,8 +754,6 @@ html:not(.animasyon) .serit .kopya { display: none; }
     .animasyon .sahne .yuzen-kart + .yuzen-kart { animation-name: kart-kay-2; }
 
     /* Akan yazı bandı: iki satır ters yönlere */
-    .animasyon .akan-satir { animation: akan-sola linear both; animation-timeline: view(); animation-range: cover 0% cover 100%; }
-    .animasyon .akan-satir.ters { animation-name: akan-saga; }
 
     /* Öne çıkan araçlar: tek ve çift sütunlar farklı hızda (hafif "dalga") */
     .animasyon .kayan { animation: kayan-y linear both; animation-timeline: view(); animation-range: cover 0% cover 100%; }
@@ -735,8 +795,6 @@ html:not(.animasyon) .serit .kopya { display: none; }
 @keyframes arac-kay { to { transform: translateY(-9vh) scale(1.06); } }
 @keyframes kart-kay { to { transform: translateY(-24vh); } }
 @keyframes kart-kay-2 { to { transform: translateY(-34vh); } }
-@keyframes akan-sola { from { transform: translateX(-3%); } to { transform: translateX(-15%); } }
-@keyframes akan-saga { from { transform: translateX(-15%); } to { transform: translateX(-3%); } }
 @keyframes kayan-y { from { transform: translateY(28px); } to { transform: translateY(-28px); } }
 @keyframes kayan-y-hizli { from { transform: translateY(70px); } to { transform: translateY(-70px); } }
 @keyframes sehir-kay { from { transform: translateX(14%); } to { transform: translateX(-10%); } }

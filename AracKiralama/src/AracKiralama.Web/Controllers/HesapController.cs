@@ -49,6 +49,11 @@ public class HesapController : TemelController
         }
 
         var sonuc = await _girisYonetici.PasswordSignInAsync(form.Eposta, form.Sifre, form.BeniHatirla, lockoutOnFailure: false);
+        if (sonuc.IsLockedOut)   // Yönetim → Müşteriler → kişi → "Hesabı dondur"
+        {
+            ModelState.AddModelError("", "Bu hesap dondurulmuş. Bilgi için bizimle iletişime geçin.");
+            return View(form);
+        }
         if (!sonuc.Succeeded)
         {
             ModelState.AddModelError("", "E-posta veya şifre hatalı.");
@@ -56,7 +61,12 @@ public class HesapController : TemelController
         }
 
         var kullanici = await _kullanicilar.FindByEmailAsync(form.Eposta);
-        Basarili($"Hoş geldiniz, {kullanici!.Ad}!");
+        kullanici!.SonGiris = DateTime.Now;
+        await _kullanicilar.UpdateAsync(kullanici);
+
+        // Admin geçici şifre verdiyse önce yeni şifre belirlenir (Yardimcilar/SifreKontrolu.cs)
+        if (kullanici.SifreDegistirmeli) return RedirectToAction(nameof(YeniSifre));
+        Basarili($"Hoş geldiniz, {kullanici.Ad}!");
 
         if (!string.IsNullOrEmpty(form.DonusAdresi) && Url.IsLocalUrl(form.DonusAdresi)) return Redirect(form.DonusAdresi);
 
@@ -117,6 +127,93 @@ public class HesapController : TemelController
     }
 
     public IActionResult ErisimEngellendi() => View();
+
+    // =====================================================================
+    // ŞİFRE İŞLEMLERİ
+    //   /Hesap/SifremiUnuttum → e-posta yazılır, 2 saat geçerli link gönderilir (Servisler/EpostaServisi.cs)
+    //   /Hesap/SifreSifirla   → linkten gelinir, yeni şifre belirlenir
+    //   /Hesap/YeniSifre      → admin geçici şifre verdiyse ilk girişte zorunlu
+    // =====================================================================
+
+    [HttpGet]
+    public IActionResult SifremiUnuttum() => View(new SifremiUnuttumFormu());
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> SifremiUnuttum(SifremiUnuttumFormu form, [FromServices] EpostaServisi eposta,
+        [FromServices] IWebHostEnvironment ortam, [FromServices] ILogger<HesapController> log)
+    {
+        if (!ModelState.IsValid) return View(form);
+
+        // Güvenlik: e-posta kayıtlı olsa da olmasa da AYNI mesaj gösterilir (kimin üye olduğu öğrenilemesin)
+        const string mesaj = "Bu e-posta adresi kayıtlıysa şifre sıfırlama linki gönderildi. Gelen kutunuzu (ve gereksiz klasörünü) kontrol edin; link 2 saat geçerlidir.";
+        var kullanici = await _kullanicilar.FindByEmailAsync(form.Eposta.Trim());
+        if (kullanici != null)
+        {
+            var kod = await _kullanicilar.GeneratePasswordResetTokenAsync(kullanici);
+            var link = Url.Action(nameof(SifreSifirla), "Hesap", new { eposta = kullanici.Email, kod }, Request.Scheme)!;
+            var gonderildi = await eposta.GonderAsync(kullanici.Email!, $"{_ayarlar.FirmaAdi} · Şifre sıfırlama",
+                $"<p>Merhaba {System.Net.WebUtility.HtmlEncode(kullanici.Ad)},</p>" +
+                $"<p>Şifrenizi sıfırlamak için aşağıdaki bağlantıya tıklayın. Bağlantı 2 saat geçerlidir.</p>" +
+                $"<p><a href=\"{System.Net.WebUtility.HtmlEncode(link)}\">Yeni şifre belirle</a></p>" +
+                $"<p>Bu isteği siz yapmadıysanız bu e-postayı görmezden gelebilirsiniz.</p>");
+            if (!gonderildi)
+            {
+                log.LogWarning("Şifre sıfırlama linki (e-posta gönderilmedi) {Eposta}: {Link}", kullanici.Email, link);
+                // Bilgisayarda (Development) e-posta ayarı yoksa link ekranda gösterilir; canlıda asla gösterilmez
+                if (ortam.IsDevelopment()) TempData["SifirlamaLinki"] = link;
+            }
+        }
+        Basarili(mesaj);
+        return RedirectToAction(nameof(SifremiUnuttum));
+    }
+
+    [HttpGet]
+    public IActionResult SifreSifirla(string? eposta, string? kod)
+    {
+        if (string.IsNullOrEmpty(eposta) || string.IsNullOrEmpty(kod)) { Hata("Bağlantı eksik. Lütfen e-postadaki bağlantıyı yeniden açın."); return RedirectToAction(nameof(SifremiUnuttum)); }
+        return View(new SifreSifirlaFormu { Eposta = eposta, Kod = kod });
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> SifreSifirla(SifreSifirlaFormu form)
+    {
+        if (!ModelState.IsValid) return View(form);
+        var kullanici = await _kullanicilar.FindByEmailAsync(form.Eposta);
+        var sonuc = kullanici == null ? IdentityResult.Failed() : await _kullanicilar.ResetPasswordAsync(kullanici, form.Kod, form.Sifre);
+        if (!sonuc.Succeeded)
+        {
+            // Süresi dolmuş / kullanılmış link ya da şifre kuralı hatası
+            var sifreHatalari = sonuc.Errors.Where(h => h.Code.StartsWith("Password")).ToList();
+            if (sifreHatalari.Count > 0) { foreach (var h in sifreHatalari) ModelState.AddModelError(nameof(form.Sifre), h.Description); return View(form); }
+            Hata("Bu bağlantının süresi dolmuş ya da daha önce kullanılmış. Yeni bir bağlantı isteyin.");
+            return RedirectToAction(nameof(SifremiUnuttum));
+        }
+        kullanici!.SifreDegistirmeli = false;
+        await _kullanicilar.UpdateAsync(kullanici);
+        Basarili("Şifreniz değiştirildi. Yeni şifrenizle giriş yapabilirsiniz.");
+        return RedirectToAction(nameof(Giris));
+    }
+
+    [HttpGet, Authorize]
+    public IActionResult YeniSifre() => View(new YeniSifreFormu());
+
+    [HttpPost, ValidateAntiForgeryToken, Authorize]
+    public async Task<IActionResult> YeniSifre(YeniSifreFormu form)
+    {
+        if (!ModelState.IsValid) return View(form);
+        var kullanici = await _kullanicilar.GetUserAsync(User);
+        if (kullanici == null) return Challenge();
+
+        var kod = await _kullanicilar.GeneratePasswordResetTokenAsync(kullanici);
+        var sonuc = await _kullanicilar.ResetPasswordAsync(kullanici, kod, form.Sifre);
+        if (!sonuc.Succeeded) { foreach (var h in sonuc.Errors) ModelState.AddModelError(nameof(form.Sifre), h.Description); return View(form); }
+
+        kullanici.SifreDegistirmeli = false;
+        await _kullanicilar.UpdateAsync(kullanici);
+        await _girisYonetici.RefreshSignInAsync(kullanici);   // "şifresini değiştirmeli" bilgisi çerezden de silinsin
+        Basarili($"Şifreniz kaydedildi. Hoş geldiniz, {kullanici.Ad}!");
+        return await YonetimdeMiAsync(kullanici) ? RedirectToAction("Index", "Panel", new { area = "Yonetim" }) : RedirectToAction("Index", "AnaSayfa");
+    }
 
     /// <summary>Bu e-posta yönetim paneline girebilen birine mi ait? (Sunum modunda giriş izni için)</summary>
     private async Task<bool> PersonelMiAsync(string eposta)

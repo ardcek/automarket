@@ -1,29 +1,192 @@
-@* MÜŞTERİ DETAYI + kara liste *@
+@* KULLANICI DETAYI (müşteri ya da personel): kişinin her şeyi tek sayfada.
+   - Üstte özet rakamlar, solda kişisel bilgiler + panelden eklenen bilgiler (Yönetim → Müşteri Bilgileri)
+   - Sekmeler: Rezervasyonlar · Ödemeler · Hasarlar · Zaman çizelgesi (hepsi kişinin rezervasyonlarından gelir)
+   - Hesap işlemleri (sadece Admin / Süper Admin): yetki, geçici şifre, dondur, sil → Personel controller'ı (KullaniciControllerlari.cs)
+   - Kara liste (herkes): rezervasyon yapmasını engeller *@
 @model Kullanici
-@{ var k = Model; ViewData["Title"] = k.TamAd; }
+@using System.Security.Claims
+@{
+    var k = Model;
+    ViewData["Title"] = k.TamAd;
+    var rol = (string)ViewBag.Rol;
+    var adminMi = User.IsInRole(Roller.Admin);
+    var superMi = User.IsInRole(Roller.SuperAdmin);
+    var benMiyim = User.FindFirstValue(ClaimTypes.NameIdentifier) == k.Id;
+    var donuk = k.LockoutEnd > DateTimeOffset.Now;
+    var islemYapabilir = adminMi && !benMiyim && (superMi || rol != Roller.SuperAdmin);
+    var donus = $"/Yonetim/Musteriler/Detay/{k.Id}";
+
+    var rez = k.Rezervasyonlar.OrderByDescending(r => r.OlusturmaTarihi).ToList();
+    var tamamlanan = rez.Where(r => r.Durum == RezervasyonDurumu.Tamamlandi).ToList();
+    var odemeler = rez.SelectMany(r => r.Odemeler.Select(o => (Rez: r, Odeme: o))).OrderByDescending(x => x.Odeme.Tarih).ToList();
+    var hasarlar = rez.SelectMany(r => r.Hasarlar.Select(h => (Rez: r, Hasar: h))).OrderByDescending(x => x.Hasar.Tarih).ToList();
+    var gun = tamamlanan.Sum(r => Math.Max(1, (int)Math.Ceiling((r.BitisTarihi - r.BaslangicTarihi).TotalDays)));
+    var acikBakiye = rez.Where(r => r.Durum is RezervasyonDurumu.Kirada or RezervasyonDurumu.Tamamlandi).Sum(r => Math.Max(0, r.KalanTutar));
+
+    // Zaman çizelgesi: üyelik, son giriş, her rezervasyonun oluşturulması / teslimi / iadesi, ödemeler, hasarlar
+    var olaylar = new List<(DateTime Tarih, string Ikon, string Renk, string Yazi)> { (k.KayitTarihi, "bi-person-plus", "ana", "Üye oldu") };
+    if (k.SonGiris is DateTime sg) olaylar.Add((sg, "bi-box-arrow-in-right", "mavi", "Son giriş"));
+    foreach (var r in rez)
+    {
+        olaylar.Add((r.OlusturmaTarihi, "bi-journal-plus", "ana", $"{r.Kod} rezervasyonu oluşturdu: {r.Arac?.TamAd}, {Bicim.Tarih(r.BaslangicTarihi)} – {Bicim.Tarih(r.BitisTarihi)}"));
+        if (r.TeslimTarihi is DateTime t) olaylar.Add((t, "bi-key", "mavi", $"{r.Kod}: aracı teslim aldı ({r.AlisSube?.Ad})"));
+        if (r.IadeTarihi is DateTime i) olaylar.Add((i, "bi-flag", "yesil", $"{r.Kod}: aracı iade etti ({r.IadeSube?.Ad})"));
+        if (r.Durum is RezervasyonDurumu.IptalEdildi or RezervasyonDurumu.Reddedildi)
+            olaylar.Add((r.BaslangicTarihi, "bi-x-circle", "kirmizi", $"{r.Kod}: {r.Durum.Ad().ToLowerInvariant()}{(string.IsNullOrEmpty(r.DurumAciklamasi) ? "" : $" ({r.DurumAciklamasi})")}"));
+    }
+    foreach (var (r, o) in odemeler) olaylar.Add((o.Tarih, "bi-wallet2", "yesil", $"{r.Kod}: {o.Tur.Ad()} {Bicim.Para(o.Tutar)} ({o.Yontem.Ad()})"));
+    foreach (var (r, h) in hasarlar) olaylar.Add((h.Tarih, "bi-exclamation-triangle", "turuncu", $"{r.Kod}: hasar {Bicim.Para(h.Tutar)} — {h.Aciklama}"));
+    olaylar = olaylar.Where(o => o.Tarih <= DateTime.Now.AddYears(1)).OrderByDescending(o => o.Tarih).ToList();
+}
 <div class="sayfa-baslik">
-    <div><a href="/Yonetim/Musteriler" class="small"><i class="bi bi-arrow-left me-1"></i>Müşteriler</a><h1 class="mt-1">@k.TamAd @if (k.KaraListede) { <span class="durum durum-reddedildi">Kara liste</span> }</h1><div class="alt-yazi">Üyelik: @Bicim.Tarih(k.KayitTarihi)</div></div>
-    <form asp-action="KaraListe" asp-route-id="@k.Id" method="post" class="d-flex gap-2">
-        @if (!k.KaraListede) { <input name="sebep" class="form-control" placeholder="Sebep (isteğe bağlı)" /> }
-        <button class="btn btn-sade @(k.KaraListede ? "" : "text-danger") text-nowrap">@(k.KaraListede ? "Kara listeden çıkar" : "Kara listeye al")</button>
-    </form>
+    <div>
+        <a href="/Yonetim/Musteriler" class="small"><i class="bi bi-arrow-left me-1"></i>Müşteriler ve Kullanıcılar</a>
+        <h1 class="mt-1">@k.TamAd
+            <span class="durum @(rol == Roller.Musteri ? "durum-pasif" : "durum-onaylandi")">@(rol == Roller.Musteri ? "Müşteri" : Roller.Ad(rol))</span>
+            @if (k.KaraListede) { <span class="durum durum-reddedildi">Kara liste</span> }
+            @if (donuk) { <span class="durum durum-reddedildi">Dondurulmuş</span> }
+            @if (k.SifreDegistirmeli) { <span class="durum durum-onaybekliyor">Geçici şifrede</span> }
+        </h1>
+        <div class="alt-yazi">Üyelik: @Bicim.Tarih(k.KayitTarihi) · Son giriş: @(k.SonGiris is DateTime s ? Bicim.TarihSaat(s) : "—")</div>
+    </div>
 </div>
-@if (k.KaraListede) { <div class="alert alert-danger">Sebep: @k.KaraListeSebebi — bu müşteri rezervasyon yapamaz.</div> }
+
+@if (TempData["GeciciSifre"] is string geciciSifre)
+{
+    <div class="alert alert-success d-flex flex-wrap align-items-center gap-2" role="status">
+        <i class="bi bi-key-fill fs-5"></i>
+        <div class="me-auto">@TempData["GeciciSifreKime"] için <b>geçici şifre:</b> <code class="fs-6 user-select-all">@geciciSifre</code><div class="small">Bu şifre bir daha gösterilmez; kişiye iletin. İlk girişte kendi şifresini belirleyecek.</div></div>
+    </div>
+}
+@if (k.KaraListede) { <div class="alert alert-danger">Kara liste sebebi: @k.KaraListeSebebi — bu müşteri rezervasyon yapamaz.</div> }
+
+@* ---- Özet rakamlar ---- *@
+<div class="row g-3 mb-3">
+    @foreach (var (ikon, renk, baslik, deger, aciklama) in new[]
+    {
+        ("bi-journal-check", "ana", "Rezervasyon", rez.Count.ToString(), $"{tamamlanan.Count} tamamlandı · {rez.Count(r => r.Durum is RezervasyonDurumu.IptalEdildi or RezervasyonDurumu.Reddedildi)} iptal / ret"),
+        ("bi-wallet2", "yesil", "Toplam harcama", Bicim.Para(tamamlanan.Sum(r => r.ToplamTutar)), $"Ödenen: {Bicim.Para(rez.Sum(r => r.OdenenTutar))}"),
+        ("bi-calendar2-week", "mavi", "Kiralanan gün", gun.ToString(), tamamlanan.Count > 0 ? $"Son kiralama: {Bicim.Tarih(tamamlanan.Max(r => r.BitisTarihi))}" : "Henüz kiralama yok"),
+        ("bi-exclamation-triangle", hasarlar.Count > 0 || acikBakiye > 0 ? "kirmizi" : "yesil", "Hasar / açık bakiye", $"{hasarlar.Count} · {Bicim.Para(acikBakiye)}", hasarlar.Count > 0 ? $"Hasar toplamı: {Bicim.Para(hasarlar.Sum(x => x.Hasar.Tutar))}" : "Hasar kaydı yok"),
+    })
+    {
+        <div class="col-sm-6 col-xxl-3"><partial name="_GostergeKarti" model="new GostergeKarti { Ikon = ikon, Renk = renk, Baslik = baslik, Deger = deger, Aciklama = aciklama }" /></div>
+    }
+</div>
+
 <div class="row g-3">
-    <div class="col-xl-4"><div class="card p-3 small d-grid gap-2">
-        <div><div class="kucuk-baslik">E-posta</div>@k.Email</div>
-        <div><div class="kucuk-baslik">Telefon</div>@(k.PhoneNumber ?? "-")</div>
-        <div><div class="kucuk-baslik">T.C. Kimlik No</div>@(k.TcNo ?? "-")</div>
-        <div><div class="kucuk-baslik">Doğum tarihi</div>@(k.DogumTarihi?.ToString("dd.MM.yyyy") ?? "-")</div>
-        <div><div class="kucuk-baslik">Ehliyet</div>@(k.EhliyetNo ?? "-") · @(k.EhliyetTarihi?.ToString("dd.MM.yyyy") ?? "-")</div>
-        @* Panelden eklenen bilgiler (Yönetim → Müşteri Bilgileri), örn. Meslek *@
-        @foreach (var (ad, deger) in (List<KeyValuePair<string, string>>)ViewBag.MusteriBilgileri)
+    <div class="col-xl-4 d-grid gap-3 align-content-start">
+        <div class="card p-3 small d-grid gap-2">
+            <div class="card-baslik-kucuk">Kişisel bilgiler</div>
+            <div><div class="kucuk-baslik">E-posta</div>@k.Email</div>
+            <div><div class="kucuk-baslik">Telefon</div>@(k.PhoneNumber ?? "-")</div>
+            <div><div class="kucuk-baslik">T.C. Kimlik No</div>@(k.TcNo ?? "-") @if (k.TcNo != null) { <span class="@(TcKimlikNo.GecerliMi(k.TcNo) ? "text-success" : "text-danger")"><i class="bi @(TcKimlikNo.GecerliMi(k.TcNo) ? "bi-patch-check" : "bi-patch-exclamation")"></i></span> }</div>
+            <div><div class="kucuk-baslik">Doğum tarihi</div>@(k.DogumTarihi?.ToString("dd.MM.yyyy") ?? "-") @if (k.DogumTarihi is DateTime dt) { <span class="text-muted">(@((int)((DateTime.Today - dt).TotalDays / 365.25)) yaş)</span> }</div>
+            <div><div class="kucuk-baslik">Ehliyet</div>@(k.EhliyetNo ?? "-") · @(k.EhliyetTarihi?.ToString("dd.MM.yyyy") ?? "-") @if (k.EhliyetTarihi is DateTime et) { <span class="text-muted">(@((int)((DateTime.Today - et).TotalDays / 365.25)) yıllık)</span> }</div>
+            @* Panelden eklenen bilgiler (Yönetim → Müşteri Bilgileri), örn. Meslek *@
+            @foreach (var (ad, deger) in (List<KeyValuePair<string, string>>)ViewBag.MusteriBilgileri)
+            {
+                <div><div class="kucuk-baslik">@ad</div>@(deger == "true" ? "Evet" : deger)</div>
+            }
+        </div>
+
+        @* ---- Kara liste (Admin ve Personel) ---- *@
+        <form asp-action="KaraListe" asp-route-id="@k.Id" method="post" class="card p-3 d-grid gap-2">
+            <div class="card-baslik-kucuk">Kara liste</div>
+            @if (!k.KaraListede) { <input name="sebep" class="form-control form-control-sm" placeholder="Sebep (isteğe bağlı)" /> }
+            <button class="btn btn-sm btn-sade @(k.KaraListede ? "" : "text-danger")">@(k.KaraListede ? "Kara listeden çıkar" : "Kara listeye al")</button>
+        </form>
+
+        @* ---- Hesap işlemleri (sadece Admin / Süper Admin; kendi hesabına ve — Admin ise — Süper Admin'e dokunamaz) ---- *@
+        @if (islemYapabilir)
         {
-            <div><div class="kucuk-baslik">@ad</div>@(deger == "true" ? "Evet" : deger)</div>
+            <div class="card p-3 d-grid gap-3">
+                <div class="card-baslik-kucuk">Hesap işlemleri</div>
+                <form asp-controller="Personel" asp-action="RolDegistir" asp-route-id="@k.Id" method="post" class="d-flex gap-2">
+                    <input type="hidden" name="donus" value="@donus" />
+                    <select name="rol" class="form-select form-select-sm" aria-label="Yetki">
+                        <option value="@Roller.Musteri" selected="@(rol == Roller.Musteri)">Müşteri (panele giremez)</option>
+                        @foreach (var r in Roller.Verebilecegi(User)) { <option value="@r" selected="@(r == rol)">@Roller.Ad(r)</option> }
+                    </select>
+                    <button class="btn btn-sm btn-sade text-nowrap" data-onay="Yetki değiştirilsin mi?">Yetkiyi kaydet</button>
+                </form>
+                <form asp-controller="Personel" asp-action="GeciciSifre" asp-route-id="@k.Id" method="post">
+                    <input type="hidden" name="donus" value="@donus" />
+                    <button class="btn btn-sm btn-sade w-100" data-onay="Yeni bir geçici şifre üretilsin mi? Kişinin şu anki şifresi geçersiz olur."><i class="bi bi-key me-1"></i>Geçici şifre ver</button>
+                </form>
+                <div class="d-flex gap-2">
+                    <form asp-controller="Personel" asp-action="Dondur" asp-route-id="@k.Id" method="post" class="flex-fill">
+                        <input type="hidden" name="donus" value="@donus" />
+                        <button class="btn btn-sm btn-sade w-100" data-onay="@(donuk ? "Hesap yeniden açılsın mı?" : "Hesap dondurulsun mu? Kişi giriş yapamaz.")"><i class="bi @(donuk ? "bi-unlock" : "bi-snow") me-1"></i>@(donuk ? "Hesabı aç" : "Hesabı dondur")</button>
+                    </form>
+                    <form asp-controller="Personel" asp-action="Sil" asp-route-id="@k.Id" method="post" class="flex-fill">
+                        <input type="hidden" name="donus" value="@donus" />
+                        <button class="btn btn-sm btn-sade text-danger w-100" data-onay="@k.TamAd hesabı KALICI olarak silinsin mi? Bu işlem geri alınamaz."><i class="bi bi-trash me-1"></i>Hesabı sil</button>
+                    </form>
+                </div>
+                @if (rez.Count > 0) { <div class="small text-muted">Rezervasyonu olan hesap silinemez (geçmiş kaybolmasın); gerekirse dondurun.</div> }
+            </div>
         }
-    </div></div>
-    <div class="col-xl-8"><div class="card tablo-karti"><div class="card-header">Rezervasyonlar</div><div class="table-responsive"><table class="table table-hover align-middle">
-        <thead><tr><th>Kod</th><th>Araç</th><th>Tarih</th><th>Durum</th><th class="text-end">Tutar</th></tr></thead>
-        <tbody>@foreach (var r in k.Rezervasyonlar.OrderByDescending(r => r.BaslangicTarihi)) { <tr><td><a href="/Yonetim/Rezervasyonlar/Detay/@r.Id" class="rakam">@r.Kod</a></td><td>@r.Arac!.TamAd</td><td class="small text-muted">@Bicim.Tarih(r.BaslangicTarihi)</td><td><partial name="_Durum" model="r" /></td><td class="text-end rakam">@Bicim.Para(r.ToplamTutar)</td></tr> }</tbody>
-    </table></div></div></div>
+    </div>
+
+    <div class="col-xl-8">
+        <div class="card">
+            <div class="card-header p-2">
+                <ul class="nav nav-pills gap-1" role="tablist">
+                    <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#sekme-rez" type="button">Rezervasyonlar <span class="opacity-75">@rez.Count</span></button></li>
+                    <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#sekme-odeme" type="button">Ödemeler <span class="opacity-75">@odemeler.Count</span></button></li>
+                    <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#sekme-hasar" type="button">Hasarlar <span class="opacity-75">@hasarlar.Count</span></button></li>
+                    <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#sekme-zaman" type="button">Zaman çizelgesi</button></li>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="sekme-rez"><div class="table-responsive"><table class="table table-hover align-middle">
+                    <thead><tr><th>Kod</th><th>Araç</th><th>Şube</th><th>Tarih</th><th>Durum</th><th class="text-end">Tutar / Ödenen</th></tr></thead>
+                    <tbody>
+                        @foreach (var r in rez)
+                        {
+                            <tr>
+                                <td class="text-nowrap"><a href="/Yonetim/Rezervasyonlar/Detay/@r.Id" class="rakam">@r.Kod</a></td>
+                                <td>@r.Arac!.TamAd @if (r.Ekstralar.Count > 0) { <div class="small text-muted">+ @string.Join(", ", r.Ekstralar.Select(e => e.Ekstra?.Ad))</div> }</td>
+                                <td class="small">@r.AlisSube?.Ad@(r.IadeSubeId != r.AlisSubeId ? $" → {r.IadeSube?.Ad}" : "")</td>
+                                <td class="small text-muted text-nowrap">@Bicim.Tarih(r.BaslangicTarihi) – @Bicim.Tarih(r.BitisTarihi)</td>
+                                <td><partial name="_Durum" model="r" /></td>
+                                <td class="text-end rakam text-nowrap">@Bicim.Para(r.ToplamTutar)<div class="small text-muted">@Bicim.Para(r.OdenenTutar)</div></td>
+                            </tr>
+                        }
+                        @if (rez.Count == 0) { <tr><td colspan="6" class="bos-durum">Henüz rezervasyon yok.</td></tr> }
+                    </tbody>
+                </table></div></div>
+
+                <div class="tab-pane fade" id="sekme-odeme"><div class="table-responsive"><table class="table align-middle">
+                    <thead><tr><th>Tarih</th><th>Rezervasyon</th><th>Tür</th><th>Yöntem</th><th class="text-end">Tutar</th></tr></thead>
+                    <tbody>
+                        @foreach (var (r, o) in odemeler)
+                        {
+                            <tr><td class="small text-nowrap">@Bicim.TarihSaat(o.Tarih)</td><td><a href="/Yonetim/Rezervasyonlar/Detay/@r.Id" class="rakam">@r.Kod</a></td><td>@o.Tur.Ad()</td><td class="small">@o.Yontem.Ad()</td><td class="text-end rakam">@Bicim.Para(o.Tutar)</td></tr>
+                        }
+                        @if (odemeler.Count == 0) { <tr><td colspan="5" class="bos-durum">Ödeme kaydı yok.</td></tr> }
+                    </tbody>
+                </table></div></div>
+
+                <div class="tab-pane fade" id="sekme-hasar"><div class="table-responsive"><table class="table align-middle">
+                    <thead><tr><th>Tarih</th><th>Rezervasyon</th><th>Araç</th><th>Açıklama</th><th class="text-end">Tutar</th></tr></thead>
+                    <tbody>
+                        @foreach (var (r, h) in hasarlar)
+                        {
+                            <tr><td class="small text-nowrap">@Bicim.Tarih(h.Tarih)</td><td><a href="/Yonetim/Rezervasyonlar/Detay/@r.Id" class="rakam">@r.Kod</a></td><td class="small">@r.Arac?.TamAd</td><td>@h.Aciklama</td><td class="text-end rakam">@Bicim.Para(h.Tutar)</td></tr>
+                        }
+                        @if (hasarlar.Count == 0) { <tr><td colspan="5" class="bos-durum">Hasar kaydı yok.</td></tr> }
+                    </tbody>
+                </table></div></div>
+
+                <div class="tab-pane fade" id="sekme-zaman"><ol class="zaman-cizelgesi">
+                    @foreach (var (tarih, ikon, renk, yazi) in olaylar.Take(150))
+                    {
+                        <li><span class="nokta ikon-@renk"><i class="bi @ikon"></i></span><div><div class="small text-muted">@Bicim.TarihSaat(tarih)</div>@yazi</div></li>
+                    }
+                </ol></div>
+            </div>
+        </div>
+    </div>
 </div>

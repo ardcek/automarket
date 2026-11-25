@@ -1,0 +1,19 @@
+@* YENİ ŞİFRE KUTUSU: göster/gizle düğmesi + güç çubuğu (wwwroot/js/genel.js → data-sifre-goster, data-sifre-gucu).
+   Model = form alanının adı, örn. "Sifre" ya da "YeniSifre". Şifre sıfırlama, ilk giriş ve profil sayfaları kullanır. *@
+@model string
+<label for="@Model" class="form-label">Yeni şifre</label>
+<div class="sifre-kutusu">
+    <input id="@Model" name="@Model" type="password" class="form-control" autocomplete="new-password" required minlength="6"
+           data-val="true" data-val-required="Şifre zorunludur." data-val-minlength="Şifre en az 6 karakter olmalıdır." data-val-minlength-min="6"
+           aria-describedby="@(Model)-gucu" />
+    <button type="button" class="sifre-goster" data-sifre-goster aria-label="Şifreyi göster" aria-pressed="false"><i class="bi bi-eye"></i></button>
+</div>
+<div class="sifre-gucu" id="@(Model)-gucu" data-sifre-gucu="#@Model" aria-live="polite">
+    <span class="cubuk" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+    <small>En az 6 karakter</small>
+</div>
+<span class="field-validation-valid" data-valmsg-for="@Model" data-valmsg-replace="true"></span>
+@if (ViewData.ModelState[Model]?.Errors is { Count: > 0 } hatalar)
+{
+    foreach (var h in hatalar) { <span class="field-validation-error d-block">@h.ErrorMessage</span> }
+}

@@ -1,19 +1,66 @@
-@* "REZERVASYONLARIM": aktif rezervasyonlar (iptal / sözleşme) ve geçmiş *@
+@* "HESABIM / REZERVASYONLARIM"
+   Üstte profil kartı: tamamlanma oranı, istatistikler, hızlı işlemler (hepsi aşağıdaki rezervasyonlardan hesaplanır).
+   Altta aktif rezervasyonlar (iptal / sözleşme) ve geçmiş. Görünüm: vitrin.css → "Hesabım". *@
 @model ProfilSayfasi
-@{ ViewData["Title"] = Icerik.Metin("menu.rezervasyonlarim"); }
+@{
+    ViewData["Title"] = Icerik.Metin("menu.rezervasyonlarim");
+    var k = Model.Kullanici;
+    var hepsi = Model.Aktifler.Concat(Model.Gecmis).ToList();
+    var tamamlanan = hepsi.Where(r => r.Durum == RezervasyonDurumu.Tamamlandi).ToList();
+    var toplamGun = tamamlanan.Sum(r => Math.Max(1, (int)Math.Ceiling((r.BitisTarihi - r.BaslangicTarihi).TotalDays)));
+    var favoriMarka = tamamlanan.GroupBy(r => r.Arac!.Marka?.Ad).OrderByDescending(g => g.Count()).Select(g => g.Key).FirstOrDefault();
+    // Profil tamamlama: rezervasyon için gereken ve faydalı bilgiler
+    var alanlar = new (string Ad, bool Dolu)[]
+    {
+        ("Telefon", !string.IsNullOrEmpty(k.PhoneNumber)), ("T.C. Kimlik No", !string.IsNullOrEmpty(k.TcNo)),
+        ("Doğum tarihi", k.DogumTarihi.HasValue), ("Ehliyet no", !string.IsNullOrEmpty(k.EhliyetNo)), ("Ehliyet tarihi", k.EhliyetTarihi.HasValue),
+    };
+    var oran = (int)Math.Round(100.0 * (alanlar.Count(a => a.Dolu) + 2) / (alanlar.Length + 2));   // ad ve e-posta zaten dolu
+}
 <div class="container py-4">
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
-        <div>
-            <h1 class="h3 mb-0">@Icerik.Metin("profil.merhaba"), @Model.Kullanici.Ad</h1>
-            <div class="text-muted">@Icerik.Metin("profil.aciklama")</div>
+    <section class="hesap-kart mb-4">
+        <div class="hesap-kimlik">
+            <span class="hesap-avatar" aria-hidden="true">@($"{k.Ad.FirstOrDefault()}{k.Soyad.FirstOrDefault()}".ToUpperInvariant())</span>
+            <div class="min-w-0">
+                <h1 class="h3 mb-0">@Icerik.Metin("profil.merhaba"), @k.Ad</h1>
+                <div class="text-muted small text-truncate">@k.Email · Üyelik @Bicim.Tarih(k.KayitTarihi)@(k.SonGiris is DateTime sg ? $" · Son giriş {Bicim.TarihSaat(sg)}" : "")</div>
+            </div>
+            <div class="hesap-islemler">
+                <a href="/Profil/Duzenle" class="btn btn-sade btn-sm"><i class="bi bi-person-gear me-1"></i>@Icerik.Metin("menu.profil")</a>
+                <a href="/Profil/Sifre" class="btn btn-sade btn-sm"><i class="bi bi-key me-1"></i>Şifremi değiştir</a>
+                <a href="/Araclar" class="btn btn-primary btn-sm"><i class="bi bi-car-front me-1"></i>Araç kirala</a>
+            </div>
         </div>
-        <a href="/Profil/Duzenle" class="btn btn-sade"><i class="bi bi-person-gear me-1"></i>@Icerik.Metin("menu.profil")</a>
-    </div>
+
+        <div class="hesap-tamamlama">
+            <div class="d-flex justify-content-between small fw-semibold mb-1"><span>Profil tamamlanma</span><span class="rakam">%@oran</span></div>
+            <div class="progress" role="progressbar" aria-label="Profil tamamlanma" aria-valuenow="@oran" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar" style="width:@oran%"></div></div>
+            @if (oran < 100)
+            {
+                <div class="small text-muted mt-2">Eksik: @string.Join(", ", alanlar.Where(a => !a.Dolu).Select(a => a.Ad)) · <a href="/Profil/Duzenle">Tamamla</a></div>
+            }
+        </div>
+
+        <div class="hesap-istatistik">
+            @foreach (var (ikon, deger, yazi) in new[]
+            {
+                ("bi-check2-circle", tamamlanan.Count.ToString(), "Tamamlanan kiralama"),
+                ("bi-calendar2-week", toplamGun.ToString(), "Toplam kiralanan gün"),
+                ("bi-wallet2", Bicim.Para(tamamlanan.Sum(r => r.ToplamTutar)), "Toplam harcama"),
+                ("bi-heart", favoriMarka ?? "—", "En çok kiraladığınız marka"),
+            })
+            {
+                <div><i class="bi @ikon"></i><b class="rakam">@deger</b><span>@yazi</span></div>
+            }
+        </div>
+    </section>
 
     @if (!Model.ProfilTamam)
     {
         <div class="alert alert-warning d-flex flex-wrap align-items-center gap-2"><i class="bi bi-exclamation-triangle"></i>@Icerik.Metin("profil.eksik-bilgi")<a href="/Profil/Duzenle" class="btn btn-sm btn-sade ms-auto">Tamamla</a></div>
     }
+
+    <h2 class="h5 mb-3">@Icerik.Metin("profil.aktif-baslik")</h2>
 
     @if (Model.Aktifler.Count == 0)
     {

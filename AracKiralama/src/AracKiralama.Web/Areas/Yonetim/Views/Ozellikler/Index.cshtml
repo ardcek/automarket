@@ -30,6 +30,36 @@
     </div>
 </div>
 
+@* ---------------- HAZIR ŞABLONLAR: neler eklenebilir? Tıkla → form dolu açılır (Yardimcilar/OzellikSablonlari.cs) ---------------- *@
+@{
+    var sablonlar = (OzellikSablonu[])ViewBag.Sablonlar;
+    var mevcutAdlar = Model.Select(o => o.Ad.Trim().ToLowerInvariant()).ToHashSet();
+}
+<div class="card mb-4">
+    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <span><i class="bi bi-grid-3x3-gap me-1"></i>Hazır özellikler: birini seç, ayarları dolu gelsin</span>
+        <input type="search" class="form-control form-control-sm" style="max-width:240px" placeholder="Ara: klima, bagaj, kasa…" data-sablon-ara aria-label="Şablon ara" />
+    </div>
+    <div class="card-body">
+        @foreach (var grup in sablonlar.GroupBy(s => s.Tur))
+        {
+            <div class="kucuk-baslik mb-2 mt-1">@grup.Key.Ad()</div>
+            <div class="sablon-izgara mb-3">
+                @foreach (var s in grup)
+                {
+                    var eklendi = mevcutAdlar.Contains(s.Ad.ToLowerInvariant());
+                    <a class="sablon-kart @(eklendi ? "eklendi" : "")" href="@(eklendi ? "#" : $"/Yonetim/Ozellikler/Ekle?sablon={s.Kod}")" data-sablon="@s.Ad @s.Aciklama" aria-disabled="@(eklendi ? "true" : "false")">
+                        <span class="ikon"><i class="bi @s.Ikon"></i></span>
+                        <span class="min-w-0"><b>@s.Ad @if (s.Birim != null) { <small class="text-muted fw-normal">(@s.Birim)</small> }</b><span class="small text-muted d-block text-truncate">@s.Aciklama</span></span>
+                        @if (eklendi) { <span class="durum durum-tamamlandi ms-auto">Eklendi</span> } else { <i class="bi bi-plus-lg ms-auto metin-ana"></i> }
+                    </a>
+                }
+            </div>
+        }
+        <div class="small text-muted">Listede yoksa sağ üstteki <b>Yeni özellik / filtre</b> ile kendin oluştur.</div>
+    </div>
+</div>
+
 <div class="row g-3">
     @* ---------------- Panelden eklenen özellikler ---------------- *@
     <div class="col-xl-8">

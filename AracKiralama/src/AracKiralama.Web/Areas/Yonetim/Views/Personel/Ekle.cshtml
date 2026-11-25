@@ -1,16 +1,23 @@
-@* YENİ PERSONEL / ADMİN HESABI. Rol listesi girene göre: Süper Admin üçünü, Admin Admin / Personel'i görür (Roller.Verebilecegi). *@
+@* YENİ KULLANICI (müşteri, personel, admin; Süper Admin girdiyse süper admin de).
+   Hesap GEÇİCİ şifreyle açılır: kişi ilk girişte kendi şifresini belirlemeden devam edemez (Yardimcilar/SifreKontrolu.cs).
+   Rol listesi girene göre: Roller.Verebilecegi + Müşteri. *@
 @model PersonelFormu
-@{ ViewData["Title"] = "Personel ekle"; }
-<div class="sayfa-baslik"><div><a href="/Yonetim/Personel" class="small"><i class="bi bi-arrow-left me-1"></i>Personel</a><h1 class="mt-1">Personel ekle</h1></div></div>
+@{ ViewData["Title"] = "Yeni kullanıcı"; }
+<div class="sayfa-baslik"><div><a href="/Yonetim/Musteriler" class="small"><i class="bi bi-arrow-left me-1"></i>Müşteriler ve Kullanıcılar</a><h1 class="mt-1">Yeni kullanıcı</h1><div class="alt-yazi">Kişiye e-postasını ve geçici şifreyi iletin; ilk girişte kendi şifresini belirleyecek.</div></div></div>
 <form asp-action="Ekle" method="post" class="card" style="max-width:640px">
     <div class="card-body row g-3">
         <div asp-validation-summary="ModelOnly" class="alert alert-danger small col-12"></div>
         <div class="col-md-6"><label asp-for="Ad" class="form-label"></label><input asp-for="Ad" class="form-control" /><span asp-validation-for="Ad"></span></div>
         <div class="col-md-6"><label asp-for="Soyad" class="form-label"></label><input asp-for="Soyad" class="form-control" /><span asp-validation-for="Soyad"></span></div>
-        <div class="col-12"><label asp-for="Eposta" class="form-label"></label><input asp-for="Eposta" class="form-control" /><span asp-validation-for="Eposta"></span></div>
-        <div class="col-md-6"><label asp-for="Sifre" class="form-label"></label><input asp-for="Sifre" class="form-control" /><span asp-validation-for="Sifre"></span></div>
-        <div class="col-md-6"><label asp-for="Rol" class="form-label"></label><select asp-for="Rol" class="form-select">@foreach (var rol in Roller.Verebilecegi(User)) { <option value="@rol">@Roller.Ad(rol)</option> }</select></div>
+        <div class="col-12"><label asp-for="Eposta" class="form-label"></label><input asp-for="Eposta" type="email" class="form-control" autocomplete="off" /><span asp-validation-for="Eposta"></span></div>
+        <div class="col-md-6"><label asp-for="Sifre" class="form-label"></label><input asp-for="Sifre" type="text" class="form-control" autocomplete="off" /><span asp-validation-for="Sifre"></span><div class="form-text">Harf ve rakam içersin. Kişi ilk girişte değiştirecek.</div></div>
+        <div class="col-md-6"><label asp-for="Rol" class="form-label"></label>
+            <select asp-for="Rol" class="form-select">
+                <option value="@Roller.Musteri">Müşteri</option>
+                @foreach (var rol in Roller.Verebilecegi(User)) { <option value="@rol">@Roller.Ad(rol)</option> }
+            </select>
+        </div>
     </div>
-    <div class="card-body border-top text-end"><a href="/Yonetim/Personel" class="btn btn-sade">Vazgeç</a> <button class="btn btn-primary">Oluştur</button></div>
+    <div class="card-body border-top text-end"><a href="/Yonetim/Musteriler" class="btn btn-sade">Vazgeç</a> <button class="btn btn-primary">Oluştur</button></div>
 </form>
 @section Scripts { <partial name="_FormDogrulama" /> }

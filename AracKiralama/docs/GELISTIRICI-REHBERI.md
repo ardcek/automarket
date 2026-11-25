@@ -27,6 +27,8 @@ Bütün yollar `AracKiralama/src/AracKiralama.Web/` klasörüne göredir. Kodun 
 
 **Her değişiklikten sonra:** siteyi kapatıp (`Ctrl + C`) tekrar `dotnet run --project src/AracKiralama.Web` ile açın. **Bir tabloya yeni alan / tablo eklediyseniz bir şey yapmanız gerekmez:** açılışta `Veri/SemaGuncelleyici.cs` eksik kolon ve tabloları kendiliğinden ekler (verilere dokunmaz). Bu hem bilgisayardaki SQLite'ta hem canlı sitedeki Neon'da çalışır; loga "Veritabanı şeması güncellendi, eklenenler: ..." yazar. Sadece bir kolonu **silmek** ya da **adını değiştirmek** elle yapılır (bilgisayarda en kolayı `arackiralama.db` dosyasını silmek).
 
+Eklenen kolon mevcut satırlara **koddaki başlangıç değeriyle** eklenir: `public bool YeniAyar { get; set; } = true;` yazdıysanız canlıdaki ayar satırında da `true` olur (değer yazılmamışsa 0 / false / boş).
+
 **Canlı site (Render) her şeyi Neon'da tutar** (`appsettings.Production.json` → `"SayfalarNeredenOkusun": "Neon"`): üyeler, rezervasyonlar ve panelden yapılan her değişiklik kalıcıdır. Bilgisayarınızdaki site (BASLAT.bat, `dotnet run`) internetsiz çalışsın diye SQLite kullanmaya devam eder.
 
 ---
@@ -312,6 +314,10 @@ Tabloya kolon eklenmediği için (hesaplanan değer) veritabanını silmeye gere
 - **Menüde kısa ad:** başlık uzunsa **Menüdeki kısa adı** kutusunu doldurun (başlık "Sıkça Sorulan Sorular", menüde "SSS").
 - **Soru-cevap sayfası (SSS):** **Soru-cevap düzeni**'ni açın. Her `## Soru?` satırı açılır kapanır bir soru, altındaki satırlar cevabı olur. Yeni soru eklemek = yeni bir `## ` satırı yazmak.
 - Yapay Zekâ Asistanı da aynısını yapabilir: "SSS'ye 'Kasko dahil mi?' sorusunu ekle", "Kampanya koşulları diye bir sayfa aç, Kurumsal menüsüne koy".
+
+**Hazır özellik şablonları ve ikon seçici:** Yönetim → Filtreler ve Özellikler sayfasında klima, bagaj, kasa tipi gibi 23 hazır özellik kart olarak durur; tıklayınca form dolu açılır. Yeni şablon = `Yardimcilar/OzellikSablonlari.cs`'e bir satır. İkon yazılan her kutunun yanında **Seç** düğmesi çıkar (2000+ ikon, Türkçe arama: "araba", "anahtar", "kar"); bunu `genel.js` kendiliğinden ekler, view'a bir şey yazmak gerekmez.
+
+**Ana sayfa efektleri:** akan çapraz bant (`vitrin.css` → "Akan bant"), adım kartlarındaki canlı önizleme çipleri (`Views/AnaSayfa/Index.cshtml` → "NASIL ÇALIŞIR"), özel fare imleci (`efektler.js` → 9; aç / kapa: Ayarlar → Görünüm → "Özel fare imleci"). Hepsi sadece `transform` / `opacity` kullanır, ekranda değilken durur ve "hareketi azalt" açık cihazlarda kapalıdır.
 
 ---
 

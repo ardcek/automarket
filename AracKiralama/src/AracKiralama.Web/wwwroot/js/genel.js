@@ -15,6 +15,10 @@
 //   data-sifre-gucu="#Sifre"    → şifre yazıldıkça 4 parçalı güç çubuğunu ve yazısını günceller
 //   data-telefon                → yazarken "0532 123 45 67" biçimine sokar
 //   data-yukleniyor="Yazı..."   → (form) gönderilince buton kilitlenir, dönen ikon ve bu yazı çıkar
+//   data-ikon-onizle kutularına  → yanına "Seç" düğmesi eklenir: aranabilir ikon galerisi açılır (liste: /Yonetim/Panel/Ikonlar)
+//   data-sablon-ara             → (Filtreler ve Özellikler) hazır özellik kartlarında arama
+//   data-tc                     → T.C. Kimlik No kutusu: sadece rakam, 11 hanede resmi algoritmayla anında kontrol
+//                                 (sunucudaki kontrol: Yardimcilar/Dogrulama.cs → TcKimlikNo.GecerliMi)
 // =====================================================================
 
 // ---- Açık / koyu tema ----
@@ -161,3 +165,98 @@ window.addEventListener("pageshow", () => document.querySelectorAll("form[data-y
     buton.disabled = false;
     delete buton.dataset.ilkHali;
 }));
+
+// ---- T.C. Kimlik No: resmi algoritma (Yardimcilar/Dogrulama.cs'teki TcKimlikNo.GecerliMi ile aynı kural) ----
+// 11 hane, ilk hane 0 değil; 10. hane = ((1+3+5+7+9. haneler) × 7 − (2+4+6+8. haneler)) mod 10; 11. hane = ilk 10 hanenin toplamı mod 10
+function tcGecerliMi(no) {
+    if (!/^[1-9]\d{10}$/.test(no)) return false;
+    const h = [...no].map(Number);
+    const onuncu = (((h[0] + h[2] + h[4] + h[6] + h[8]) * 7 - (h[1] + h[3] + h[5] + h[7])) % 10 + 10) % 10;
+    const onbirinci = h.slice(0, 10).reduce((a, b) => a + b, 0) % 10;
+    return h[9] === onuncu && h[10] === onbirinci;
+}
+document.querySelectorAll("[data-tc]").forEach(kutu => {
+    const bilgi = document.createElement("small");
+    bilgi.className = "tc-bilgi";
+    bilgi.setAttribute("aria-live", "polite");
+    kutu.insertAdjacentElement("afterend", bilgi);
+    const kontrol = () => {
+        kutu.value = kutu.value.replace(/\D/g, "").slice(0, 11);
+        const n = kutu.value.length;
+        const gecerli = n === 11 && tcGecerliMi(kutu.value);
+        kutu.classList.toggle("is-valid", gecerli);
+        kutu.classList.toggle("is-invalid", n === 11 && !gecerli);
+        bilgi.className = "tc-bilgi " + (n === 11 ? (gecerli ? "text-success" : "text-danger") : "text-muted");
+        bilgi.textContent = n === 0 ? "" : n < 11 ? `${11 - n} hane kaldı` : gecerli ? "✓ Geçerli T.C. Kimlik No" : "Bu numara geçerli bir T.C. Kimlik No değil";
+    };
+    kutu.addEventListener("input", kontrol);
+    kontrol();
+});
+
+// ---- Hazır özellik şablonlarında arama (Yönetim → Filtreler ve Özellikler) ----
+document.querySelectorAll("[data-sablon-ara]").forEach(kutu => kutu.addEventListener("input", () => {
+    const aranan = kutu.value.toLocaleLowerCase("tr");
+    document.querySelectorAll("[data-sablon]").forEach(kart => kart.hidden = !kart.dataset.sablon.toLocaleLowerCase("tr").includes(aranan));
+}));
+
+// ---- İkon seçici: ikon adı yazılan her kutunun yanına "Seç" düğmesi (Bootstrap Icons, 2000+ ikon) ----
+// Türkçe aramayı İngilizce ikon adlarına çevirir (ikon adları İngilizce: car, key, snow...)
+const IKON_SOZLUK = { araba: "car", arac: "car", araç: "car", anahtar: "key", kar: "snow", klima: "snow", yakit: "fuel", yakıt: "fuel", benzin: "fuel",
+    kisi: "person", kişi: "person", koltuk: "person", kalp: "heart", yildiz: "star", yıldız: "star", konum: "geo", harita: "map", telefon: "phone",
+    kamera: "camera", muzik: "music", müzik: "music", para: "cash", indirim: "percent", takvim: "calendar", saat: "clock", ayar: "gear", motor: "gear",
+    kalkan: "shield", guvenlik: "shield", güvenlik: "shield", sigorta: "shield", bagaj: "suitcase", çanta: "bag", canta: "bag", ev: "house", bina: "building",
+    hediye: "gift", etiket: "tag", sepet: "basket", kapi: "door", kapı: "door", isik: "light", ışık: "light", gunes: "sun", güneş: "sun", su: "droplet" };
+let ikonListesi = null, ikonPenceresi = null, ikonHedefi = null;
+
+async function ikonSeciciAc(kutu) {
+    ikonHedefi = kutu;
+    if (!ikonPenceresi) {
+        const kap = document.createElement("div");
+        kap.className = "modal fade"; kap.tabIndex = -1; kap.setAttribute("aria-label", "İkon seç");
+        kap.innerHTML = `<div class="modal-dialog modal-lg modal-dialog-scrollable"><div class="modal-content">
+            <div class="modal-header gap-2"><input type="search" class="form-control" placeholder="Ara: araba, anahtar, kar, car, key…" data-ikon-ara />
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button></div>
+            <div class="modal-body"><div class="ikon-izgara" data-ikon-izgara></div><div class="small text-muted mt-2" data-ikon-bilgi></div></div></div></div>`;
+        document.body.append(kap);
+        ikonPenceresi = new bootstrap.Modal(kap);
+        const ara = kap.querySelector("[data-ikon-ara]");
+        ara.addEventListener("input", () => ikonlariCiz(ara.value));
+        kap.addEventListener("shown.bs.modal", () => ara.focus());
+        kap.querySelector("[data-ikon-izgara]").addEventListener("click", olay => {
+            const b = olay.target.closest("button[data-ikon]");
+            if (!b) return;
+            ikonHedefi.value = b.dataset.ikon;
+            ikonHedefi.dispatchEvent(new Event("input", { bubbles: true }));   // önizleme ikonu da güncellensin
+            ikonPenceresi.hide();
+        });
+    }
+    if (!ikonListesi) ikonListesi = await fetch("/Yonetim/Panel/Ikonlar").then(c => c.json()).catch(() => []);
+    const ara = document.querySelector("[data-ikon-ara]");
+    ara.value = "";
+    ikonlariCiz("");
+    ikonPenceresi.show();
+}
+
+function ikonlariCiz(aranan) {
+    let a = aranan.trim().toLocaleLowerCase("tr");
+    a = IKON_SOZLUK[a] ?? a;
+    // Tam kelime eşleşenler önce: "car" → car-front, car-front-fill; sonra card, caret...
+    const puan = ad => ad === "bi-" + a ? 0 : ad.startsWith("bi-" + a + "-") ? 1 : ad.includes("-" + a + "-") || ad.endsWith("-" + a) ? 2 : 3;
+    const eslesen = ikonListesi.filter(ad => ad.includes(a)).sort((x, y) => puan(x) - puan(y));
+    const gosterilen = eslesen.slice(0, 300);
+    document.querySelector("[data-ikon-izgara]").innerHTML =
+        gosterilen.map(ad => `<button type="button" data-ikon="${ad}" title="${ad}"><i class="bi ${ad}"></i>${ad.slice(3)}</button>`).join("");
+    document.querySelector("[data-ikon-bilgi]").textContent = eslesen.length > gosterilen.length
+        ? `${eslesen.length} ikondan ilk ${gosterilen.length} tanesi gösteriliyor; aramayı daraltın.` : `${eslesen.length} ikon`;
+}
+
+document.querySelectorAll("[data-ikon-onizle]").forEach(kutu => {
+    if (typeof bootstrap === "undefined") return;
+    const buton = document.createElement("button");
+    buton.type = "button";
+    buton.className = "btn btn-sade";
+    buton.innerHTML = '<i class="bi bi-grid-3x3-gap me-1"></i>Seç';
+    buton.setAttribute("aria-label", "İkon seç");
+    kutu.insertAdjacentElement("afterend", buton);
+    buton.addEventListener("click", () => ikonSeciciAc(kutu));
+});

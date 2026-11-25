@@ -2,7 +2,7 @@
 // KULLANICI (müşteri, personel ve admin)
 // IdentityUser'dan türer: e-posta (Email), telefon (PhoneNumber), kullanıcı adı
 // (UserName) ve şifre hash'i ASP.NET Identity'den gelir; o yüzden adları İngilizcedir.
-// Rol (Admin / Personel / Musteri) ayrı tabloda tutulur (bkz. Yardimcilar/Roller.cs).
+// Rol (SuperAdmin / Admin / Personel / Musteri) ayrı tabloda tutulur (bkz. Yardimcilar/Genel.cs → Roller).
 // ============================================================================
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
@@ -22,6 +22,13 @@ public class Kullanici : IdentityUser
     public string? KaraListeSebebi { get; set; }
 
     public DateTime KayitTarihi { get; set; } = DateTime.Now;
+    public DateTime? SonGiris { get; set; }          // en son ne zaman giriş yaptı (yönetim → müşteri detayı)
+
+    /// <summary>
+    /// Admin geçici şifre verdiyse true: kişi ilk girişte yeni şifresini belirlemeden siteyi kullanamaz
+    /// (Yardimcilar/SifreKontrolu.cs → /Hesap/YeniSifre'ye yönlendirir).
+    /// </summary>
+    public bool SifreDegistirmeli { get; set; }
 
     public List<Rezervasyon> Rezervasyonlar { get; set; } = new();
 

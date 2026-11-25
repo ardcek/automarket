@@ -24,7 +24,7 @@
     <link rel="stylesheet" href="~/lib/archivo/archivo.css" />
     <link rel="stylesheet" href="~/css/vitrin.css" asp-append-version="true" />
 </head>
-<body class="vitrin">
+<body class="vitrin" data-imlec="@(a.OzelImlec ? "acik" : "kapali")">
     <header class="ust-menu @(saydamMenu ? "saydam-baslar" : "")">
         <div class="kaydirma-cubugu" aria-hidden="true"></div>
         <nav class="navbar navbar-expand-lg">

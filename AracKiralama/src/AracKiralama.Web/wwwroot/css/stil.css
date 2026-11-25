@@ -293,3 +293,25 @@ a { text-decoration: none; }
 .yonetim-linkler .grup-buton { width: 100%; display: flex; align-items: center; justify-content: space-between; border: 0; background: none; font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--soluk); padding: .9rem .75rem .35rem; }
 .yonetim-linkler .grup-buton i { transition: transform .2s; }
 .yonetim-linkler .grup-buton.collapsed i { transform: rotate(-90deg); }
+
+/* ---------- Kullanıcı detayı (Yönetim → Müşteriler → kişi): küçük kart başlığı ve zaman çizelgesi ---------- */
+.card-baslik-kucuk { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--soluk); }
+.zaman-cizelgesi { list-style: none; margin: 0; padding: 1rem 1.25rem; position: relative; max-height: 640px; overflow-y: auto; }
+.zaman-cizelgesi li { position: relative; display: flex; gap: .85rem; padding-bottom: 1rem; }
+.zaman-cizelgesi li::before { content: ""; position: absolute; left: 15px; top: 32px; bottom: 0; width: 2px; background: var(--cizgi); }
+.zaman-cizelgesi li:last-child::before { display: none; }
+.zaman-cizelgesi .nokta { width: 32px; height: 32px; flex: none; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: .9rem; }
+
+/* ---------- Filtreler ve Özellikler → hazır özellik şablonları ---------- */
+.sablon-izgara { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: .6rem; }
+.sablon-kart { display: flex; align-items: center; gap: .75rem; padding: .7rem .85rem; border: 1px solid var(--cizgi); border-radius: var(--yuvarlak); background: var(--yuzey); color: var(--yazi); transition: border-color .15s, box-shadow .15s, transform .15s; }
+.sablon-kart:hover { color: var(--yazi); border-color: var(--ana); box-shadow: var(--golge); transform: translateY(-1px); }
+.sablon-kart .ikon { width: 38px; height: 38px; flex: none; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; background: var(--ana-acik); color: var(--ana-yazi); font-size: 1.1rem; }
+.sablon-kart.eklendi { opacity: .6; pointer-events: none; }
+.sablon-kart[hidden] { display: none; }
+
+/* ---------- İkon seçici (genel.js → data-ikon-onizle kutularının yanındaki "Seç" düğmesi) ---------- */
+.ikon-izgara { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: .4rem; max-height: 60vh; overflow-y: auto; padding: .25rem; }
+.ikon-izgara button { display: grid; justify-items: center; gap: .3rem; padding: .7rem .3rem; border: 1px solid var(--cizgi); border-radius: 10px; background: var(--yuzey); color: var(--yazi); font-size: .68rem; line-height: 1.2; word-break: break-all; }
+.ikon-izgara button i { font-size: 1.4rem; }
+.ikon-izgara button:hover, .ikon-izgara button:focus-visible { border-color: var(--ana); background: var(--ana-acik); color: var(--ana-yazi); }

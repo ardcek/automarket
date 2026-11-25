@@ -8,7 +8,7 @@ namespace AracKiralama.Yardimcilar;
 /// <summary>
 /// Rol adları. Kullanım: [Authorize(Roles = Roller.Admin)]
 ///   SuperAdmin : her şey. Yapay Zekâ Asistanı, Site Düzenleyici, Filtreler ve Özellikler, Kampanyalar,
-///                Müşteri Bilgileri, Ayarlar, Yazılar, Sayfalar, Görseller SADECE onda.
+///                Ayarlar, Yazılar, Sayfalar, Görseller SADECE onda.
 ///                Panelden başkasına Süper Admin, Admin ya da Personel yetkisi verebilir. İlk süper admin
 ///                veritabanından (AspNetUserRoles tablosu) verilir: README → 4.1.
 ///                SuperAdmin aynı zamanda Admin sayılır (Yardimcilar/Altyapi.cs → SuperAdminAyniZamandaAdmin).

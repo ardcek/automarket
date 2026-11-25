@@ -131,6 +131,7 @@ public class TakvimSayfasi
 public class MusteriSatiri
 {
     public Kullanici Kullanici { get; set; } = new();
+    public string Rol { get; set; } = Roller.Musteri;   // en yüksek rolü
     public int KiralamaSayisi { get; set; }
     public decimal ToplamHarcama { get; set; }
 }

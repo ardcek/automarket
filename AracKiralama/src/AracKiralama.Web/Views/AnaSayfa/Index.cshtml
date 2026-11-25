@@ -84,14 +84,18 @@
 @* ---------------- AKAN YAZI BANDI (kaydırdıkça iki satır ters yöne kayar) ---------------- *@
 @if (akanlar.Length > 0)
 {
-    <section class="akan-bant" aria-label="@M("akan-yazilar")">
+    @* AKAN BANT: iki çapraz şerit ters yönlere sürekli akar (vitrin.css → "Akan bant"). Yazılar: Site Metinleri → anasayfa.akan-yazilar
+       (· ile ayrılır). İçerik 4 kez yazılır; şerit yarısı kadar kayıp başa döner → kesintisiz. Ekranda değilken durur (data-duraklat). *@
+    <section class="akan-bant" aria-label="@M("akan-yazilar")" data-duraklat>
         @for (var satir = 0; satir < 2; satir++)
         {
-            <div class="akan-satir @(satir == 1 ? "ters" : "")" aria-hidden="true">
-                @for (var tekrar = 0; tekrar < 4; tekrar++)
-                {
-                    foreach (var yazi in akanlar) { <span>@yazi</span><span class="ayrac"></span> }
-                }
+            <div class="akan-serit @(satir == 1 ? "ters" : "")" aria-hidden="true">
+                <div class="akan-satir">
+                    @for (var tekrar = 0; tekrar < 4; tekrar++)
+                    {
+                        foreach (var yazi in akanlar) { <span>@yazi</span><i class="bi @(satir == 0 ? "bi-asterisk" : "bi-circle-fill") ayrac"></i> }
+                    }
+                </div>
             </div>
         }
     </section>
@@ -184,7 +188,11 @@
 @if (a.NasilCalisirGoster)
 {
     var sssYayinda = Icerik.Sayfalar.Any(s => s.Adres == "sss");
-    <section class="bolum nasil" id="nasil-calisir" aria-labelledby="nasil-baslik">
+    // Kartlardaki küçük canlı önizlemeler gerçek veriden: yarın → 3 gün sonra, ilk iki şube, öne çıkan en ucuz aracın 3 günlük fiyatı
+    var ornekAlis = DateTime.Today.AddDays(1);
+    var ornekSubeler = Model.Subeler.Take(2).Select(s => s.Sehir).ToList();
+    var ornekFiyat = Model.OneCikanlar.Count > 0 ? Model.OneCikanlar.Min(x => x.GunlukFiyat) * 3 : (decimal?)null;
+    <section class="bolum nasil" id="nasil-calisir" aria-labelledby="nasil-baslik" data-duraklat>
         <div class="container">
             <div class="nasil-ust" data-goster>
                 <div>
@@ -197,7 +205,7 @@
                 @foreach (var (no, ikon) in new[] { (1, "bi-calendar2-range"), (2, "bi-ui-checks-grid"), (3, "bi-key") })
                 {
                     var etiket = M($"adim{no}-etiket");
-                    <li class="nasil-adim" data-goster>
+                    <li class="nasil-adim" data-goster data-egim="isik" style="--sira:@no">
                         <span class="nasil-no" aria-hidden="true">@no.ToString("00")</span>
                         <div class="nasil-ikon-satiri">
                             <span class="nasil-ikon"><i class="bi @ikon" aria-hidden="true"></i></span>
@@ -205,6 +213,24 @@
                         </div>
                         <h3>@M($"adim{no}-baslik")</h3>
                         <p>@M($"adim{no}-metin")</p>
+                        @* Süs: adımın küçük canlı önizlemesi (ekran okuyucuya okunmaz) *@
+                        <div class="nasil-onizleme" aria-hidden="true">
+                            @switch (no)
+                            {
+                                case 1:
+                                    <span class="cip"><i class="bi bi-calendar-event"></i>@ornekAlis.ToString("d MMM", Bicim.Tr)</span><i class="bi bi-arrow-right ok"></i><span class="cip"><i class="bi bi-calendar-check"></i>@ornekAlis.AddDays(3).ToString("d MMM", Bicim.Tr)</span>
+                                    @if (ornekSubeler.Count == 2) { <span class="cip soluk"><i class="bi bi-geo-alt"></i>@ornekSubeler[0] → @ornekSubeler[1]</span> }
+                                    break;
+                                case 2:
+                                    <span class="cip"><i class="bi bi-car-front"></i>3 gün</span>
+                                    @if (ornekFiyat != null) { <span class="cip vurgu"><i class="bi bi-receipt"></i>@Bicim.Para(ornekFiyat.Value)</span> }
+                                    <span class="cip soluk"><i class="bi bi-shield-check"></i>Kasko</span>
+                                    break;
+                                default:
+                                    <span class="cip yesil"><i class="bi bi-check2-circle"></i>Onaylandı</span><span class="cip soluk"><i class="bi bi-file-earmark-pdf"></i>Sözleşme.pdf</span>
+                                    break;
+                            }
+                        </div>
                         @if (!string.IsNullOrWhiteSpace(etiket)) { <span class="nasil-etiket"><i class="bi bi-check2-circle" aria-hidden="true"></i>@etiket</span> }
                     </li>
                 }

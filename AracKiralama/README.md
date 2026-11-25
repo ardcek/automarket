@@ -168,7 +168,7 @@ Programı çalıştırmak için düzenleyici **şart değildir**; terminal yeter
 
 | Rol | E-posta (kullanıcı adı) | Şifre | Ne yapabilir? |
 |---|---|---|---|
-| ⭐ **Süper Admin** | `superadmin@rota.com` | `Rota123!` | **Her şey:** Admin'in gördükleri + Yapay Zekâ Asistanı, Site Düzenleyici, Filtreler ve Özellikler, Kampanyalar, Müşteri Bilgileri, bütün ayarlar / yazılar / sayfalar / görseller; panelden Süper Admin, Admin ve Personel yetkisi verebilir. |
+| ⭐ **Süper Admin** | `superadmin@rota.com` | `Rota123!` | **Her şey:** Admin'in gördükleri + Yapay Zekâ Asistanı, Site Düzenleyici, Filtreler ve Özellikler, Kampanyalar, bütün ayarlar / yazılar / sayfalar / görseller; panelden Süper Admin, Admin ve Personel yetkisi verebilir. |
 | 👑 **Admin** (yönetici, "hocanın paneli") | `admin@rota.com` | `Rota123!` | Doluluk takvimi, rezervasyon, bakım, ödeme, müşteri, rapor; araçlar ve tanımlar; **Personel ve Roller** (sadece Admin / Personel yetkisi verebilir, Süper Admin'lere dokunamaz). Site düzenleme araçlarını **görmez**. |
 | 🧑‍💼 **Personel** (şube çalışanı) | `personel@rota.com` | `Rota123!` | Admin'in gördüklerinin aynısı; sadece "Personel ve Roller" sayfasını göremez. |
 | 🙂 **Müşteri** | `musteri@rota.com` | `Rota123!` | Araç arar, rezervasyon yapar, iptal eder, sözleşme indirir. Yönetim paneline **giremez**. |
@@ -196,7 +196,8 @@ Yönetim paneli girene göre iki farklı görünür:
 | Ana ekran, Doluluk Takvimi, Rezervasyonlar, Bakım, Ödemeler, Müşteriler, Raporlar | ✅ | ✅ |
 | Araçlar, Kategoriler, Markalar, Yakıt ve Vites, Şubeler, Ek Hizmetler | ✅ | ✅ |
 | Personel ve Roller | ✅ (Personel hariç) | ✅ |
-| Yapay Zekâ Asistanı, Site Düzenleyici, Filtreler ve Özellikler, Kampanyalar, Müşteri Bilgileri | ❌ | ✅ |
+| Müşteri Bilgileri (müşteriye sorulan ek bilgiler), kullanıcı detayı: geçmiş, ödemeler, hasarlar | ✅ | ✅ |
+| Yapay Zekâ Asistanı, Site Düzenleyici, Filtreler ve Özellikler, Kampanyalar | ❌ | ✅ |
 | Bütün ayarlar, Bütün yazılar, Sayfalar, Görseller | ❌ | ✅ |
 
 Admin bu sayfaların adresini elle yazsa bile "Erişim engellendi" görür (controller'larda `[Authorize(Roles = Roller.SuperAdmin)]`).
@@ -209,6 +210,19 @@ Admin bu sayfaların adresini elle yazsa bile "Erişim engellendi" görür (cont
 | Admin | Admin, Personel | Hayır (satırları kilitli görür) |
 
 Kimse kendi yetkisini değiştiremez (yanlışlıkla kendini kilitlemesin diye).
+
+**Kullanıcı işlemleri (Admin ve Süper Admin):** Yönetim → **Müşteriler ve Kullanıcılar** → kişiye tıklayın. Sayfada kişinin bütün geçmişi (rezervasyonlar, ödemeler, hasarlar, zaman çizelgesi) ve sağ altta **Hesap işlemleri** var:
+
+| İşlem | Ne olur? |
+|---|---|
+| Yetkiyi kaydet | Müşteri / Personel / Admin (Süper Admin girdiyse Süper Admin de) |
+| Geçici şifre ver | Rastgele bir şifre üretilir ve **bir kez** gösterilir. Kişi bu şifreyle girince kendi şifresini belirlemeden siteyi kullanamaz. |
+| Hesabı dondur / aç | Dondurulan kişi giriş yapamaz; kayıtları silinmez. |
+| Hesabı sil | Kalıcı siler. Rezervasyonu olan hesap silinemez (geçmiş kaybolmasın): onu dondurun. |
+
+**Yeni kullanıcı:** Müşteriler ve Kullanıcılar → **Yeni kullanıcı**. Hesap geçici şifreyle açılır; kişi ilk girişte kendi şifresini belirler.
+
+**Şifremi unuttum:** Giriş sayfasındaki bağlantı. Kişiye 2 saat geçerli, tek kullanımlık bir link e-postayla gider (ayarı: [13.9](#139-e-posta-gönderimi-şifremi-unuttum)). Kullanıcı şifresini **Hesabım → Şifremi değiştir**'den de değiştirebilir.
 
 **İlk Süper Admin'i vermek (veritabanından):** Sistemde hiç Süper Admin yoksa ya da hepsi silindiyse ilk Süper Admin veritabanından verilir; sonrakileri o kişi panelden verebilir. Neon → projeniz → **SQL Editor**'de e-postayı değiştirip çalıştırın:
 
@@ -709,6 +723,24 @@ $env:ASPNETCORE_ENVIRONMENT="Production"; $env:DATA_DIR="$PWD\data"; dotnet Arac
 Sonra http://localhost:5080 açın. `http://localhost:5080/health` → `Healthy` yazmalı.
 
 ---
+
+### 13.9. E-posta gönderimi ("Şifremi unuttum")
+
+"Şifremi unuttum" linki e-postayla gider (`Servisler/EpostaServisi.cs`, ek paket yok). Bir SMTP hesabı gerekir:
+- **Brevo** (ücretsiz, günde 300 e-posta): brevo.com → hesap → **SMTP & API** → SMTP anahtarı oluşturun.
+- **Gmail**: Google hesabı → Güvenlik → 2 adımlı doğrulama açık olmalı → **Uygulama şifreleri** → 16 haneli şifre.
+
+Render → servis → **Environment** sayfasına ekleyin (şifre içerdiği için GitHub'a yazılmaz):
+
+| Anahtar | Örnek değer |
+|---|---|
+| `Eposta__Sunucu` | `smtp-relay.brevo.com` (Gmail: `smtp.gmail.com`) |
+| `Eposta__Port` | `587` |
+| `Eposta__Kullanici` | SMTP kullanıcı adı (Gmail: e-posta adresiniz) |
+| `Eposta__Sifre` | SMTP anahtarı / uygulama şifresi |
+| `Eposta__Gonderen` | Gönderen adres, örn. `destek@ardcek.com` (Gmail: kendi adresiniz) |
+
+Ayar yoksa e-posta gönderilmez, link sadece Render loguna yazılır (`Şifre sıfırlama linki (e-posta gönderilmedi)`). Bilgisayarda (BASLAT.bat) ayar yoksa link ekranda da gösterilir, deneme yapılabilir.
 
 ## 14. Sorun çözme (bir şey çalışmıyorsa)
 

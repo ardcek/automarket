@@ -49,7 +49,10 @@ public class OzelliklerController : YonetimController
             .Select(g => new { g.Key, Sayi = g.Count() }).ToDictionaryAsync(x => x.Key, x => x.Sayi);
         ViewBag.AracSayisi = await _vt.Araclar.CountAsync(a => a.Durum != AracDurumu.Pasif);
 
-        // 3) Panelden eklenen özellikler: SELECT * FROM "AracOzellikleri" ORDER BY "Sira", "Ad"
+        // 3) Hazır şablonlar (eklenmiş olanlar "Eklendi" diye işaretlenir)
+        ViewBag.Sablonlar = OzellikSablonlari.Liste;
+
+        // 4) Panelden eklenen özellikler: SELECT * FROM "AracOzellikleri" ORDER BY "Sira", "Ad"
         return View(await _vt.AracOzellikleri.OrderBy(o => o.Sira).ThenBy(o => o.Ad).AsNoTracking().ToListAsync());
     }
 
@@ -66,7 +69,16 @@ public class OzelliklerController : YonetimController
         return RedirectToAction(nameof(Index));
     }
 
-    public IActionResult Ekle() => View("Form", new OzellikFormu());
+    /// <summary>Yeni özellik. ?sablon=klima gibi gelinirse form hazır şablonla dolu açılır (Yardimcilar/OzellikSablonlari.cs).</summary>
+    public IActionResult Ekle(string? sablon)
+    {
+        var s = OzellikSablonlari.Bul(sablon);
+        return View("Form", s == null ? new OzellikFormu() : new OzellikFormu
+        {
+            Ad = s.Ad, Tur = s.Tur, Ikon = s.Ikon, Birim = s.Birim, KarttaGoster = s.KarttaGoster,
+            SeceneklerMetni = s.Secenekler?.Replace('|', '\n'),
+        });
+    }
 
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Ekle(OzellikFormu form)

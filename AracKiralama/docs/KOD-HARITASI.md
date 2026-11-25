@@ -225,8 +225,14 @@ Adres kalıbı: `/{Controller}/{Aksiyon}/{id}`. Yönetim panelinde başına `/Yo
 
 | `/Yonetim/Kampanyalar` | `Areas/Yonetim/Controllers/KampanyaControllerlari.cs` | `KampanyalarController.Index` | `Areas/Yonetim/Views/Kampanyalar/Index.cshtml` |
 | `/Yonetim/YapayZeka` | `Areas/Yonetim/Controllers/YapayZekaController.cs` | `Index` | `Areas/Yonetim/Views/YapayZeka/Index.cshtml` |
+| `/Hesap/SifremiUnuttum` · `/Hesap/SifreSifirla` · `/Hesap/YeniSifre` | `Controllers/HesapController.cs` | aynı adlı metotlar | `Views/Hesap/...` (e-posta: `Servisler/EpostaServisi.cs`) |
+| `/Profil/Sifre` | `Controllers/ProfilController.cs` | `Sifre` | `Views/Profil/Sifre.cshtml` |
+| `/Yonetim/Musteriler/Detay/{id}` | `Areas/Yonetim/Controllers/KullaniciControllerlari.cs` | `MusterilerController.Detay` | `Areas/Yonetim/Views/Musteriler/Detay.cshtml` (geçmiş, ödemeler, hasarlar, hesap işlemleri) |
+| `/Yonetim/Personel/GeciciSifre/{id}` · `Dondur` · `Sil` · `RolDegistir` | `Areas/Yonetim/Controllers/KullaniciControllerlari.cs` | `PersonelController` | müşteri detayındaki "Hesap işlemleri" kartı |
+| `/Yonetim/Ozellikler/Ekle?sablon=klima` | `Areas/Yonetim/Controllers/OzelliklerController.cs` | `Ekle` | şablonlar: `Yardimcilar/OzellikSablonlari.cs` |
+| `/Yonetim/Panel/Ikonlar` | `Areas/Yonetim/Controllers/PanelControllerlari.cs` | `PanelController.Ikonlar` | (JSON, ikon seçici: `wwwroot/js/genel.js`) |
 
-> Yönetim controller'ları konularına göre birkaç dosyada toplanmıştır: `TanimControllerlari.cs` (Şube, Ekstra, Marka, Kategori, Seçenek), `IcerikControllerlari.cs` (Ayarlar, Sayfalar, Metinler, Görseller), `RezervasyonControllerlari.cs` (Rezervasyonlar, Ödemeler), `AracControllerlari.cs` (Araçlar, Bakım), `PanelControllerlari.cs` (Panel, Takvim, Raporlar), `KullaniciControllerlari.cs` (Müşteriler, Personel), `KampanyaControllerlari.cs` (Kampanyalar, Müşteri Bilgileri). Bir dosyada `class XController` diye arayın.
+> Yönetim controller'ları konularına göre birkaç dosyada toplanmıştır: `TanimControllerlari.cs` (Şube, Ekstra, Marka, Kategori, Seçenek), `IcerikControllerlari.cs` (Ayarlar, Sayfalar, Metinler, Görseller), `RezervasyonControllerlari.cs` (Rezervasyonlar, Ödemeler), `AracControllerlari.cs` (Araçlar, Bakım), `PanelControllerlari.cs` (Panel, Takvim, Raporlar), `KullaniciControllerlari.cs` (Müşteriler ve kullanıcılar, Personel: yetki / geçici şifre / dondur / sil), `KampanyaControllerlari.cs` (Kampanyalar, Müşteri Bilgileri). Bir dosyada `class XController` diye arayın.
 
 ---
 
