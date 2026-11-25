@@ -21,6 +21,9 @@
         Chart.defaults.font.family = "Inter, sans-serif";
         Chart.defaults.color = renk("--soluk");
 
+        // Eksendeki tutarlar kısa: 18000 → "18K" (çubuğun üstüne gelince tam tutar görünür)
+        const kisa = v => Math.abs(v) >= 1000 ? (v / 1000).toLocaleString("tr-TR") + "K" : v;
+
         // Çubuk grafik oluşturan küçük yardımcı (yatay = true → çubuklar yan yana)
         const cubukGrafik = (kanvasId, noktalar, yatay) => {
             const kanvas = document.getElementById(kanvasId);
@@ -31,7 +34,7 @@
                 options: {
                     indexAxis: yatay ? "y" : "x", maintainAspectRatio: false,
                     plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => para(c.raw) } } },
-                    scales: { x: { grid: { color: yatay ? cizgi : "transparent" } }, y: { grid: { color: yatay ? "transparent" : cizgi }, ticks: { callback: v => yatay ? v : v / 1000 + "K" } } },
+                    scales: { x: { grid: { color: yatay ? cizgi : "transparent" }, ticks: yatay ? { callback: v => kisa(v) } : {} }, y: { grid: { color: yatay ? "transparent" : cizgi }, ticks: { callback(v) { return yatay ? this.getLabelForValue(v) : kisa(v); } } } },
                 },
             }));
         };

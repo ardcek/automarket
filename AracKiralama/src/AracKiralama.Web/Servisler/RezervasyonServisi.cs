@@ -265,6 +265,8 @@ public class RezervasyonServisi
         GecisiKontrolEt(r, RezervasyonDurumu.Tamamlandi);
         if (iadeKm < (r.TeslimKm ?? 0)) throw new IsKuraliHatasi($"İade kilometresi teslim kilometresinden ({Bicim.Sayi(r.TeslimKm ?? 0)}) küçük olamaz.");
         if (hasarTutari < 0) throw new IsKuraliHatasi("Hasar tutarı negatif olamaz.");
+        if (r.TeslimTarihi != null && iadeTarihi < r.TeslimTarihi)
+            throw new IsKuraliHatasi($"İade zamanı, teslim zamanından ({Bicim.TarihSaat(r.TeslimTarihi.Value)}) önce olamaz.");
 
         r.Durum = RezervasyonDurumu.Tamamlandi;
         r.IadeTarihi = iadeTarihi;

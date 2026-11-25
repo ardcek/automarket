@@ -142,11 +142,15 @@ public class RaporServisi
         var araclar = await _vt.Araclar.Include(a => a.Marka).Include(a => a.Kategori).Include(a => a.Sube)
             .Where(a => a.Durum != AracDurumu.Pasif).AsNoTracking().ToListAsync();
 
-        // Aralıkla çakışan kiralamalar (kullanım oranı için)
-        var kiralamalar = await _vt.Rezervasyonlar.Include(r => r.AlisSube)
+        // Aralıkla çakışan kiralamalar (kullanım oranı için). Araç GERÇEKTE ne zaman dışarıdaydı:
+        // teslim edildiği an → iade alındığı an (henüz kiradaysa: planlanan bitiş, gecikmişse şu an).
+        var simdi = DateTime.Now;
+        var kiralamalar = (await _vt.Rezervasyonlar.Include(r => r.AlisSube)
             .Where(r => (r.Durum == RezervasyonDurumu.Tamamlandi || r.Durum == RezervasyonDurumu.Kirada)
-                        && r.BaslangicTarihi < son && bas < (r.IadeTarihi ?? r.BitisTarihi))
-            .AsNoTracking().ToListAsync();
+                        && (r.TeslimTarihi ?? r.BaslangicTarihi) < son
+                        && (r.Durum == RezervasyonDurumu.Kirada || bas < (r.IadeTarihi ?? r.BitisTarihi)))
+            .AsNoTracking().ToListAsync())
+            .Where(r => bas < KiraSonu(r, simdi)).ToList();
 
         // Gelir: aralık içinde iade edilmiş kiralamalar
         var gelirler = kiralamalar.Where(r => r.Durum == RezervasyonDurumu.Tamamlandi && r.IadeTarihi >= bas && r.IadeTarihi < son).ToList();
@@ -155,7 +159,7 @@ public class RaporServisi
         foreach (var arac in araclar)
         {
             var aracKiralamalari = kiralamalar.Where(r => r.AracId == arac.Id).ToList();
-            var kiraliGun = aracKiralamalari.Sum(r => OrtakGun(r.BaslangicTarihi, r.IadeTarihi ?? r.BitisTarihi, bas, son));
+            var kiraliGun = Math.Min(aralikGun, aracKiralamalari.Sum(r => OrtakGun(KiraBasi(r), KiraSonu(r, simdi), bas, son)));
             sonuc.Araclar.Add(new AracRaporSatiri
             {
                 AracId = arac.Id,
@@ -182,7 +186,11 @@ public class RaporServisi
         return sonuc;
     }
 
-    /// <summary>İki tarih aralığının ortak gün sayısı.</summary>
+    private static DateTime KiraBasi(Rezervasyon r) => r.TeslimTarihi ?? r.BaslangicTarihi;
+    private static DateTime KiraSonu(Rezervasyon r, DateTime simdi) =>
+        r.IadeTarihi ?? (r.Durum == RezervasyonDurumu.Kirada && r.BitisTarihi < simdi ? simdi : r.BitisTarihi);
+
+    /// <summary>İki tarih aralığının ortak gün sayısı (başlamış her gün sayılır: 2 saatlik kiralama = 1 gün).</summary>
     private static int OrtakGun(DateTime aBas, DateTime aSon, DateTime bBas, DateTime bSon)
     {
         var bas = aBas > bBas ? aBas : bBas;
