@@ -6,7 +6,7 @@
     <input type="hidden" asp-for="RezervasyonId" />
     <div class="card-body row g-3">
         <div asp-validation-summary="ModelOnly" class="text-danger small col-12"></div>
-        <div class="col-md-6"><label asp-for="TeslimKm" class="form-label"></label><input asp-for="TeslimKm" class="form-control" /><div class="form-text">Kayıtlı: @Bicim.Sayi(r.Arac.Kilometre) km</div></div>
+        <div class="col-md-6"><label asp-for="TeslimKm" class="form-label"></label><input asp-for="TeslimKm" type="text" inputmode="numeric" autocomplete="off" class="form-control" value="@Bicim.Sayi(Model.TeslimKm)" data-km data-km-min="@r.Arac.Kilometre" data-km-min-yazi="aracın kayıtlı" /><span asp-validation-for="TeslimKm"></span><div class="form-text">Kayıtlı: @Bicim.Sayi(r.Arac.Kilometre) km · daha az girilemez</div></div>
         <div class="col-md-6"><label asp-for="TeslimYakit" class="form-label"></label><select asp-for="TeslimYakit" class="form-select" asp-items="Html.GetEnumSelectList<YakitSeviyesi>()"></select></div>
         <div class="col-12 kart-sade p-3 small">
             <b>Teslim kontrol listesi</b>

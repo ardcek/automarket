@@ -79,10 +79,10 @@ public class SiteAyarlari
     [Ayar("Fiyatlar", "Haftalık indirim oranı", Aciklama = "0.10 = %10")] public decimal HaftalikIndirimOrani { get; set; } = 0.10m;
     [Ayar("Fiyatlar", "Aylık indirim kaç günden başlar")] public int AylikIndirimGunu { get; set; } = 30;
     [Ayar("Fiyatlar", "Aylık indirim oranı", Aciklama = "0.20 = %20")] public decimal AylikIndirimOrani { get; set; } = 0.20m;
-    [Ayar("Fiyatlar", "Farklı şubeye iade ücreti (₺)")] public decimal TekYonUcreti { get; set; } = 750;
+    [Ayar("Fiyatlar", "Farklı şubeye iade ücreti (₺)")] public decimal TekYonUcreti { get; set; } = 2000;
     [Ayar("Fiyatlar", "Geç iade çarpanı", Aciklama = "Geç kalınan her gün: günlük fiyat × bu sayı")] public decimal GecikmeCarpani { get; set; } = 1.5m;
     [Ayar("Fiyatlar", "Geç iade toleransı (dakika)")] public int GecikmeToleransi { get; set; } = 59;
-    [Ayar("Fiyatlar", "Eksik her ¼ depo yakıt ücreti (₺)")] public decimal YakitCeyrekUcreti { get; set; } = 450;
+    [Ayar("Fiyatlar", "Eksik her ¼ depo yakıt ücreti (₺)")] public decimal YakitCeyrekUcreti { get; set; } = 900;
     [Ayar("Fiyatlar", "Ücretsiz iptal süresi (saat)", Aciklama = "Alışa bundan az kala iptal edilirse 1 günlük ücret kesilir")] public int UcretsizIptalSaati { get; set; } = 24;
     [Ayar("Fiyatlar", "Kampanya ile uzun dönem indirimi birleşsin", Aciklama = "Kapalıyken ikisinden müşteriye avantajlı olan uygulanır. Açıkken oranlar toplanır (en çok %90).")]
     public bool KampanyaUzunDonemleBirlesir { get; set; } = false;

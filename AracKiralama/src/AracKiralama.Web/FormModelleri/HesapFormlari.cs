@@ -84,10 +84,11 @@ public class ProfilFormu
     [Display(Name = "Ad"), Required(ErrorMessage = "Ad zorunludur.")] public string Ad { get; set; } = "";
     [Display(Name = "Soyad"), Required(ErrorMessage = "Soyad zorunludur.")] public string Soyad { get; set; } = "";
     [Display(Name = "E-posta")] public string? Eposta { get; set; }
-    [Display(Name = "Telefon"), Phone(ErrorMessage = "Geçerli bir telefon giriniz.")] public string? Telefon { get; set; }
-    [Display(Name = "T.C. Kimlik No"), TcKimlik] public string? TcNo { get; set; }
+    // Bu sayfadaki bütün alanlar zorunlu (eksikse rezervasyon yapılamaz: Kullanici.EksikProfilBilgileri)
+    [Display(Name = "Telefon"), Required(ErrorMessage = "Telefon zorunludur."), Phone(ErrorMessage = "Geçerli bir telefon giriniz.")] public string? Telefon { get; set; }
+    [Display(Name = "T.C. Kimlik No"), Required(ErrorMessage = "T.C. Kimlik No zorunludur."), TcKimlik] public string? TcNo { get; set; }
     [Display(Name = "Doğum tarihi"), DataType(DataType.Date), Required(ErrorMessage = "Doğum tarihi zorunludur.")] public DateTime? DogumTarihi { get; set; }
-    [Display(Name = "Ehliyet no")] public string? EhliyetNo { get; set; }
+    [Display(Name = "Ehliyet no"), Required(ErrorMessage = "Ehliyet no zorunludur."), StringLength(20, MinimumLength = 5, ErrorMessage = "Ehliyet no 5–20 karakter olmalıdır.")] public string? EhliyetNo { get; set; }
     [Display(Name = "Ehliyet veriliş tarihi"), DataType(DataType.Date), Required(ErrorMessage = "Ehliyet tarihi zorunludur.")] public DateTime? EhliyetTarihi { get; set; }
     public string? DonusAdresi { get; set; }
 
@@ -102,5 +103,5 @@ public class ProfilSayfasi
     public Kullanici Kullanici { get; set; } = new();
     public List<Rezervasyon> Aktifler { get; set; } = new();
     public List<Rezervasyon> Gecmis { get; set; } = new();
-    public bool ProfilTamam => Kullanici.DogumTarihi.HasValue && Kullanici.EhliyetTarihi.HasValue;
+    public bool ProfilTamam => Kullanici.EksikProfilBilgileri().Count == 0;
 }

@@ -21,7 +21,7 @@
                 <div class="col-md-3"><label asp-for="VitesTuruId" class="form-label"></label><select asp-for="VitesTuruId" class="form-select" asp-items="ViewBag.Vitesler"></select></div>
                 <div class="col-md-3"><label asp-for="KoltukSayisi" class="form-label"></label><input asp-for="KoltukSayisi" class="form-control" /></div>
                 <div class="col-md-3"><label asp-for="Renk" class="form-label"></label><input asp-for="Renk" class="form-control" /><span asp-validation-for="Renk"></span></div>
-                <div class="col-md-3"><label asp-for="Kilometre" class="form-label"></label><input asp-for="Kilometre" class="form-control" /></div>
+                <div class="col-md-3"><label asp-for="Kilometre" class="form-label"></label><input asp-for="Kilometre" type="text" inputmode="numeric" autocomplete="off" class="form-control" value="@Bicim.Sayi(Model.Kilometre)" data-km /><span asp-validation-for="Kilometre"></span></div>
                 <div class="col-md-3"><label asp-for="SubeId" class="form-label"></label><select asp-for="SubeId" class="form-select" asp-items="ViewBag.Subeler"></select></div>
                 <div class="col-12"><label asp-for="Aciklama" class="form-label"></label><textarea asp-for="Aciklama" class="form-control" rows="3"></textarea></div>
             </div></div>

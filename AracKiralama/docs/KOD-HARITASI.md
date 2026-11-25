@@ -229,6 +229,7 @@ Adres kalıbı: `/{Controller}/{Aksiyon}/{id}`. Yönetim panelinde başına `/Yo
 | `/Profil/Sifre` | `Controllers/ProfilController.cs` | `Sifre` | `Views/Profil/Sifre.cshtml` |
 | `/Yonetim/Musteriler/Detay/{id}` | `Areas/Yonetim/Controllers/KullaniciControllerlari.cs` | `MusterilerController.Detay` | `Areas/Yonetim/Views/Musteriler/Detay.cshtml` (geçmiş, ödemeler, hasarlar, hesap işlemleri) |
 | `/Yonetim/Personel/GeciciSifre/{id}` · `Dondur` · `Sil` · `RolDegistir` | `Areas/Yonetim/Controllers/KullaniciControllerlari.cs` | `PersonelController` | müşteri detayındaki "Hesap işlemleri" kartı |
+| `/Yonetim/Rezervasyonlar/TeslimEt/{id}` · `IadeAl/{id}` | `Areas/Yonetim/Controllers/RezervasyonControllerlari.cs` | `TeslimEt` / `IadeAl` | km kutusu "82.450" yazılır (`Yardimcilar/KmBaglayici.cs`, `genel.js` → data-km); teslimdekinden az km girilemez |
 | `/Yonetim/Ozellikler/Ekle?sablon=klima` | `Areas/Yonetim/Controllers/OzelliklerController.cs` | `Ekle` | şablonlar: `Yardimcilar/OzellikSablonlari.cs` |
 | `/Yonetim/Panel/Ikonlar` | `Areas/Yonetim/Controllers/PanelControllerlari.cs` | `PanelController.Ikonlar` | (JSON, ikon seçici: `wwwroot/js/genel.js`) |
 

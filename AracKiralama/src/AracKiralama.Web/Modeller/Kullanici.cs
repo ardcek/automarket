@@ -33,4 +33,19 @@ public class Kullanici : IdentityUser
     public List<Rezervasyon> Rezervasyonlar { get; set; } = new();
 
     [NotMapped] public string TamAd => $"{Ad} {Soyad}";
+
+    /// <summary>
+    /// Profil ve Ehliyet sayfasındaki zorunlu alanlardan boş olanlar. Hepsi dolu değilse rezervasyon yapılamaz
+    /// (Servisler/RezervasyonServisi.cs) ve profilde "eksik bilgi" uyarısı çıkar.
+    /// </summary>
+    public List<string> EksikProfilBilgileri()
+    {
+        var eksik = new List<string>();
+        if (string.IsNullOrWhiteSpace(PhoneNumber)) eksik.Add("telefon");
+        if (string.IsNullOrWhiteSpace(TcNo)) eksik.Add("T.C. Kimlik No");
+        if (DogumTarihi == null) eksik.Add("doğum tarihi");
+        if (string.IsNullOrWhiteSpace(EhliyetNo)) eksik.Add("ehliyet no");
+        if (EhliyetTarihi == null) eksik.Add("ehliyet veriliş tarihi");
+        return eksik;
+    }
 }

@@ -37,7 +37,7 @@ public class RezervasyonTestleri : IDisposable
         Assert.Equal(RezervasyonDurumu.OnayBekliyor, r.Durum);
         Assert.Matches(@"^RZ-\d{4}-0001$", r.Kod);
         Assert.Equal(3, r.GunSayisi);
-        Assert.Equal(3000 + 900 + 750, r.ToplamTutar);    // kira + kasko + tek yön
+        Assert.Equal(3000 + 900 + 2000, r.ToplamTutar);   // kira + kasko + tek yön
         Assert.Single(r.Ekstralar);
     }
 
@@ -148,9 +148,9 @@ public class RezervasyonTestleri : IDisposable
 
         Assert.Equal(RezervasyonDurumu.Tamamlandi, iade.Durum);
         Assert.Equal(1500, iade.GecikmeUcreti);     // 1 gün × 1000 × 1.5
-        Assert.Equal(900, iade.YakitUcreti);        // 2 çeyrek × 450
+        Assert.Equal(1800, iade.YakitUcreti);       // 2 çeyrek × 900
         Assert.Equal(500, iade.HasarUcreti);
-        Assert.Equal(3000 + 750 + 1500 + 900 + 500, iade.ToplamTutar);
+        Assert.Equal(3000 + 2000 + 1500 + 1800 + 500, iade.ToplamTutar);
         Assert.Single(iade.Hasarlar);
 
         // Araç iade şubesinde, yeni kilometresiyle tekrar müsait

@@ -14,7 +14,7 @@
         <div class="input-group" style="max-width:340px"><span class="input-group-text"><i class="bi bi-search"></i></span><input type="search" name="arama" value="@ViewBag.Arama" class="form-control" placeholder="Ad, e-posta veya telefon" /></div>
         <select name="rol" class="form-select" style="width:auto" aria-label="Rol">
             <option value="">Herkes</option>
-            @foreach (var r in new[] { Roller.Musteri, Roller.Personel, Roller.Admin, Roller.SuperAdmin })
+            @foreach (var r in (User.IsInRole(Roller.Admin) ? new[] { Roller.Musteri, Roller.Personel, Roller.Admin, Roller.SuperAdmin } : new[] { Roller.Musteri, Roller.Personel, Roller.Admin }))
             {
                 <option value="@r" selected="@(r == seciliRol)">@(r == Roller.Musteri ? "Müşteriler" : Roller.Ad(r))</option>
             }

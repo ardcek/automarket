@@ -14,6 +14,7 @@
 //   data-sifre-goster           → (şifre kutusunun yanındaki buton) şifreyi göster / gizle
 //   data-sifre-gucu="#Sifre"    → şifre yazıldıkça 4 parçalı güç çubuğunu ve yazısını günceller
 //   data-telefon                → yazarken "0532 123 45 67" biçimine sokar
+//   data-km (+ data-km-min)     → kilometre kutusu: "82.450" biçimi, en az değerden küçükse form gitmez
 //   data-yukleniyor="Yazı..."   → (form) gönderilince buton kilitlenir, dönen ikon ve bu yazı çıkar
 //   data-ikon-onizle kutularına  → yanına "Seç" düğmesi eklenir: aranabilir ikon galerisi açılır (liste: /Yonetim/Panel/Ikonlar)
 //   data-sablon-ara             → (Filtreler ve Özellikler) hazır özellik kartlarında arama
@@ -148,6 +149,44 @@ document.querySelectorAll("[data-telefon]").forEach(kutu => kutu.addEventListene
     r = r.slice(0, 11);
     kutu.value = [r.slice(0, 4), r.slice(4, 7), r.slice(7, 9), r.slice(9, 11)].filter(Boolean).join(" ");
 }));
+
+// ---- Kilometre: yazarken "82.450" biçimi; data-km-min varsa ondan az girilemez (teslim / iade) ----
+// Sunucu tarafı: Yardimcilar/KmBaglayici.cs noktaları atıp okur, RezervasyonServisi en az değeri tekrar kontrol eder.
+const kmBicim = n => n.toLocaleString("tr-TR");
+document.querySelectorAll("[data-km]").forEach(kutu => {
+    const enAz = kutu.dataset.kmMin ? Number(kutu.dataset.kmMin) : null;
+    const bilgi = document.createElement("small");
+    bilgi.className = "km-bilgi d-block";
+    bilgi.setAttribute("aria-live", "polite");
+    kutu.insertAdjacentElement("afterend", bilgi);
+    kutu.kmHatasi = () => {
+        const r = kutu.value.replace(/\D/g, "");
+        if (!r) return enAz != null ? "Göstergedeki kilometreyi yazın." : "";
+        return enAz != null && Number(r) < enAz ? `${kmBicim(enAz)} km'den az olamaz (${kutu.dataset.kmMinYazi || "kayıtlı"} km).` : "";
+    };
+    const kontrol = (yaz) => {
+        const r = kutu.value.replace(/\D/g, "").slice(0, 7);
+        if (yaz !== false) kutu.value = r ? kmBicim(Number(r)) : "";
+        const hata = r ? kutu.kmHatasi() : "";
+        kutu.classList.toggle("is-invalid", !!hata);
+        const fark = r && enAz != null && !hata ? Number(r) - enAz : null;
+        bilgi.className = "km-bilgi d-block small " + (hata ? "text-danger" : "text-success");
+        bilgi.textContent = hata || (fark != null ? `+${kmBicim(fark)} km yol` : "");
+    };
+    kutu.addEventListener("input", () => kontrol());
+    kontrol(kutu.value !== "");
+});
+// Hatalı km varsa form gönderilmez (doğrulama kütüphanesinden önce çalışsın diye "capture")
+document.addEventListener("submit", olay => {
+    const hatali = [...olay.target.querySelectorAll("[data-km]")].find(k => k.kmHatasi && k.kmHatasi());
+    if (!hatali) return;
+    olay.preventDefault();
+    olay.stopImmediatePropagation();
+    hatali.classList.add("is-invalid");
+    const bilgi = hatali.nextElementSibling;
+    if (bilgi?.classList.contains("km-bilgi")) { bilgi.className = "km-bilgi d-block small text-danger"; bilgi.textContent = hatali.kmHatasi(); }
+    hatali.focus();
+}, true);
 
 // ---- Gönderilirken buton kilitlensin (iki kez tıklanıp iki kayıt olmasın) ----
 // Doğrulama formu durdurduysa (hatalı alan) buton kilitlenmez: kontrol, diğer dinleyiciler çalıştıktan sonra yapılır.

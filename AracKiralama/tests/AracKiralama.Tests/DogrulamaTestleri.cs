@@ -52,4 +52,22 @@ public class DogrulamaTestleri
         Assert.Equal("<h2 class=\"h5 mt-4\">Şartlar</h2><p>İlk paragraf</p>"
                      + "<ul><li>Madde &lt;b&gt;bir&lt;/b&gt;</li><li>&lt;script&gt;alert(1)&lt;/script&gt;</li></ul>", html);
     }
+
+    [Theory]   // İade / teslim formundaki km kutusu: Türkçe binlik nokta ile yazılsa da doğru okunur
+    [InlineData("82.020", 82020)]
+    [InlineData("82020", 82020)]
+    [InlineData("1.250.000", 1250000)]
+    [InlineData(" 82 450 km", 82450)]
+    [InlineData("", null)]
+    public void Km_binlik_noktayla_yazilsa_da_okunur(string yazi, int? beklenen)
+        => Assert.Equal(beklenen, KmBaglayici.Oku(yazi));
+
+    [Fact]
+    public void Profildeki_butun_alanlar_dolmadan_eksik_sayilir()
+    {
+        var k = new AracKiralama.Modeller.Kullanici { DogumTarihi = new DateTime(1990, 1, 1), EhliyetTarihi = new DateTime(2010, 1, 1) };
+        Assert.Equal(["telefon", "T.C. Kimlik No", "ehliyet no"], k.EksikProfilBilgileri());
+        k.PhoneNumber = "0532 123 45 67"; k.TcNo = "10000000146"; k.EhliyetNo = "123456";
+        Assert.Empty(k.EksikProfilBilgileri());
+    }
 }

@@ -69,6 +69,7 @@ public class TestVeriTabani : IDisposable
         {
             UserName = eposta, Email = eposta, Ad = "Test", Soyad = eposta[..3],
             DogumTarihi = dogum, EhliyetTarihi = ehliyet,
+            PhoneNumber = "0532 123 45 67", TcNo = "10000000146", EhliyetNo = "123456",
         };
     }
 

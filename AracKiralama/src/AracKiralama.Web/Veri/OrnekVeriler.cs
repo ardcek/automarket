@@ -144,11 +144,11 @@ public static class OrnekVeriler
         // ---- Tanımlar ----
         var kategoriler = new Dictionary<string, Kategori>
         {
-            ["Ekonomi"] = new() { Ad = "Ekonomi", Ikon = "bi-piggy-bank", GorselAdresi = "/img/cars/Renault_Clio.jpg", MinYas = 21, MinEhliyetYili = 1, VarsayilanDepozito = 3000, Sira = 1 },
-            ["Orta Sınıf"] = new() { Ad = "Orta Sınıf", Ikon = "bi-car-front", GorselAdresi = "/img/cars/Volkswagen_Golf.jpg", MinYas = 21, MinEhliyetYili = 2, VarsayilanDepozito = 5000, Sira = 2 },
-            ["SUV"] = new() { Ad = "SUV", Ikon = "bi-truck-front", GorselAdresi = "/img/cars/Volkswagen_Tiguan.jpg", MinYas = 23, MinEhliyetYili = 3, VarsayilanDepozito = 7500, Sira = 3 },
-            ["Lüks"] = new() { Ad = "Lüks", Ikon = "bi-gem", GorselAdresi = "/img/cars/Audi_A6.jpg", MinYas = 27, MinEhliyetYili = 5, VarsayilanDepozito = 12000, Sira = 4 },
-            ["Ticari"] = new() { Ad = "Ticari", Ikon = "bi-truck", GorselAdresi = "/img/cars/Volkswagen_Transporter.jpg", MinYas = 23, MinEhliyetYili = 2, VarsayilanDepozito = 4000, Sira = 5 },
+            ["Ekonomi"] = new() { Ad = "Ekonomi", Ikon = "bi-piggy-bank", GorselAdresi = "/img/cars/Renault_Clio.jpg", MinYas = 21, MinEhliyetYili = 1, VarsayilanDepozito = 7500, Sira = 1 },
+            ["Orta Sınıf"] = new() { Ad = "Orta Sınıf", Ikon = "bi-car-front", GorselAdresi = "/img/cars/Volkswagen_Golf.jpg", MinYas = 21, MinEhliyetYili = 2, VarsayilanDepozito = 10000, Sira = 2 },
+            ["SUV"] = new() { Ad = "SUV", Ikon = "bi-truck-front", GorselAdresi = "/img/cars/Volkswagen_Tiguan.jpg", MinYas = 23, MinEhliyetYili = 3, VarsayilanDepozito = 15000, Sira = 3 },
+            ["Lüks"] = new() { Ad = "Lüks", Ikon = "bi-gem", GorselAdresi = "/img/cars/Audi_A6.jpg", MinYas = 27, MinEhliyetYili = 5, VarsayilanDepozito = 30000, Sira = 4 },
+            ["Ticari"] = new() { Ad = "Ticari", Ikon = "bi-truck", GorselAdresi = "/img/cars/Volkswagen_Transporter.jpg", MinYas = 23, MinEhliyetYili = 2, VarsayilanDepozito = 10000, Sira = 5 },
         };
         var yakitlar = new[] { "Benzin", "Dizel", "Hibrit", "Elektrik", "LPG" }
             .Select((ad, i) => new YakitTuru { Ad = ad, Sira = i }).ToDictionary(y => y.Ad);
@@ -167,12 +167,12 @@ public static class OrnekVeriler
         };
         var ekstralar = new List<Ekstra>
         {
-            new() { Ad = "Tam Kasko", Ikon = "bi-shield-check", GunlukFiyat = 350, Aciklama = "Hasar durumunda muafiyet bedeli ödemezsiniz." },
-            new() { Ad = "Ek Sürücü", Ikon = "bi-person-plus", GunlukFiyat = 150, Aciklama = "Araç ikinci bir sürücü tarafından da kullanılabilir." },
-            new() { Ad = "Bebek Koltuğu", Ikon = "bi-emoji-smile", GunlukFiyat = 120, Aciklama = "0-4 yaş için ISOFIX bağlantılı koltuk." },
-            new() { Ad = "Navigasyon", Ikon = "bi-geo-alt", GunlukFiyat = 90, Aciklama = "Güncel haritalı GPS cihazı." },
-            new() { Ad = "Mobil Wi-Fi", Ikon = "bi-wifi", GunlukFiyat = 110, Aciklama = "Sınırsız internet paylaşımı." },
-            new() { Ad = "Kar Zinciri", Ikon = "bi-snow", GunlukFiyat = 80, Aciklama = "Kış şartları için." },
+            new() { Ad = "Tam Kasko", Ikon = "bi-shield-check", GunlukFiyat = 650, Aciklama = "Hasar durumunda muafiyet bedeli ödemezsiniz." },
+            new() { Ad = "Ek Sürücü", Ikon = "bi-person-plus", GunlukFiyat = 300, Aciklama = "Araç ikinci bir sürücü tarafından da kullanılabilir." },
+            new() { Ad = "Bebek Koltuğu", Ikon = "bi-emoji-smile", GunlukFiyat = 250, Aciklama = "0-4 yaş için ISOFIX bağlantılı koltuk." },
+            new() { Ad = "Navigasyon", Ikon = "bi-geo-alt", GunlukFiyat = 200, Aciklama = "Güncel haritalı GPS cihazı." },
+            new() { Ad = "Mobil Wi-Fi", Ikon = "bi-wifi", GunlukFiyat = 250, Aciklama = "Sınırsız internet paylaşımı." },
+            new() { Ad = "Kar Zinciri", Ikon = "bi-snow", GunlukFiyat = 200, Aciklama = "Kış şartları için." },
         };
         vt.AddRange(kategoriler.Values);
         vt.AddRange(yakitlar.Values);
@@ -383,29 +383,29 @@ public static class OrnekVeriler
     // (marka, model, kategori, koltuk, yakıt, vites, günlük fiyat, en eski model yılı)
     private static readonly (string, string, string, int, string, string, decimal, int)[] AracListesi =
     [
-        ("Audi", "A3", "Orta Sınıf", 5, "Benzin", "Otomatik", 1950, 2019), ("Audi", "A4", "Lüks", 5, "Dizel", "Otomatik", 2650, 2019),
-        ("Audi", "A5", "Lüks", 4, "Benzin", "Otomatik", 3100, 2019), ("Audi", "A6", "Lüks", 5, "Dizel", "Otomatik", 3650, 2019),
-        ("Audi", "A7", "Lüks", 4, "Benzin", "Otomatik", 4500, 2019), ("Audi", "Q3", "SUV", 5, "Benzin", "Otomatik", 2700, 2019),
-        ("Audi", "Q5", "SUV", 5, "Dizel", "Otomatik", 3300, 2019), ("Audi", "Q7", "Lüks", 7, "Dizel", "Otomatik", 4800, 2019),
-        ("Fiat", "500L", "Ekonomi", 5, "Benzin", "Manuel", 1150, 2019), ("Fiat", "Doblo", "Ticari", 5, "Dizel", "Manuel", 1300, 2019),
-        ("Fiat", "Egea", "Ekonomi", 5, "Dizel", "Manuel", 1050, 2019), ("Fiat", "Fiorino", "Ticari", 2, "Dizel", "Manuel", 1100, 2019),
-        ("Fiat", "Linea", "Ekonomi", 5, "LPG", "Manuel", 900, 2016), ("Fiat", "Palio", "Ekonomi", 5, "Benzin", "Manuel", 800, 2014),
-        ("Ford", "Fiesta", "Ekonomi", 5, "Benzin", "Manuel", 1100, 2019), ("Ford", "Focus", "Orta Sınıf", 5, "Dizel", "Otomatik", 1450, 2019),
-        ("Ford", "Mondeo", "Orta Sınıf", 5, "Hibrit", "Otomatik", 1850, 2019), ("Ford", "Tourneo Courier", "Ticari", 5, "Dizel", "Manuel", 1350, 2019),
-        ("Ford", "Transit", "Ticari", 9, "Dizel", "Manuel", 2300, 2019), ("Hyundai", "Accent", "Ekonomi", 5, "LPG", "Manuel", 900, 2016),
-        ("Hyundai", "Accent Blue", "Ekonomi", 5, "Dizel", "Otomatik", 1000, 2019), ("Hyundai", "Bayon", "SUV", 5, "Benzin", "Otomatik", 1550, 2019),
-        ("Hyundai", "Tucson", "SUV", 5, "Hibrit", "Otomatik", 2350, 2019), ("Hyundai", "i20", "Ekonomi", 5, "Benzin", "Otomatik", 1150, 2019),
-        ("Hyundai", "i20N", "Orta Sınıf", 5, "Benzin", "Manuel", 2200, 2019), ("Hyundai", "i30", "Orta Sınıf", 5, "Benzin", "Otomatik", 1350, 2019),
-        ("Peugeot", "206", "Ekonomi", 5, "Benzin", "Manuel", 750, 2010), ("Peugeot", "208", "Ekonomi", 5, "Elektrik", "Otomatik", 1300, 2019),
-        ("Peugeot", "3008", "SUV", 5, "Dizel", "Otomatik", 2250, 2019), ("Peugeot", "301", "Ekonomi", 5, "Dizel", "Manuel", 1000, 2019),
-        ("Peugeot", "307", "Ekonomi", 5, "Benzin", "Manuel", 850, 2012), ("Peugeot", "308", "Orta Sınıf", 5, "Benzin", "Otomatik", 1450, 2019),
-        ("Peugeot", "5008", "SUV", 7, "Dizel", "Otomatik", 2650, 2019), ("Renault", "Broadway", "Ekonomi", 5, "LPG", "Manuel", 700, 2008),
-        ("Renault", "Clio", "Ekonomi", 5, "Benzin", "Manuel", 1100, 2019), ("Renault", "Express", "Ticari", 5, "Dizel", "Manuel", 1150, 2019),
-        ("Renault", "Megane", "Orta Sınıf", 5, "Dizel", "Otomatik", 1400, 2019), ("Renault", "Symbol", "Ekonomi", 5, "Dizel", "Manuel", 950, 2019),
-        ("Renault", "Talisman", "Orta Sınıf", 5, "Dizel", "Otomatik", 1900, 2019), ("Volkswagen", "Arteon", "Lüks", 5, "Benzin", "Otomatik", 3200, 2019),
-        ("Volkswagen", "Caddy", "Ticari", 5, "Dizel", "Manuel", 1400, 2019), ("Volkswagen", "Golf", "Orta Sınıf", 5, "Benzin", "Otomatik", 1600, 2019),
-        ("Volkswagen", "Jetta", "Orta Sınıf", 5, "Benzin", "Otomatik", 1550, 2019), ("Volkswagen", "Passat", "Orta Sınıf", 5, "Dizel", "Otomatik", 2100, 2019),
-        ("Volkswagen", "Polo", "Ekonomi", 5, "Benzin", "Manuel", 1250, 2019), ("Volkswagen", "Tiguan", "SUV", 5, "Dizel", "Otomatik", 2500, 2019),
-        ("Volkswagen", "Transporter", "Ticari", 9, "Dizel", "Manuel", 2650, 2019),
+        ("Audi", "A3", "Orta Sınıf", 5, "Benzin", "Otomatik", 3400, 2019), ("Audi", "A4", "Lüks", 5, "Dizel", "Otomatik", 4900, 2019),
+        ("Audi", "A5", "Lüks", 4, "Benzin", "Otomatik", 5800, 2019), ("Audi", "A6", "Lüks", 5, "Dizel", "Otomatik", 6900, 2019),
+        ("Audi", "A7", "Lüks", 4, "Benzin", "Otomatik", 8900, 2019), ("Audi", "Q3", "SUV", 5, "Benzin", "Otomatik", 4600, 2019),
+        ("Audi", "Q5", "SUV", 5, "Dizel", "Otomatik", 5900, 2019), ("Audi", "Q7", "Lüks", 7, "Dizel", "Otomatik", 9900, 2019),
+        ("Fiat", "500L", "Ekonomi", 5, "Benzin", "Manuel", 1900, 2019), ("Fiat", "Doblo", "Ticari", 5, "Dizel", "Manuel", 2200, 2019),
+        ("Fiat", "Egea", "Ekonomi", 5, "Dizel", "Manuel", 1750, 2019), ("Fiat", "Fiorino", "Ticari", 2, "Dizel", "Manuel", 1900, 2019),
+        ("Fiat", "Linea", "Ekonomi", 5, "LPG", "Manuel", 1450, 2016), ("Fiat", "Palio", "Ekonomi", 5, "Benzin", "Manuel", 1250, 2014),
+        ("Ford", "Fiesta", "Ekonomi", 5, "Benzin", "Manuel", 1850, 2019), ("Ford", "Focus", "Orta Sınıf", 5, "Dizel", "Otomatik", 2600, 2019),
+        ("Ford", "Mondeo", "Orta Sınıf", 5, "Hibrit", "Otomatik", 3100, 2019), ("Ford", "Tourneo Courier", "Ticari", 5, "Dizel", "Manuel", 2300, 2019),
+        ("Ford", "Transit", "Ticari", 9, "Dizel", "Manuel", 3900, 2019), ("Hyundai", "Accent", "Ekonomi", 5, "LPG", "Manuel", 1400, 2016),
+        ("Hyundai", "Accent Blue", "Ekonomi", 5, "Dizel", "Otomatik", 1650, 2019), ("Hyundai", "Bayon", "SUV", 5, "Benzin", "Otomatik", 2800, 2019),
+        ("Hyundai", "Tucson", "SUV", 5, "Hibrit", "Otomatik", 4200, 2019), ("Hyundai", "i20", "Ekonomi", 5, "Benzin", "Otomatik", 1950, 2019),
+        ("Hyundai", "i20N", "Orta Sınıf", 5, "Benzin", "Manuel", 3600, 2019), ("Hyundai", "i30", "Orta Sınıf", 5, "Benzin", "Otomatik", 2500, 2019),
+        ("Peugeot", "206", "Ekonomi", 5, "Benzin", "Manuel", 1150, 2010), ("Peugeot", "208", "Ekonomi", 5, "Elektrik", "Otomatik", 2400, 2019),
+        ("Peugeot", "3008", "SUV", 5, "Dizel", "Otomatik", 4000, 2019), ("Peugeot", "301", "Ekonomi", 5, "Dizel", "Manuel", 1700, 2019),
+        ("Peugeot", "307", "Ekonomi", 5, "Benzin", "Manuel", 1350, 2012), ("Peugeot", "308", "Orta Sınıf", 5, "Benzin", "Otomatik", 2700, 2019),
+        ("Peugeot", "5008", "SUV", 7, "Dizel", "Otomatik", 4700, 2019), ("Renault", "Broadway", "Ekonomi", 5, "LPG", "Manuel", 1050, 2008),
+        ("Renault", "Clio", "Ekonomi", 5, "Benzin", "Manuel", 1900, 2019), ("Renault", "Express", "Ticari", 5, "Dizel", "Manuel", 2000, 2019),
+        ("Renault", "Megane", "Orta Sınıf", 5, "Dizel", "Otomatik", 2500, 2019), ("Renault", "Symbol", "Ekonomi", 5, "Dizel", "Manuel", 1600, 2019),
+        ("Renault", "Talisman", "Orta Sınıf", 5, "Dizel", "Otomatik", 3000, 2019), ("Volkswagen", "Arteon", "Lüks", 5, "Benzin", "Otomatik", 5900, 2019),
+        ("Volkswagen", "Caddy", "Ticari", 5, "Dizel", "Manuel", 2400, 2019), ("Volkswagen", "Golf", "Orta Sınıf", 5, "Benzin", "Otomatik", 2900, 2019),
+        ("Volkswagen", "Jetta", "Orta Sınıf", 5, "Benzin", "Otomatik", 2700, 2019), ("Volkswagen", "Passat", "Orta Sınıf", 5, "Dizel", "Otomatik", 3400, 2019),
+        ("Volkswagen", "Polo", "Ekonomi", 5, "Benzin", "Manuel", 2100, 2019), ("Volkswagen", "Tiguan", "SUV", 5, "Dizel", "Otomatik", 4400, 2019),
+        ("Volkswagen", "Transporter", "Ticari", 9, "Dizel", "Manuel", 4400, 2019),
     ];
 }

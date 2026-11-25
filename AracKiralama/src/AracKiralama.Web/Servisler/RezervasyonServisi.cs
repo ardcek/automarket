@@ -72,9 +72,10 @@ public class RezervasyonServisi
             hatalar.Add("Hesabınız rezervasyon yapmaya kapalıdır. Lütfen bizimle iletişime geçin.");
             return hatalar;
         }
-        if (kullanici.DogumTarihi == null || kullanici.EhliyetTarihi == null)
+        var eksik = kullanici.EksikProfilBilgileri();
+        if (eksik.Count > 0)
         {
-            hatalar.Add("Rezervasyon için profilinizde doğum tarihi ve ehliyet bilgileri eksiksiz olmalıdır.");
+            hatalar.Add($"Rezervasyon için profilinizi tamamlayın; eksik: {string.Join(", ", eksik)}.");
             return hatalar;
         }
         if (YilFarki(kullanici.DogumTarihi.Value, tarih) < kategori.MinYas)

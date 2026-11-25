@@ -30,6 +30,7 @@ public class MusterilerController : YonetimController
         // Her kullanıcının en yüksek rolü (Süper Admin > Admin > Personel > Müşteri)
         var roller = await RolleriAsync();
         var musteriler = (await _vt.Users.AsNoTracking().ToListAsync()).AsEnumerable();
+        if (SuperAdminGizli) musteriler = musteriler.Where(k => roller.GetValueOrDefault(k.Id) != Roller.SuperAdmin);
         if (!string.IsNullOrEmpty(rol)) musteriler = musteriler.Where(k => roller.GetValueOrDefault(k.Id, Roller.Musteri) == rol);
         if (!string.IsNullOrWhiteSpace(arama))
             musteriler = musteriler.Where(k => k.TamAd.Contains(arama, StringComparison.CurrentCultureIgnoreCase)
@@ -53,6 +54,12 @@ public class MusterilerController : YonetimController
         return View(satirlar);
     }
 
+    /// <summary>
+    /// Sadece Personel olan biri Süper Admin hesaplarını görmez (listede çıkmaz, detayı açılmaz).
+    /// Admin ve Süper Admin herkesi görür (Süper Admin, Program.cs'teki dönüşümle Admin de sayılır).
+    /// </summary>
+    private bool SuperAdminGizli => !User.IsInRole(Roller.Admin);
+
     /// <summary>Kullanıcı numarası → en yüksek rolü.</summary>
     private async Task<Dictionary<string, string>> RolleriAsync()
     {
@@ -75,6 +82,7 @@ public class MusterilerController : YonetimController
             .AsSplitQuery().AsNoTracking().FirstOrDefaultAsync(k => k.Id == id);
         if (kullanici == null) return NotFound();
         ViewBag.Rol = (await RolleriAsync()).GetValueOrDefault(id, Roller.Musteri);
+        if (SuperAdminGizli && ViewBag.Rol == Roller.SuperAdmin) return NotFound();
 
         // Panelden eklenen bilgiler (Meslek vb.): SELECT a."Ad", d."Deger" FROM "MusteriAlanDegerleri" d JOIN "MusteriAlanlari" a ... WHERE d."KullaniciId" = @id
         ViewBag.MusteriBilgileri = await _vt.MusteriAlanDegerleri.Where(d => d.KullaniciId == id)
@@ -87,6 +95,7 @@ public class MusterilerController : YonetimController
     {
         var kullanici = await _vt.Users.FindAsync(id);
         if (kullanici == null) return NotFound();
+        if (SuperAdminGizli && (await RolleriAsync()).GetValueOrDefault(id) == Roller.SuperAdmin) return NotFound();
         kullanici.KaraListede = !kullanici.KaraListede;
         kullanici.KaraListeSebebi = kullanici.KaraListede ? (string.IsNullOrWhiteSpace(sebep) ? "Belirtilmedi" : sebep.Trim()) : null;
         await _vt.SaveChangesAsync();

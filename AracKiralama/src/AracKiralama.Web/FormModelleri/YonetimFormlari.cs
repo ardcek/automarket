@@ -22,7 +22,7 @@ public class AracFormu
     [Display(Name = "Vites")] public int VitesTuruId { get; set; }
     [Display(Name = "Koltuk sayısı"), Range(1, 20)] public int KoltukSayisi { get; set; } = 5;
     [Display(Name = "Renk"), Required(ErrorMessage = "Renk zorunludur.")] public string Renk { get; set; } = "";
-    [Display(Name = "Kilometre"), Range(0, 3_000_000)] public int Kilometre { get; set; }
+    [Display(Name = "Kilometre"), Km] public int Kilometre { get; set; }
     [Display(Name = "Günlük fiyat (₺)"), Range(1, 1_000_000, ErrorMessage = "Geçerli bir fiyat giriniz.")] public decimal GunlukFiyat { get; set; } = 1500;
     [Display(Name = "Depozito (₺)"), Range(0, 1_000_000)] public decimal? Depozito { get; set; }   // boşsa kategorinin varsayılan depozitosu
     [Display(Name = "Durum")] public AracDurumu Durum { get; set; }
@@ -39,7 +39,7 @@ public class AracFormu
 public class TeslimFormu
 {
     public int RezervasyonId { get; set; }
-    [Display(Name = "Teslim kilometresi"), Range(0, 3_000_000)] public int TeslimKm { get; set; }
+    [Display(Name = "Teslim kilometresi"), Km] public int TeslimKm { get; set; }
     [Display(Name = "Yakıt seviyesi")] public YakitSeviyesi TeslimYakit { get; set; } = YakitSeviyesi.Dolu;
     public Rezervasyon? Rezervasyon { get; set; }
 }
@@ -47,7 +47,7 @@ public class TeslimFormu
 public class IadeFormu
 {
     public int RezervasyonId { get; set; }
-    [Display(Name = "İade kilometresi"), Range(0, 3_000_000)] public int IadeKm { get; set; }
+    [Display(Name = "İade kilometresi"), Km] public int IadeKm { get; set; }
     [Display(Name = "Yakıt seviyesi")] public YakitSeviyesi IadeYakit { get; set; } = YakitSeviyesi.Dolu;
     [Display(Name = "İade zamanı")] public DateTime IadeTarihi { get; set; } = DateTime.Now;
     [Display(Name = "Hasar açıklaması")] public string? HasarAciklamasi { get; set; }
@@ -63,7 +63,7 @@ public class BakimFormu
     [Display(Name = "Bakım türü")] public BakimTuru Tur { get; set; }
     [Display(Name = "Başlangıç")] public DateTime BaslangicTarihi { get; set; } = DateTime.Today.AddHours(9);
     [Display(Name = "Bitiş")] public DateTime BitisTarihi { get; set; } = DateTime.Today.AddDays(1).AddHours(18);
-    [Display(Name = "Kilometre"), Range(0, 3_000_000)] public int Kilometre { get; set; }
+    [Display(Name = "Kilometre"), Km] public int Kilometre { get; set; }
     [Display(Name = "Maliyet (₺)"), Range(0, 10_000_000)] public decimal Maliyet { get; set; }
     [Display(Name = "Açıklama")] public string? Aciklama { get; set; }
     public List<Arac> Araclar { get; set; } = new();

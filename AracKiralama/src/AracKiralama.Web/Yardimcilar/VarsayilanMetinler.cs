@@ -145,7 +145,7 @@ public static class VarsayilanMetinler
         ["profil.merhaba"] = "Merhaba",
         ["profil.aciklama"] = "Rezervasyonlarınızı buradan takip edebilir, iptal edebilir veya sözleşmenizi indirebilirsiniz.",
         ["profil.aktif-baslik"] = "Yaklaşan ve devam eden kiralamalar",
-        ["profil.eksik-bilgi"] = "Rezervasyon yapabilmek için doğum tarihi ve ehliyet bilgilerinizi tamamlayın.",
+        ["profil.eksik-bilgi"] = "Rezervasyon yapabilmek için profil ve ehliyet bilgilerinizin hepsini doldurun.",
 
         // ---- Alt bilgi ----
         ["altbilgi.aciklama"] = "Türkiye'nin dört bir yanındaki şubelerimizde, şeffaf fiyat ve sürprizsiz kiralama deneyimi.",

@@ -110,7 +110,7 @@ public class RezervasyonlarController : YonetimController
         return View(new IadeFormu
         {
             RezervasyonId = id, Rezervasyon = r,
-            IadeKm = (r.TeslimKm ?? 0) + 150 * r.GunSayisi,
+            IadeKm = 0,   // personel göstergedeki gerçek km'yi yazar (teslimdekinden az olamaz)
             IadeTarihi = new DateTime(simdi.Year, simdi.Month, simdi.Day, simdi.Hour, simdi.Minute, 0),
             IadeYakit = r.TeslimYakit ?? YakitSeviyesi.Dolu,
             TahminiGecikmeUcreti = _fiyat.GecikmeUcreti(r.GunlukFiyat, r.BitisTarihi, simdi),

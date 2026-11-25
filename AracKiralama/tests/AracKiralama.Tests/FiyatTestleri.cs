@@ -1,6 +1,6 @@
 // ============================================================================
 // FİYAT TESTLERİ: Servisler/FiyatServisi.cs kuralları. Veritabanı gerekmez, sadece hesap.
-// Oranlar SiteAyarlari'nın varsayılan değerleridir (%10 haftalık, %20 aylık, 750 ₺ tek yön...).
+// Oranlar SiteAyarlari'nın varsayılan değerleridir (%10 haftalık, %20 aylık, 2000 ₺ tek yön...).
 // ============================================================================
 using AracKiralama.Modeller;
 using AracKiralama.Servisler;
@@ -80,8 +80,8 @@ public class FiyatTestleri
     public void Farkli_subeye_iade_tek_yon_ucreti_ekler()
     {
         var t = _fiyat.Hesapla(Araba, Baslangic, Baslangic.AddDays(2), new(), farkliSubeyeIade: true);
-        Assert.Equal(750, t.TekYonUcreti);
-        Assert.Equal(2750, t.Toplam);
+        Assert.Equal(2000, t.TekYonUcreti);
+        Assert.Equal(4000, t.Toplam);
     }
 
     [Fact]
@@ -97,7 +97,7 @@ public class FiyatTestleri
 
     [Theory]
     [InlineData(YakitSeviyesi.Dolu, YakitSeviyesi.Dolu, 0)]
-    [InlineData(YakitSeviyesi.Dolu, YakitSeviyesi.Yarim, 900)]     // 2 çeyrek eksik × 450
+    [InlineData(YakitSeviyesi.Dolu, YakitSeviyesi.Yarim, 1800)]    // 2 çeyrek eksik × 900
     [InlineData(YakitSeviyesi.Yarim, YakitSeviyesi.Dolu, 0)]       // fazla yakıt ücretlendirilmez
     public void Eksik_yakit_ceyrek_depo_basina_ucretlenir(YakitSeviyesi teslimde, YakitSeviyesi iadede, decimal beklenen)
         => Assert.Equal(beklenen, _fiyat.YakitUcreti(teslimde, iadede));
