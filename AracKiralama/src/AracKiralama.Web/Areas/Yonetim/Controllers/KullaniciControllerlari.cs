@@ -75,8 +75,8 @@ public class MusterilerController : YonetimController
 
 /// <summary>
 /// PERSONEL VE ROLLER (Admin ve Süper Admin görür).
-/// Buradan sadece Admin / Personel yetkisi verilir (Roller.PaneldenVerilebilir). Süper Admin hesapları
-/// listede görünür ama değiştirilemez; Süper Admin yetkisi sadece veritabanından verilir (README → "Süper Admin").
+/// Kim ne verebilir: Roller.Verebilecegi → Süper Admin: Süper Admin / Admin / Personel · Admin: Admin / Personel.
+/// Admin, Süper Admin hesaplarını değiştiremez. Kimse kendi yetkisini değiştiremez (kendini kilitlemesin diye).
 /// </summary>
 [Authorize(Roles = Roller.Admin)]
 public class PersonelController : YonetimController
@@ -99,7 +99,7 @@ public class PersonelController : YonetimController
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Ekle(PersonelFormu form)
     {
-        if (!Roller.PaneldenVerilebilir.Contains(form.Rol)) ModelState.AddModelError(nameof(form.Rol), "Geçersiz rol.");
+        if (!Roller.Verebilecegi(User).Contains(form.Rol)) ModelState.AddModelError(nameof(form.Rol), "Bu yetkiyi veremezsiniz.");
         if (!ModelState.IsValid) return View(form);
 
         var kullanici = new Kullanici { UserName = form.Eposta, Email = form.Eposta, EmailConfirmed = true, Ad = form.Ad.Trim(), Soyad = form.Soyad.Trim() };
@@ -110,64 +110,67 @@ public class PersonelController : YonetimController
             return View(form);
         }
         await _kullanicilar.AddToRoleAsync(kullanici, form.Rol);
-        Basarili($"{kullanici.TamAd} ({form.Rol}) hesabı oluşturuldu.");
+        Basarili($"{kullanici.TamAd} ({Roller.Ad(form.Rol)}) hesabı oluşturuldu.");
         return RedirectToAction(nameof(Index));
     }
 
-    /// <summary>Sitede zaten üye olan birine e-postasıyla Admin ya da Personel yetkisi verir.</summary>
+    /// <summary>Sitede zaten üye olan birine e-postasıyla yetki verir.</summary>
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> YetkiVer(string eposta, string rol)
     {
-        if (!Roller.PaneldenVerilebilir.Contains(rol)) { Hata("Panelden sadece Admin ya da Personel yetkisi verilebilir."); return RedirectToAction(nameof(Index)); }
         var kullanici = string.IsNullOrWhiteSpace(eposta) ? null : await _kullanicilar.FindByEmailAsync(eposta.Trim());
         if (kullanici == null) { Hata($"\"{eposta}\" e-postasıyla üye bulunamadı. Önce sitede üye olması gerekir."); return RedirectToAction(nameof(Index)); }
-        if (kullanici.Id == KullaniciId) { Hata("Kendi yetkinizi değiştiremezsiniz."); return RedirectToAction(nameof(Index)); }
-        if (await _kullanicilar.IsInRoleAsync(kullanici, Roller.SuperAdmin)) { Hata("Süper Admin hesapları panelden değiştirilemez."); return RedirectToAction(nameof(Index)); }
-
-        await RolleriAyarlaAsync(kullanici, rol);
-        Basarili($"{kullanici.TamAd} artık {rol}. Yetkinin görünmesi için bir kez çıkış yapıp tekrar girmesi gerekir.");
-        return RedirectToAction(nameof(Index));
+        return await RolVerAsync(kullanici, rol);
     }
 
-    /// <summary>Admin ↔ Personel. Kişi kendi rolünü, kimse Süper Admin'in rolünü değiştiremez.</summary>
+    /// <summary>Listedeki kişinin yetkisini seçilen role çevirir.</summary>
     [HttpPost, ValidateAntiForgeryToken]
-    public async Task<IActionResult> RolDegistir(string id)
+    public async Task<IActionResult> RolDegistir(string id, string rol)
     {
-        var (kullanici, hata) = await DegistirilebilirMiAsync(id);
-        if (kullanici == null) { Hata(hata!); return RedirectToAction(nameof(Index)); }
-
-        var yeni = await _kullanicilar.IsInRoleAsync(kullanici, Roller.Admin) ? Roller.Personel : Roller.Admin;
-        await RolleriAyarlaAsync(kullanici, yeni);
-        Basarili($"{kullanici.TamAd} artık {yeni}.");
-        return RedirectToAction(nameof(Index));
+        var kullanici = await _kullanicilar.FindByIdAsync(id);
+        if (kullanici == null) { Hata("Kullanıcı bulunamadı."); return RedirectToAction(nameof(Index)); }
+        return await RolVerAsync(kullanici, rol);
     }
 
     /// <summary>Yetkiyi geri alır: kişi normal müşteri olur (hesabı silinmez).</summary>
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> YetkiAl(string id)
     {
-        var (kullanici, hata) = await DegistirilebilirMiAsync(id);
-        if (kullanici == null) { Hata(hata!); return RedirectToAction(nameof(Index)); }
+        var kullanici = await _kullanicilar.FindByIdAsync(id);
+        var engel = kullanici == null ? "Kullanıcı bulunamadı." : await EngelAsync(kullanici);
+        if (engel != null) { Hata(engel); return RedirectToAction(nameof(Index)); }
 
-        await RolleriAyarlaAsync(kullanici, Roller.Musteri);
-        Basarili($"{kullanici.TamAd} artık panele giremez (müşteri).");
+        await RolleriAyarlaAsync(kullanici!, Roller.Musteri);
+        Basarili($"{kullanici!.TamAd} artık panele giremez (müşteri).");
         return RedirectToAction(nameof(Index));
     }
 
-    /// <summary>Kendisi ya da Süper Admin ise değiştirilemez.</summary>
-    private async Task<(Kullanici?, string?)> DegistirilebilirMiAsync(string id)
+    /// <summary>Ortak kontroller + rol verme. Verilen rol, verenin verebileceklerinden olmalı.</summary>
+    private async Task<IActionResult> RolVerAsync(Kullanici kullanici, string rol)
     {
-        if (id == KullaniciId) return (null, "Kendi rolünüzü değiştiremezsiniz.");
-        var kullanici = await _kullanicilar.FindByIdAsync(id);
-        if (kullanici == null) return (null, "Kullanıcı bulunamadı.");
-        if (await _kullanicilar.IsInRoleAsync(kullanici, Roller.SuperAdmin)) return (null, "Süper Admin hesapları panelden değiştirilemez.");
-        return (kullanici, null);
+        var engel = !Roller.Verebilecegi(User).Contains(rol)
+            ? (User.IsInRole(Roller.SuperAdmin) ? "Geçersiz yetki." : "Admin sadece Admin ya da Personel yetkisi verebilir.")
+            : await EngelAsync(kullanici);
+        if (engel != null) { Hata(engel); return RedirectToAction(nameof(Index)); }
+
+        await RolleriAyarlaAsync(kullanici, rol);
+        Basarili($"{kullanici.TamAd} artık {Roller.Ad(rol)}. Yetkinin görünmesi için bir kez çıkış yapıp tekrar girmesi gerekir.");
+        return RedirectToAction(nameof(Index));
     }
 
-    /// <summary>Müşteri / Personel / Admin rollerinden sadece verileni bırakır (Süper Admin'e asla dokunmaz).</summary>
+    /// <summary>Bu kişinin yetkisi değiştirilebilir mi? Değilse sebebini döndürür.</summary>
+    private async Task<string?> EngelAsync(Kullanici kullanici)
+    {
+        if (kullanici.Id == KullaniciId) return "Kendi yetkinizi değiştiremezsiniz.";
+        if (!User.IsInRole(Roller.SuperAdmin) && await _kullanicilar.IsInRoleAsync(kullanici, Roller.SuperAdmin))
+            return "Süper Admin hesaplarını sadece bir Süper Admin değiştirebilir.";
+        return null;
+    }
+
+    /// <summary>Müşteri / Personel / Admin / Süper Admin rollerinden sadece verileni bırakır.</summary>
     private async Task RolleriAyarlaAsync(Kullanici kullanici, string rol)
     {
-        foreach (var eski in new[] { Roller.Musteri, Roller.Personel, Roller.Admin })
+        foreach (var eski in new[] { Roller.Musteri, Roller.Personel, Roller.Admin, Roller.SuperAdmin })
             if (eski != rol && await _kullanicilar.IsInRoleAsync(kullanici, eski)) await _kullanicilar.RemoveFromRoleAsync(kullanici, eski);
         if (!await _kullanicilar.IsInRoleAsync(kullanici, rol)) await _kullanicilar.AddToRoleAsync(kullanici, rol);
     }

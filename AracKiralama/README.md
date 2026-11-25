@@ -168,8 +168,8 @@ Programı çalıştırmak için düzenleyici **şart değildir**; terminal yeter
 
 | Rol | E-posta (kullanıcı adı) | Şifre | Ne yapabilir? |
 |---|---|---|---|
-| ⭐ **Süper Admin** | `superadmin@rota.com` | `Rota123!` | **Her şey:** Admin'in gördükleri + Yapay Zekâ Asistanı, Site Düzenleyici, Filtreler ve Özellikler, Kampanyalar, Müşteri Bilgileri, bütün ayarlar / yazılar / sayfalar / görseller. |
-| 👑 **Admin** (yönetici, "hocanın paneli") | `admin@rota.com` | `Rota123!` | Doluluk takvimi, rezervasyon, bakım, ödeme, müşteri, rapor; araçlar ve tanımlar; **Personel ve Roller** (sadece Admin / Personel yetkisi verebilir). Site düzenleme araçlarını **görmez**. |
+| ⭐ **Süper Admin** | `superadmin@rota.com` | `Rota123!` | **Her şey:** Admin'in gördükleri + Yapay Zekâ Asistanı, Site Düzenleyici, Filtreler ve Özellikler, Kampanyalar, Müşteri Bilgileri, bütün ayarlar / yazılar / sayfalar / görseller; panelden Süper Admin, Admin ve Personel yetkisi verebilir. |
+| 👑 **Admin** (yönetici, "hocanın paneli") | `admin@rota.com` | `Rota123!` | Doluluk takvimi, rezervasyon, bakım, ödeme, müşteri, rapor; araçlar ve tanımlar; **Personel ve Roller** (sadece Admin / Personel yetkisi verebilir, Süper Admin'lere dokunamaz). Site düzenleme araçlarını **görmez**. |
 | 🧑‍💼 **Personel** (şube çalışanı) | `personel@rota.com` | `Rota123!` | Admin'in gördüklerinin aynısı; sadece "Personel ve Roller" sayfasını göremez. |
 | 🙂 **Müşteri** | `musteri@rota.com` | `Rota123!` | Araç arar, rezervasyon yapar, iptal eder, sözleşme indirir. Yönetim paneline **giremez**. |
 | 🧒 **Genç müşteri** (20 yaşında) | `genc@rota.com` | `Rota123!` | Normal müşteri ama yaşı küçük olduğu için **SUV ve lüks araçları kiralayamaz**. Kuralı göstermek için var. |
@@ -201,9 +201,16 @@ Yönetim paneli girene göre iki farklı görünür:
 
 Admin bu sayfaların adresini elle yazsa bile "Erişim engellendi" görür (controller'larda `[Authorize(Roles = Roller.SuperAdmin)]`).
 
-**Admin / Personel yetkisi vermek (panelden):** Yönetim → **Personel ve Roller** → "Üye olmuş birine yetki ver" kutusuna e-postayı yazın. Kişi önce sitede üye olmuş olmalı; yetki, bir kez çıkış yapıp girince görünür. Aynı sayfadan rol değiştirilir ya da yetki geri alınır.
+**Panelden yetki vermek:** Yönetim → **Personel ve Roller** → "Üye olmuş birine yetki ver" kutusuna e-postayı yazıp yetkiyi seçin. Kişi önce sitede üye olmuş olmalı; yetki, bir kez çıkış yapıp girince görünür. Listedeki her kişinin yetkisi aynı sayfadan değiştirilir ya da geri alınır.
 
-**Süper Admin yetkisi vermek (SADECE veritabanından):** Panelde böyle bir seçenek yoktur; Admin, Süper Admin hesaplarını değiştiremez. Neon → projeniz → **SQL Editor**'de e-postayı değiştirip çalıştırın:
+| Veren | Verebileceği yetkiler | Süper Admin hesaplarını değiştirebilir mi? |
+|---|---|---|
+| Süper Admin | Süper Admin, Admin, Personel | Evet |
+| Admin | Admin, Personel | Hayır (satırları kilitli görür) |
+
+Kimse kendi yetkisini değiştiremez (yanlışlıkla kendini kilitlemesin diye).
+
+**İlk Süper Admin'i vermek (veritabanından):** Sistemde hiç Süper Admin yoksa ya da hepsi silindiyse ilk Süper Admin veritabanından verilir; sonrakileri o kişi panelden verebilir. Neon → projeniz → **SQL Editor**'de e-postayı değiştirip çalıştırın:
 
 ```sql
 INSERT INTO "AspNetUserRoles" ("UserId", "RoleId")

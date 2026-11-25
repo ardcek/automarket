@@ -63,10 +63,17 @@ public class RolTestleri
         Assert.False(kullanici.IsInRole(Roller.SuperAdmin));
     }
 
+    private static ClaimsPrincipal Kisi(string rol) => new(new ClaimsIdentity([new Claim(ClaimTypes.Role, rol)], "deneme"));
+
     [Fact]
-    public void Panelden_super_admin_verilemez()
-    {
-        Assert.DoesNotContain(Roller.SuperAdmin, Roller.PaneldenVerilebilir);
-        Assert.Contains(Roller.SuperAdmin, Roller.Yonetim.Split(','));   // ama panele girebilir
-    }
+    public void Admin_sadece_admin_ve_personel_verebilir()
+        => Assert.Equal([Roller.Admin, Roller.Personel], Roller.Verebilecegi(Kisi(Roller.Admin)));
+
+    [Fact]
+    public void Super_admin_uc_yetkiyi_de_verebilir()
+        => Assert.Equal([Roller.SuperAdmin, Roller.Admin, Roller.Personel], Roller.Verebilecegi(Kisi(Roller.SuperAdmin)));
+
+    [Fact]
+    public void Super_admin_panele_girebilir()
+        => Assert.Contains(Roller.SuperAdmin, Roller.Yonetim.Split(','));
 }

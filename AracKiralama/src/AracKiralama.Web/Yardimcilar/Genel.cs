@@ -9,10 +9,11 @@ namespace AracKiralama.Yardimcilar;
 /// Rol adları. Kullanım: [Authorize(Roles = Roller.Admin)]
 ///   SuperAdmin : her şey. Yapay Zekâ Asistanı, Site Düzenleyici, Filtreler ve Özellikler, Kampanyalar,
 ///                Müşteri Bilgileri, Ayarlar, Yazılar, Sayfalar, Görseller SADECE onda.
-///                Panelden VERİLEMEZ; sadece veritabanından (AspNetUserRoles tablosu) verilir: README → "Süper Admin".
+///                Panelden başkasına Süper Admin, Admin ya da Personel yetkisi verebilir. İlk süper admin
+///                veritabanından (AspNetUserRoles tablosu) verilir: README → 4.1.
 ///                SuperAdmin aynı zamanda Admin sayılır (Yardimcilar/Altyapi.cs → SuperAdminAyniZamandaAdmin).
 ///   Admin      : hocanın paneli: operasyon (takvim, rezervasyon, bakım, ödeme, müşteri, rapor), araçlar ve tanımlar,
-///                personel. Panelden başkasına sadece Admin / Personel yetkisi verebilir.
+///                personel. Panelden başkasına sadece Admin / Personel yetkisi verebilir; Süper Admin'lere dokunamaz.
 ///   Personel   : Admin'in gördüğü her şey, Personel sayfası hariç.
 /// </summary>
 public static class Roller
@@ -25,8 +26,16 @@ public static class Roller
     /// <summary>Yönetim paneline girebilenler.</summary>
     public const string Yonetim = SuperAdmin + "," + Admin + "," + Personel;
 
-    /// <summary>Panelden verilebilecek yetkiler (SuperAdmin bilerek yok).</summary>
-    public static readonly string[] PaneldenVerilebilir = [Admin, Personel];
+    /// <summary>
+    /// Panelde (Personel ve Roller) kimin hangi yetkiyi verebileceği:
+    ///   Süper Admin → Süper Admin, Admin, Personel   ·   Admin → sadece Admin, Personel
+    /// Admin, Süper Admin hesaplarına da dokunamaz (KullaniciControllerlari.cs → PersonelController).
+    /// </summary>
+    public static string[] Verebilecegi(System.Security.Claims.ClaimsPrincipal veren)
+        => veren.IsInRole(SuperAdmin) ? [SuperAdmin, Admin, Personel] : [Admin, Personel];
+
+    /// <summary>Ekranda görünen ad ("SuperAdmin" → "Süper Admin").</summary>
+    public static string Ad(string rol) => rol == SuperAdmin ? "Süper Admin" : rol;
 }
 
 /// <summary>
