@@ -20,6 +20,9 @@
 @* ---------------- ÜST BÖLÜM (SAHNE): kaydırınca 5 katman farklı hızda kayar, fareyle derinlik kazanır ---------------- *@
 <section class="sahne ust-altinda" data-sahne>
     <div class="katman-zemin"><partial name="_SahneZemini" /></div>
+    @* Fareyi izleyen far ışığı (efektler.js → 6) ve aşağı kaydırınca beliren hız çizgileri (vitrin.css → "Hız çizgileri"). Süs. *@
+    <span class="fener" aria-hidden="true"></span>
+    <div class="hiz-cizgileri" aria-hidden="true">@for (var c = 0; c < 9; c++) { <i style="--c:@c"></i> }</div>
     <div class="dev-ad" aria-hidden="true"><span data-derinlik="-26">@a.FirmaAdi</span></div>
     <div class="container sahne-icerik">
         <div class="row align-items-center g-5">
@@ -30,7 +33,7 @@
                     <h1 class="sahne-baslik mb-4" data-giris style="--i:1"><span class="parca" style="--i:1">@M("baslik")</span> <span class="parca vurgu" style="--i:2">@M("baslik-vurgu")</span> <span class="parca" style="--i:3">@M("baslik-son")</span></h1>
                     <p class="lead mb-0" data-giris style="--i:4">@M("aciklama")</p>
                     <div class="sahne-butonlar" data-giris style="--i:5">
-                        @if (!string.IsNullOrWhiteSpace(M("cagri-buton"))) { <a href="/Araclar" class="btn btn-primary btn-lg" data-miknatis>@M("cagri-buton") <i class="bi bi-arrow-right ms-1"></i></a> }
+                        @if (!string.IsNullOrWhiteSpace(M("cagri-buton"))) { <a href="/Araclar" class="btn btn-primary btn-lg" data-miknatis data-araba>@M("cagri-buton") <i class="bi bi-arrow-right ms-1"></i></a> }
                         @if (a.NasilCalisirGoster) { <a href="#nasil-calisir" class="btn btn-cam btn-lg">@M("adimlar-ust")</a> }
                     </div>
                     @if (a.IstatistikleriGoster)
@@ -76,7 +79,7 @@
 
 @* ---------------- ARAMA KUTUSU (üst kenarında ışık süzülür) ---------------- *@
 <div class="container">
-    <div class="arama-kutusu parlayan-kenar" data-giris style="--i:7">
+    <div class="arama-kutusu parlayan-kenar" id="arama" data-giris style="--i:7">
         <partial name="_AramaFormu" model="(new AracFiltresi(), Model.Subeler)" />
     </div>
 </div>
@@ -133,7 +136,7 @@
             <div class="container kategori-giris">
                 <div data-goster>
                     <div class="bolum-ust mb-3">@M("kategoriler-ust")</div>
-                    <h2 class="bolum-baslik mb-0">@M("kategoriler-baslik")</h2>
+                    <h2 class="bolum-baslik mb-0" data-perde>@M("kategoriler-baslik")</h2>
                     <p class="aciklama">@Model.Kategoriler.Count sınıf · @Model.AracSayisi araç</p>
                 </div>
                 <a href="/Araclar" class="btn btn-sade" data-goster>@M("tum-araclar") <i class="bi bi-arrow-right ms-1"></i></a>
@@ -142,8 +145,8 @@
                 <div class="kategori-izgara">
                     @foreach (var (k, sira) in Model.Kategoriler.Select((k, i) => (k, i + 1)))
                     {
-                        <a class="kategori-karti" href="/Araclar?KategoriId=@k.Kategori.Id" data-goster="olcek">
-                            <img src="@Gorseller.Kucuk(k.Kategori.GorselAdresi)" srcset="@Gorseller.Secenekler(k.Kategori.GorselAdresi)" sizes="(min-width: 992px) 75vw, (min-width: 768px) 50vw, 100vw" alt="" loading="lazy" decoding="async" />
+                        <a class="kategori-karti" href="/Araclar?KategoriId=@k.Kategori.Id" data-goster="olcek" data-egim data-imlec-yazi="@M("imlec-kategori")">
+                            <img src="@Gorseller.Kucuk(k.Kategori.GorselAdresi)" srcset="@Gorseller.Secenekler(k.Kategori.GorselAdresi)" sizes="(min-width: 992px) 38vw, (min-width: 768px) @(sira <= 2 ? "50vw" : "34vw"), @(sira == 1 ? "100vw" : "50vw")" alt="" loading="lazy" decoding="async" />
                             <span class="sira" aria-hidden="true">@sira.ToString("00")</span>
                             <div class="icerik">
                                 <div class="min-w-0">
@@ -163,12 +166,13 @@
 @* ---------------- ÖNE ÇIKAN ARAÇLAR (sütunlar farklı hızda kayar: .kayan / .kayan.hizli) ---------------- *@
 @if (a.OneCikanlariGoster && Model.OneCikanlar.Count > 0)
 {
-    <section class="bolum one-cikanlar @(a.KategorileriGoster && Model.Kategoriler.Count > 0 ? "pt-0" : "")">
+    <section class="bolum one-cikanlar arka-yazili @(a.KategorileriGoster && Model.Kategoriler.Count > 0 ? "pt-0" : "")">
+        <div class="arka-yazi" aria-hidden="true"><span>@M("onecikan-ust")</span></div>
         <div class="container">
             <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-5" data-goster>
                 <div>
                     <div class="bolum-ust mb-3">@M("onecikan-ust")</div>
-                    <h2 class="bolum-baslik mb-0">@M("onecikan-baslik")</h2>
+                    <h2 class="bolum-baslik mb-0" data-perde>@M("onecikan-baslik")</h2>
                 </div>
                 <a href="/Araclar" class="btn btn-sade">@M("tum-araclar") <i class="bi bi-arrow-right ms-1"></i></a>
             </div>
@@ -177,6 +181,39 @@
                 {
                     <div class="col-sm-6 col-lg-3" data-goster><div class="kayan @(sira % 2 == 1 ? "hizli" : "")"><partial name="_AracKarti" model="new AracKartiModeli { Arac = arac, Kampanya = Model.Kampanya }" /></div></div>
                 }
+            </div>
+        </div>
+    </section>
+}
+
+@* ---------------- GARAJ: en çok kiralananlar sahnede ----------------
+   Geniş ekranda (hareket açık + tarayıcı destekliyorsa) bölüm ekrana yapışır; her kaydırma adımında garaj kapısı kalkar
+   ve bir araç sahneye gelir. Telefonda, "hareketi azalt"ta ve eski tarayıcıda: kartlar alt alta (telefonda yana kaydırılır).
+   Veri: Yardimcilar/GarajSecimi.cs · Bir araç: Views/Shared/_GarajAdimi.cshtml · Aç / kapa, araç sayısı: Yönetim → Ayarlar → Ana Sayfa
+   Görünüm: vitrin.css → "GARAJ" · Klavyeyle gezinme: efektler.js → "Garaj" *@
+@if (a.GarajGoster && Model.Garaj.Count > 0)
+{
+    <section class="garaj" id="garaj" aria-labelledby="garaj-baslik" style="--adet: @Model.Garaj.Count">
+        <div class="garaj-sabit" data-sahne>
+            <div class="garaj-zemin" aria-hidden="true"></div>
+            <span class="fener" aria-hidden="true"></span>
+            <div class="container garaj-ic">
+                <div class="garaj-giris" data-goster>
+                    <div class="bolum-ust mb-3">@M("garaj-ust")</div>
+                    <h2 class="bolum-baslik mb-0" id="garaj-baslik" data-perde>@M("garaj-baslik")</h2>
+                </div>
+                <ol class="garaj-adimlar">
+                    @foreach (var (g, sira) in Model.Garaj.Select((g, i) => (g, i + 1)))
+                    {
+                        <partial name="_GarajAdimi" model="(g, sira, Model.Garaj.Count, Model.Kampanya)" />
+                    }
+                </ol>
+                @* Altta yol: duraklar (her araç bir durak) ve kaydırdıkça ilerleyen küçük araba *@
+                <div class="garaj-yol" aria-hidden="true">
+                    @for (var durak = 1; durak <= Model.Garaj.Count; durak++) { <i class="garaj-durak" style="--k: @durak"></i> }
+                    <span class="garaj-yol-dolu"></span>
+                    <span class="garaj-yol-arac"><span class="araba-ikon"></span></span>
+                </div>
             </div>
         </div>
     </section>
@@ -192,12 +229,13 @@
     var ornekAlis = DateTime.Today.AddDays(1);
     var ornekSubeler = Model.Subeler.Take(2).Select(s => s.Sehir).ToList();
     var ornekFiyat = Model.OneCikanlar.Count > 0 ? Model.OneCikanlar.Min(x => x.GunlukFiyat) * 3 : (decimal?)null;
-    <section class="bolum nasil" id="nasil-calisir" aria-labelledby="nasil-baslik" data-duraklat>
+    <section class="bolum nasil arka-yazili" id="nasil-calisir" aria-labelledby="nasil-baslik" data-duraklat>
+        <div class="arka-yazi ters" aria-hidden="true"><span>@M("adimlar-ust")</span></div>
         <div class="container">
             <div class="nasil-ust" data-goster>
                 <div>
                     <div class="bolum-ust mb-3">@M("adimlar-ust")</div>
-                    <h2 class="bolum-baslik mb-0" id="nasil-baslik">@M("adimlar-baslik")</h2>
+                    <h2 class="bolum-baslik mb-0" id="nasil-baslik" data-perde>@M("adimlar-baslik")</h2>
                 </div>
                 <p class="nasil-aciklama">@M("adimlar-aciklama")</p>
             </div>
@@ -235,6 +273,12 @@
                     </li>
                 }
             </ol>
+            @* Kartların altında yol: kaydırdıkça dolar, küçük araba adım adım ilerler (geniş ekranda; vitrin.css → "Adım yolu") *@
+            <div class="nasil-yol" aria-hidden="true">
+                @for (var durak = 1; durak <= 3; durak++) { <i style="--k:@durak"></i> }
+                <span class="nasil-yol-dolu"></span>
+                <span class="nasil-yol-arac"><span class="araba-ikon"></span></span>
+            </div>
             <div class="nasil-eylem" data-goster>
                 <a href="/Araclar" class="btn btn-primary btn-lg">@M("adimlar-buton") <i class="bi bi-arrow-right ms-1"></i></a>
                 @if (sssYayinda) { <a href="/Sayfa/sss" class="nasil-sss">@M("adimlar-sss") <i class="bi bi-arrow-right"></i></a> }
@@ -246,17 +290,18 @@
 @* ---------------- ŞUBELER (kartın tamamı bağlantı; arkadaki şehir adı kaydırınca kayar) ---------------- *@
 @if (a.SubeleriGoster)
 {
-    <section class="bolum pt-0" id="subeler">
+    <section class="bolum pt-0 arka-yazili" id="subeler">
+        <div class="arka-yazi" aria-hidden="true"><span>@M("subeler-ust")</span></div>
         <div class="container">
             <div class="mb-5" data-goster>
                 <div class="bolum-ust mb-3">@M("subeler-ust")</div>
-                <h2 class="bolum-baslik mb-0">@M("subeler-baslik")</h2>
+                <h2 class="bolum-baslik mb-0" data-perde>@M("subeler-baslik")</h2>
             </div>
             <div class="row g-3">
                 @foreach (var s in Model.Subeler)
                 {
                     <div class="col-md-6 col-lg-4" data-goster>
-                        <a class="sube-karti" href="/Araclar?AlisSubeId=@s.Id" data-egim="isik">
+                        <a class="sube-karti" href="/Araclar?AlisSubeId=@s.Id" data-egim="isik" data-imlec-yazi="@M("subeler-buton")">
                             <span class="sehir-arka" aria-hidden="true">@s.Sehir</span>
                             <div class="ust"><span class="pin"><i class="bi bi-geo-alt-fill"></i></span><span class="kucuk-baslik">@s.Sehir</span></div>
                             <h3>@s.Ad</h3>
@@ -278,7 +323,7 @@
 {
     <section class="bolum pt-0">
         <div class="container">
-            <div class="cagri" data-sahne data-goster="olcek">
+            <div class="cagri" data-sahne data-goster="olcek" data-gaz>
                 @if (Model.CagriGorseli != null)
                 {
                     <div class="cagri-gorsel" aria-hidden="true"><img src="@Gorseller.Kucuk(Model.CagriGorseli)" srcset="@Gorseller.Secenekler(Model.CagriGorseli)" sizes="(min-width: 1200px) 1300px, 100vw" alt="" loading="lazy" decoding="async" /></div>
@@ -290,4 +335,10 @@
             </div>
         </div>
     </section>
+}
+
+@* ---------------- HIZLI KİRALA: arama kutusu ekrandan çıkınca altta beliren çubuk (Views/Shared/_HizliKirala.cshtml) ---------------- *@
+@if (a.HizliKiralaGoster)
+{
+    <partial name="_HizliKirala" model="Model.Subeler" />
 }

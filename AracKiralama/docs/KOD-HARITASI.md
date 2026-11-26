@@ -215,7 +215,7 @@ Adres kalıbı: `/{Controller}/{Aksiyon}/{id}`. Yönetim panelinde başına `/Yo
 
 | Adres | Controller dosyası | Metot | Sayfa |
 |---|---|---|---|
-| `/` | `Controllers/AnaSayfaController.cs` | `Index` | `Views/AnaSayfa/Index.cshtml` |
+| `/` | `Controllers/AnaSayfaController.cs` | `Index` | `Views/AnaSayfa/Index.cshtml` (Garaj: en çok kiralananlar `Yardimcilar/GarajSecimi.cs` → `_GarajAdimi.cshtml`; altta beliren arama: `_HizliKirala.cshtml`) |
 | `/Araclar/Detay/5` | `Controllers/AraclarController.cs` | `Detay(5)` | `Views/Araclar/Detay.cshtml` |
 | `/Sayfa/kvkk` | `Controllers/AnaSayfaController.cs` | `Sayfa("kvkk")` | `Views/AnaSayfa/Sayfa.cshtml` |
 | `/Profil` | `Controllers/ProfilController.cs` | `Index` | `Views/Profil/Index.cshtml` |
@@ -248,6 +248,6 @@ Sayfalarda hiç `<script>` kodu yoktur (güvenlik politikası). Davranışlar HT
 | `rezervasyon-adimlari.js` | Rezervasyonun 3 adımı arasında geçiş | rezervasyon formu |
 | `grafikler.js` | Gösterge paneli ve rapor grafikleri (Chart.js) | `<script type="application/json" id="grafik-verisi">` bloğu |
 | `tema.js` | Sayfa açılmadan koyu / açık temayı uygular (beyaz yanıp sönme olmasın); cihazda "hareketi azalt" kapalıysa `<html>`'e `animasyon` sınıfını ekler | `<head>` içinde |
-| `efektler.js` | Müşteri sitesinin fareyle / görünürlükle çalışan hareketleri: kaydırınca belirme, sayaçlar, kartın fareyle eğilmesi, koyu bölümlerde fareyle derinlik, ekranda olmayan hareketleri durdurma, üst menünün saydam → buzlu cam olması, telefondaki alt rezervasyon çubuğu. Görünümü ve kaydırmaya bağlı paralaks `wwwroot/css/vitrin.css`'te (JavaScript'siz) | `data-goster`, `data-sayac="1481"`, `data-egim`, `data-sahne` + `data-derinlik` / `data-dondur`, `data-duraklat`, `data-miknatis`, `data-mobil-cubuk="#id"` (tam liste dosyanın başında) |
+| `efektler.js` | Müşteri sitesinin fareyle / görünürlükle çalışan hareketleri: kaydırınca belirme, sayaçlar, kartın fareyle eğilmesi, koyu bölümlerde fareyle derinlik, ekranda olmayan hareketleri durdurma, üst menünün saydam → buzlu cam olması, telefondaki alt rezervasyon çubuğu. Görünümü ve kaydırmaya bağlı paralaks `wwwroot/css/vitrin.css`'te (JavaScript'siz) | `data-goster`, `data-sayac="1481"`, `data-egim`, `data-sahne` + `data-derinlik` / `data-dondur`, `data-duraklat`, `data-miknatis`, `data-mobil-cubuk="#id"`, `data-gizle-gorunce`, `data-imlec-yazi`, `data-perde`, `data-gaz` (tam liste dosyanın başında) |
 | `yapay-zeka.js` | Yapay Zekâ Asistanı: durum çubuğu, istek gönderme, işlem kartları, önizleme, kod modu adımları | `/Yonetim/YapayZeka` sayfası |
 | `duzenleyici.js` | Site Düzenleyici: yazdıkça taslak, sağda canlı önizleme | `/Yonetim/Duzenleyici` sayfası |

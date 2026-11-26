@@ -13,7 +13,7 @@
     // Panelden eklenen ve "kartta göster" işaretli özellikler (Yönetim → Filtreler ve Özellikler)
     var ekOzellikler = a.OzellikDegerleri.Where(d => d.Ozellik is { Aktif: true, KarttaGoster: true } && d.Gosterim != null).OrderBy(d => d.Ozellik!.Sira).ToList();
 }
-<article class="arac-karti" data-egim>
+<article class="arac-karti" data-egim data-imlec-yazi="@Icerik.Metin("araclar.incele")">
     <div class="gorsel">
         <img src="@Gorseller.Kucuk(a.GorselAdresi)" srcset="@Gorseller.Secenekler(a.GorselAdresi)" sizes="(min-width: 1200px) 340px, (min-width: 576px) 50vw, 88vw"
              alt="@a.TamAd" loading="lazy" decoding="async" style="view-transition-name: arac-@a.Id" />

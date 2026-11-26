@@ -423,13 +423,24 @@ Efektler için JavaScript yazılmaz, HTML etiketine bir **data-** özelliği ekl
 | "Kaydırdıkça bu parça farklı hızda kaysın (paralaks)" | `vitrin.css`'in sonundaki **KAYDIRMAYA BAĞLI PARALAKS** bölümüne bir satır + bir `@keyframes` | `.animasyon .sehir-arka { animation: sehir-kay linear both; animation-timeline: view(); }` |
 | "Koyu, hareketli arka planlı bir bant" | bölüme `data-sahne` + içine `<partial name="_SahneZemini" />` | Ana sayfanın sonundaki "son çağrı bandı" |
 | "Sayfa koyu bantla başlıyor, menü saydam olsun" | view'ın başına `ViewData["SaydamMenu"] = true;` ve bölüme `ust-altinda` sınıfı | `Views/Araclar/Index.cshtml` |
+| "Fare bu öğenin üstündeyken imleçte bir söz yazsın" | `data-imlec-yazi="İncele"` | Araç kartı, kategori ve şube kartları |
+| "Başlığın kelimeleri kaydırınca perde arkasından çıksın" | başlığa `data-perde` (içinde başka etiket olmamalı) | Ana sayfadaki bölüm başlıkları |
+| "Butonun üstüne gelince içinden küçük araba geçsin" | `data-araba` | "Araç Bul", "Araçları keşfet", Garaj'daki "Bu aracı kirala" |
+| "Şu öğeler ekrandayken bu çubuk gizlensin" | `data-gizle-gorunce="#arama, .garaj, .alt-bilgi"` | `_HizliKirala.cshtml` |
+| "Bölümün arkasında kocaman, kayan bir yazı olsun" | bölüme `arka-yazili` sınıfı + içine `<div class="arka-yazi" aria-hidden="true"><span>YAZI</span></div>` (öbür yöne: `arka-yazi ters`) | Öne çıkanlar, Nasıl çalışır, Şubeler |
 | "Bir efekti kapat" | ilgili `data-…` özelliğini silin; hepsini kapatmak için `tema.js`'te `animasyon` sınıfını ekleyen satırı silin | — |
 
 Ana sayfadaki **akan yazı bandı**, **marka şeridi** ve **son çağrı bandı** panelden kapatılabilir: Yönetim → Site Metinleri → "Ana sayfa" → yazılarını boş bırakın.
 
+**Garaj** (ana sayfa, öne çıkanların altında): en çok kiralanan araçlar. Geniş ekranda bölüm ekrana yapışır; her kaydırma adımında garaj kapısı kalkar, bir araç sahneye gelir ("Bu aracı kirala" doğrudan rezervasyona gider). Telefonda ve "hareketi azalt"ta kartlar alt alta / yana kaydırmalı. Sıra kuralı `Yardimcilar/GarajSecimi.cs` (iptal ve reddedilenler sayılmaz; kayıt yetmezse öne çıkanlar, sonra en pahalılar tamamlar; fotoğrafsız araç girmez; aynı model bir kez). Aç / kapa ve araç sayısı (en fazla 8): **Yönetim → Ayarlar → Ana Sayfa**.
+
+**Hızlı kirala çubuğu**: ana arama kutusu ekrandan çıkınca altta belirir (telefonda hap + alttan açılan form); arama kutusu, garaj ya da alt bilgi görünürken saklanır. Aç / kapa: **Yönetim → Ayarlar → Ana Sayfa → "Hızlı kiralama çubuğunu göster"**.
+
 **Performans kuralları** (site yavaşlarsa önce buraya bakın):
 - Sürekli dönen bir animasyon sadece `transform` ve `opacity` değiştirmeli; `filter`, `background-position`, `box-shadow`, `backdrop-filter` (buzlu cam) ve `mix-blend-mode` her karede işlemciyi yorar.
 - Kaydırmaya bağlı hareketler JavaScript ile değil CSS (`animation-timeline`) ile yapılır; tarayıcı bunları kaydırmayla birlikte ayrı iş parçacığında oynatır.
+- Kaydırmaya bağlı animasyonun anahtar karelerine `pointer-events`, `visibility` gibi özellikler ya da `var(--…)` yazmayın: animasyon ana iş parçacığına düşer. Kaydırmaya bağlı her animasyon sayfanın her yerinde her karede güncellenir; çoksa (Garaj gibi) ekrandan uzaktayken kapatın (`efektler.js` → 5b, "canli" sınıfı).
+- Yapışkan (sticky) bir sahnenin içindeki öğede `view()` aralığını yüzdeyle (`cover 30%`) vermeyin: tarayıcı aralığı bütün yapışma boyunca uzatır. `entry 240px` gibi piksel kullanın (örnek: perdeli başlıklar).
 - **Yeni araç fotoğrafı:** en fazla ~1600 px genişlikte olsun. Kartlar `wwwroot/img/cars/k/` klasöründeki 720 px'lik `.webp` kopyayı kullanır (aynı ad, örn. `Audi_A3.jpg` → `k/Audi_A3.webp`; herhangi bir resim programıyla ya da squoosh.app ile üretilir). Kopyası yoksa büyük fotoğraf kullanılır, hiçbir şey bozulmaz. Kod: `Yardimcilar/Gorseller.cs`.
 - Fotoğraflar ve kütüphaneler tarayıcıda önbelleğe alınır (`Yardimcilar/Altyapi.cs`); bir fotoğrafı aynı adla değiştirdiyseniz tarayıcıda `Ctrl + F5`.
 
@@ -443,6 +454,9 @@ Hoca "kodda nerede?" derse:
 | Tema butonunda daire gibi açılan yeni tema | `wwwroot/js/genel.js` → "Açık / koyu tema" |
 | "Hareketi azalt" açık cihazda her şeyin durması | `wwwroot/js/tema.js` (`animasyon` sınıfı) |
 | Kategorilerin yatay akması, katmanların farklı hızda kayması | `vitrin.css` → "KAYDIRMAYA BAĞLI PARALAKS" |
+| Garaj (kapı kalkar, araçlar tek tek sahneye gelir) | `Views/Shared/_GarajAdimi.cshtml`, `Yardimcilar/GarajSecimi.cs`, `vitrin.css` → "GARAJ" + paralaks bölümündeki "Garaj", `efektler.js` → 5b |
+| Hızlı kirala çubuğu | `Views/Shared/_HizliKirala.cshtml`, `vitrin.css` → "HIZLI KİRALA", `efektler.js` → 2b |
+| Far ışığı, hız çizgileri, perdeli başlıklar, dev arka yazılar, adım yolu, kaydırma arabası, gaza basınca | `vitrin.css` → "EK HAREKETLER", `efektler.js` (5c, 6, 9, 10, 11) |
 | Kartlardaki küçük fotoğraf, tarayıcı önbelleği | `Yardimcilar/Gorseller.cs`, `Yardimcilar/Altyapi.cs` |
 
 ---

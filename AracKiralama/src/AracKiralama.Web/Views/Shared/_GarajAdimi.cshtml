@@ -1,0 +1,52 @@
+@* GARAJIN BİR ADIMI = bir araç (Views/AnaSayfa/Index.cshtml → "GARAJ" döngüsü).
+   Parçalar: arkada dev model adı · garaj kapısı + fotoğraf · bilgiler (sıra, kiralanma sayısı, ad, özellik çipleri, fiyat, butonlar).
+   Geniş ekranda adımlar üst üste durur; kaydırdıkça sırası gelenin kapısı kalkar (vitrin.css → "GARAJ" ve "KAYDIRMAYA BAĞLI PARALAKS").
+   Telefonda / hareket kapalıyken / eski tarayıcıda kart olur; kapı ve dev ad görünmez.
+   Fiyat ve indirim kuralı araç kartıyla aynı (Servisler/KampanyaServisi.cs). Yazılar: Site Metinleri → anasayfa.garaj-* *@
+@model (GarajAraci Garaj, int Sira, int Adet, KampanyaBaglami Kampanya)
+@{
+    var a = Model.Garaj.Arac;
+    var kampanya = Model.Kampanya.Durum(a);
+    var indirimliFiyat = kampanya?.Uygulanan == null ? (decimal?)null : Math.Round(a.GunlukFiyat * (1 - kampanya.Uygulanan.IndirimOrani));
+    string M(string anahtar) => Icerik.Metin("anasayfa." + anahtar);
+    var kiralandi = Model.Garaj.KiralamaSayisi > 0;
+}
+<li class="garaj-adim" style="--i: @Model.Sira" data-garaj-adim>
+    <div class="garaj-arka-ad" aria-hidden="true"><span data-derinlik="-22">@a.Model</span></div>
+    <div class="garaj-foto">
+        @* Fotoğraf da detaya gider (fareyle); klavyede aynı bağlantıda iki kez durulmasın diye sekme sırasından çıkarıldı *@
+        <a class="garaj-cerceve" asp-controller="Araclar" asp-action="Detay" asp-route-id="@a.Id" tabindex="-1" aria-hidden="true" data-dondur="5" data-imlec-yazi="@M("garaj-incele")">
+            <img src="@Gorseller.Kucuk(a.GorselAdresi)" srcset="@Gorseller.Secenekler(a.GorselAdresi)" sizes="(min-width: 992px) 56vw, (min-width: 768px) 46vw, 86vw" alt="" loading="lazy" decoding="async" />
+        </a>
+        <div class="garaj-kapi" aria-hidden="true">
+            <span class="garaj-kapi-yazi">@Icerik.Ayarlar.FirmaAdi <b>@Model.Sira.ToString("00")</b></span>
+            @if (Model.Sira == 1) { <span class="garaj-ipucu"><i class="bi bi-chevron-double-down"></i>@M("garaj-ipucu")</span> }
+        </div>
+    </div>
+    <div class="garaj-bilgi">
+        <span class="garaj-no" aria-hidden="true"><b>@Model.Sira.ToString("00")</b> / @Model.Adet.ToString("00")</span>
+        <span class="garaj-rozet"><i class="bi @(kiralandi ? "bi-fire" : "bi-stars")" aria-hidden="true"></i>@(kiralandi ? M("garaj-kiralandi").Replace("{sayi}", Bicim.Sayi(Model.Garaj.KiralamaSayisi)) : M("garaj-yeni"))</span>
+        <h3 class="garaj-ad">@a.TamAd @if (a.Kategori != null) { <small>@a.Kategori.Ad</small> }</h3>
+        <ul class="garaj-cipler">
+            <li><i class="bi bi-calendar3" aria-hidden="true"></i>@a.Yil</li>
+            @if (a.VitesTuru != null) { <li><i class="bi bi-gear-wide-connected" aria-hidden="true"></i>@a.VitesTuru.Ad</li> }
+            @if (a.YakitTuru != null) { <li><i class="bi bi-fuel-pump" aria-hidden="true"></i>@a.YakitTuru.Ad</li> }
+            <li><i class="bi bi-people" aria-hidden="true"></i>@a.KoltukSayisi kişi</li>
+        </ul>
+        <div class="garaj-fiyat">
+            @if (indirimliFiyat != null)
+            {
+                <del>@Bicim.Para(a.GunlukFiyat)</del>
+                <span class="fiyat fiyat-indirimli">@Bicim.Para(indirimliFiyat.Value) <small>@Icerik.Metin("araclar.gunluk")</small></span>
+            }
+            else
+            {
+                <span class="fiyat">@Bicim.Para(a.GunlukFiyat) <small>@Icerik.Metin("araclar.gunluk")</small></span>
+            }
+        </div>
+        <div class="garaj-butonlar">
+            <a class="btn btn-primary btn-lg" href="/Rezervasyon/Yeni?aracId=@a.Id" data-miknatis data-araba>@M("garaj-kirala") <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i></a>
+            <a class="btn btn-cam btn-lg" asp-controller="Araclar" asp-action="Detay" asp-route-id="@a.Id" aria-label="@a.TamAd: @M("garaj-incele")">@M("garaj-incele")</a>
+        </div>
+    </div>
+</li>

@@ -145,6 +145,7 @@ public class KategoriOzeti
 public class AnaSayfaModeli
 {
     public List<Arac> OneCikanlar { get; set; } = new();
+    public List<GarajAraci> Garaj { get; set; } = new();   // "Garaj" bölümü: en çok kiralananlar (Yardimcilar/GarajSecimi.cs)
     public KampanyaBaglami Kampanya { get; set; } = KampanyaBaglami.Bos;   // öne çıkan kartlardaki indirim rozetleri
     public List<KategoriOzeti> Kategoriler { get; set; } = new();
     public List<Sube> Subeler { get; set; } = new();

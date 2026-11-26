@@ -28,7 +28,7 @@ public static class DuzenleyiciTanimlari
     // ---------------------------------------------------------------- SEKMELER
     public static readonly DuzenleyiciSekmesi[] Sekmeler =
     [
-        new("anasayfa", "Ana sayfa", "bi-house", "Büyük başlık, rakamlar, arama kutusu, marka şeridi, kategoriler, öne çıkanlar, adımlar, şubeler, son çağrı bandı.",
+        new("anasayfa", "Ana sayfa", "bi-house", "Büyük başlık, rakamlar, arama kutusu, marka şeridi, kategoriler, öne çıkanlar, garaj, adımlar, şubeler, son çağrı bandı, hızlı kirala çubuğu.",
             [("Ana sayfa", "/")],
             [.. VarsayilanMetinler.Liste.Keys.Where(k => k.StartsWith("anasayfa.")), "arama.alis-sube", "arama.iade-sube", "arama.tum-subeler", "arama.ayni-sube", "arama.alis", "arama.iade", "arama.buton"],
             ["Ana Sayfa"]),
@@ -106,6 +106,16 @@ public static class DuzenleyiciTanimlari
         ["anasayfa.tum-araclar"] = ("Kategoriler", "\"Tüm araçlar\" butonu"),
         ["anasayfa.onecikan-ust"] = ("Öne çıkanlar", "Küçük üst başlık"),
         ["anasayfa.onecikan-baslik"] = ("Öne çıkanlar", "Büyük başlık"),
+        ["anasayfa.garaj-ust"] = ("Garaj (en çok kiralananlar)", "Küçük üst başlık"),
+        ["anasayfa.garaj-baslik"] = ("Garaj (en çok kiralananlar)", "Büyük başlık"),
+        ["anasayfa.garaj-kirala"] = ("Garaj (en çok kiralananlar)", "Kiralama butonu"),
+        ["anasayfa.garaj-incele"] = ("Garaj (en çok kiralananlar)", "İnceleme butonu"),
+        ["anasayfa.garaj-kiralandi"] = ("Garaj (en çok kiralananlar)", "Kiralanma sayısı; {sayi} yerine sayı yazılır"),
+        ["anasayfa.garaj-yeni"] = ("Garaj (en çok kiralananlar)", "Hiç kiralanmamış araçta sayının yerine yazan"),
+        ["anasayfa.garaj-ipucu"] = ("Garaj (en çok kiralananlar)", "İlk garaj kapısının üstündeki ipucu"),
+        ["anasayfa.imlec-kategori"] = ("Kategoriler", "Fare kategori kartının üstündeyken imleç halkasında yazan kısa söz"),
+        ["anasayfa.hizli-baslik"] = ("Hızlı kiralama çubuğu", "Çubuğun başlığı (ekran okuyucu ve telefondaki açılır pencere)"),
+        ["anasayfa.hizli-buton"] = ("Hızlı kiralama çubuğu", "Arama butonu"),
         ["anasayfa.adim1-baslik"] = ("Nasıl çalışır (3 adım)", "1. adım başlığı"),
         ["anasayfa.adim1-metin"] = ("Nasıl çalışır (3 adım)", "1. adım yazısı"),
         ["anasayfa.adim2-baslik"] = ("Nasıl çalışır (3 adım)", "2. adım başlığı"),

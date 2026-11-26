@@ -71,6 +71,11 @@ public class SiteAyarlari
     [Ayar("Ana Sayfa", "Kategoriler bölümünü göster")] public bool KategorileriGoster { get; set; } = true;
     [Ayar("Ana Sayfa", "Öne çıkan araçları göster")] public bool OneCikanlariGoster { get; set; } = true;
     [Ayar("Ana Sayfa", "Öne çıkan araç sayısı")] public int OneCikanAracSayisi { get; set; } = 8;
+    [Ayar("Ana Sayfa", "Garaj bölümünü göster", Aciklama = "Öne çıkanların altında: kaydırdıkça garaj kapısı kalkar, en çok kiralanan araçlar tek tek sahneye gelir")]
+    public bool GarajGoster { get; set; } = true;
+    [Ayar("Ana Sayfa", "Garajdaki araç sayısı", Aciklama = "En fazla 8")] public int GarajAracSayisi { get; set; } = 4;
+    [Ayar("Ana Sayfa", "Hızlı kiralama çubuğunu göster", Aciklama = "Arama kutusu ekrandan çıkınca altta beliren küçük arama çubuğu (her yerden tek tıkla araç ara)")]
+    public bool HizliKiralaGoster { get; set; } = true;
     [Ayar("Ana Sayfa", "\"Nasıl çalışır\" bölümünü göster")] public bool NasilCalisirGoster { get; set; } = true;
     [Ayar("Ana Sayfa", "Şubeler bölümünü göster")] public bool SubeleriGoster { get; set; } = true;
 

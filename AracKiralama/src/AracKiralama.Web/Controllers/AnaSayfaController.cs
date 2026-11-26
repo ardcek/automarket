@@ -8,6 +8,7 @@ using AracKiralama.FormModelleri;
 using AracKiralama.Modeller;
 using AracKiralama.Servisler;
 using AracKiralama.Veri;
+using AracKiralama.Yardimcilar;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -51,6 +52,17 @@ public class AnaSayfaController : TemelController
             // Son çağrı bandının arkasındaki fotoğraf: filodaki en pahalı (en gösterişli) araç
             CagriGorseli = araclar.Where(a => a.GorselAdresi != null).MaxBy(a => a.GunlukFiyat)?.GorselAdresi,
         };
+
+        // Garaj bölümü: en çok kiralanan araçlar (iptal / reddedilen talepler sayılmaz). Seçim kuralı: Yardimcilar/GarajSecimi.cs
+        if (_ayarlar.GarajGoster && _ayarlar.GarajAracSayisi > 0)
+        {
+            var kiralamaSayilari = await _vt.Rezervasyonlar
+                .Where(r => r.Durum != RezervasyonDurumu.IptalEdildi && r.Durum != RezervasyonDurumu.Reddedildi)
+                .GroupBy(r => r.AracId)
+                .Select(g => new { AracId = g.Key, Sayi = g.Count() })
+                .ToDictionaryAsync(x => x.AracId, x => x.Sayi);
+            model.Garaj = GarajSecimi.Sec(araclar, kiralamaSayilari, _ayarlar.GarajAracSayisi);
+        }
 
         // Her kategori için araç sayısı ve en düşük fiyat
         foreach (var kategori in await _vt.Kategoriler.OrderBy(k => k.Sira).AsNoTracking().ToListAsync())

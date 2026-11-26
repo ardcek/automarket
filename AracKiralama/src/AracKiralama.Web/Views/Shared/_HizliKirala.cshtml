@@ -1,0 +1,49 @@
+@* HIZLI KİRALA ÇUBUĞU (ana sayfa): arama kutusu ekrandan çıkınca altta belirir, sayfanın her yerinden tek tıkla araç aranır.
+   - Geniş ekranda: altta ortada cam çubuk = şube + alış + iade + "Araç bul".
+   - Telefonda: altta küçük bir hap; dokununca aynı form alttan açılan pencerede (Bootstrap "offcanvas-lg": geniş ekranda pencere
+     değil, çubuğun kendisi olur; böylece form tek, kutu numaraları çakışmaz).
+   - Ana arama kutusu (#arama), garaj (kendi "Kirala" butonları var) ya da alt bilgi görünürken saklanır: data-gizle-gorunce (efektler.js).
+   - Aç / kapa: Yönetim → Ayarlar → Ana Sayfa → "Hızlı kiralama çubuğunu göster". Yazılar: anasayfa.hizli-*, arama.*
+   - Görünüm: vitrin.css → "HIZLI KİRALA". Tarih kutuları birbirine bağlı (genel.js → data-tarih-cifti). *@
+@model List<Sube>
+@{
+    var baslangic = DateTime.Today.AddDays(1).AddHours(10);
+    var bitis = baslangic.AddDays(3);
+    string M(string anahtar) => Icerik.Metin(anahtar);
+    const string gizle = "#arama, .garaj, .alt-bilgi";
+}
+@* Telefon: hap (geniş ekranda yok) *@
+<button class="hizli-hap gizli d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#hizli-kirala" aria-controls="hizli-kirala" data-gizle-gorunce="@gizle">
+    <span class="hizli-hap-ikon" aria-hidden="true"><i class="bi bi-search"></i></span>
+    <span class="hizli-hap-yazi"><b>@M("anasayfa.hizli-buton")</b><small>@baslangic.ToString("d MMM", Bicim.Tr) → @bitis.ToString("d MMM", Bicim.Tr) · @M("arama.tum-subeler")</small></span>
+    <span class="hizli-hap-ok" aria-hidden="true"><i class="bi bi-chevron-up"></i></span>
+</button>
+
+@* Geniş ekranda çubuk, telefonda alttan açılan pencere *@
+<div class="offcanvas-lg offcanvas-bottom hizli-kirala gizli" tabindex="-1" id="hizli-kirala" aria-labelledby="hizli-kirala-baslik" data-gizle-gorunce="@gizle">
+    <div class="offcanvas-header">
+        <h2 class="offcanvas-title h5 mb-0" id="hizli-kirala-baslik"><span class="araba-ikon me-2" aria-hidden="true"></span>@M("anasayfa.hizli-baslik")</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#hizli-kirala" aria-label="Kapat"></button>
+    </div>
+    <div class="offcanvas-body">
+        <form class="hizli-form" action="/Araclar" method="get" role="search" aria-label="@M("anasayfa.hizli-baslik")" data-tarih-cifti>
+            <span class="hizli-isaret d-none d-lg-inline-flex" aria-hidden="true"><span class="araba-ikon"></span></span>
+            <label class="hizli-alan">
+                <span>@M("arama.alis-sube")</span>
+                <select class="form-select" name="AlisSubeId">
+                    <option value="">@M("arama.tum-subeler")</option>
+                    @foreach (var s in Model) { <option value="@s.Id">@s.Ad</option> }
+                </select>
+            </label>
+            <label class="hizli-alan">
+                <span>@M("arama.alis")</span>
+                <input class="form-control" type="datetime-local" name="Baslangic" value="@Bicim.Kutu(baslangic)" min="@Bicim.Kutu(DateTime.Today)" data-tarih-baslangic />
+            </label>
+            <label class="hizli-alan">
+                <span>@M("arama.iade")</span>
+                <input class="form-control" type="datetime-local" name="Bitis" value="@Bicim.Kutu(bitis)" data-tarih-bitis />
+            </label>
+            <button class="btn btn-primary hizli-buton" data-miknatis data-araba>@M("anasayfa.hizli-buton") <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i></button>
+        </form>
+    </div>
+</div>
