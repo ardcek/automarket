@@ -228,7 +228,7 @@ Adres kalıbı: `/{Controller}/{Aksiyon}/{id}`. Yönetim panelinde başına `/Yo
 | `/Hesap/SifremiUnuttum` · `/Hesap/SifreSifirla` · `/Hesap/YeniSifre` | `Controllers/HesapController.cs` | aynı adlı metotlar | `Views/Hesap/...` (e-posta: `Servisler/EpostaServisi.cs`) |
 | `/Profil/Sifre` | `Controllers/ProfilController.cs` | `Sifre` | `Views/Profil/Sifre.cshtml` |
 | `/Yonetim/Musteriler/Detay/{id}` | `Areas/Yonetim/Controllers/KullaniciControllerlari.cs` | `MusterilerController.Detay` | `Areas/Yonetim/Views/Musteriler/Detay.cshtml` (geçmiş, ödemeler, hasarlar, hesap işlemleri) |
-| `/Yonetim/Personel/GeciciSifre/{id}` · `Dondur` · `Sil` · `RolDegistir` | `Areas/Yonetim/Controllers/KullaniciControllerlari.cs` | `PersonelController` | müşteri detayındaki "Hesap işlemleri" kartı |
+| `/Yonetim/Personel/GeciciSifre/{id}` · `SifirlamaGonder` · `Dondur` · `Sil` · `RolDegistir` · `EpostaDene` | `Areas/Yonetim/Controllers/KullaniciControllerlari.cs` | `PersonelController` | müşteri detayındaki "Hesap işlemleri" kartı |
 | `/Yonetim/Rezervasyonlar/TeslimEt/{id}` · `IadeAl/{id}` | `Areas/Yonetim/Controllers/RezervasyonControllerlari.cs` | `TeslimEt` / `IadeAl` | km kutusu "82.450" yazılır (`Yardimcilar/KmBaglayici.cs`, `genel.js` → data-km); teslimdekinden az km girilemez |
 | `/Yonetim/Ozellikler/Ekle?sablon=klima` | `Areas/Yonetim/Controllers/OzelliklerController.cs` | `Ekle` | şablonlar: `Yardimcilar/OzellikSablonlari.cs`; araçların değerleri kaydedince `Yardimcilar/AracKatalogu.cs`'ten dolar (`KatalogdanDoldur`) |
 | `/Yonetim/Panel/Ikonlar` | `Areas/Yonetim/Controllers/PanelControllerlari.cs` | `PanelController.Ikonlar` | (JSON, ikon seçici: `wwwroot/js/genel.js`) |
@@ -243,7 +243,7 @@ Sayfalarda hiç `<script>` kodu yoktur (güvenlik politikası). Davranışlar HT
 
 | Dosya | Ne yapar? | Nasıl bağlanır? |
 |---|---|---|
-| `genel.js` | Silmeden önce onay sorusu, filtre değişince formu gönderme, tema butonu, alış / iade tarihlerini eşleme, görsel ve ikon önizleme, demo hesabı doldurma (tam liste dosyanın başında) | `data-onay="..."`, `data-otomatik-gonder`, `data-tema-degistir`, `data-gorsel-onizle`... |
+| `genel.js` | Silmeden önce onay sorusu, filtre değişince formu gönderme, tema butonu, alış / iade tarihlerini eşleme, görsel ve ikon önizleme, demo hesabı doldurma, telefonda tabloları karta çevirme (tam liste dosyanın başında) | `data-onay="..."`, `data-otomatik-gonder`, `data-tema-degistir`, `data-gorsel-onizle`... |
 | `fiyat-hesapla.js` | Araç detayında canlı fiyat | detay sayfasındaki fiyat formu |
 | `rezervasyon-adimlari.js` | Rezervasyonun 3 adımı arasında geçiş | rezervasyon formu |
 | `grafikler.js` | Gösterge paneli ve rapor grafikleri (Chart.js) | `<script type="application/json" id="grafik-verisi">` bloğu |

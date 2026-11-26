@@ -171,6 +171,24 @@ public class RezervasyonTestleri : IDisposable
     }
 
     [Fact]
+    public async Task Teslimle_ayni_dakikada_iade_alinabilir_ama_once_alinamaz()
+    {
+        // Formdaki iade saati dakikaya yuvarlı gelir; teslim saniyesiyle kaydedilir. Aynı dakika reddedilmemeli.
+        var r = await TalepOlustur(_t.Musteri, _t.Ekonomik);
+        await _servis.OnaylaAsync(r.Id, _t.Personel.Id);
+        await _servis.TeslimEtAsync(r.Id, _t.Personel.Id, 20_000, YakitSeviyesi.Dolu);
+        var teslim = r.TeslimTarihi!.Value;
+        var ayniDakika = new DateTime(teslim.Year, teslim.Month, teslim.Day, teslim.Hour, teslim.Minute, 0);
+
+        await Assert.ThrowsAsync<IsKuraliHatasi>(() =>
+            _servis.IadeAlAsync(r.Id, _t.Personel.Id, 20_100, YakitSeviyesi.Dolu, ayniDakika.AddMinutes(-1), null, 0, null));
+        var iade = await _servis.IadeAlAsync(r.Id, _t.Personel.Id, 20_100, YakitSeviyesi.Dolu, ayniDakika, null, 0, null);
+
+        Assert.Equal(RezervasyonDurumu.Tamamlandi, iade.Durum);
+        Assert.True(iade.IadeTarihi >= teslim);   // iade, teslimden önceye kaydedilmez
+    }
+
+    [Fact]
     public async Task Musteri_baskasinin_rezervasyonunu_iptal_edemez()
     {
         var r = await TalepOlustur(_t.Musteri, _t.Ekonomik);

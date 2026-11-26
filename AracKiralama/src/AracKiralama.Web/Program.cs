@@ -62,8 +62,10 @@ builder.Services.AddIdentity<Kullanici, IdentityRole>(secenek =>
 // "Şifremi unuttum" linki 2 saat geçerli (varsayılan 1 gün)
 builder.Services.Configure<DataProtectionTokenProviderOptions>(s => s.TokenLifespan = TimeSpan.FromHours(2));
 // E-posta gönderimi (şifre sıfırlama linki). Ayarları appsettings.json → "Eposta"; canlıda Render → Environment.
+// Canlıda Brevo (HTTPS) kullanılır: Render'ın ücretsiz planı SMTP portlarını kapatıyor (Servisler/EpostaServisi.cs).
 builder.Services.Configure<EpostaAyarlari>(builder.Configuration.GetSection("Eposta"));
-builder.Services.AddScoped<EpostaServisi>();
+builder.Services.AddHttpClient<EpostaServisi>(h => h.Timeout = TimeSpan.FromSeconds(20));
+builder.Services.AddMemoryCache();   // "Şifremi unuttum": aynı adrese dakikada en fazla bir e-posta
 // SuperAdmin aynı zamanda Admin sayılır (veritabanında sadece SuperAdmin satırı olması yeter). Roller: Yardimcilar/Genel.cs
 builder.Services.AddTransient<Microsoft.AspNetCore.Authentication.IClaimsTransformation, SuperAdminAyniZamandaAdmin>();
 

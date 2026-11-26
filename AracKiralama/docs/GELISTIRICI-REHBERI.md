@@ -321,6 +321,10 @@ Tabloya kolon eklenmediği için (hesaplanan değer) veritabanını silmeye gere
 
 **Hazır özellik şablonları ve ikon seçici:** Yönetim → Filtreler ve Özellikler sayfasında klima, bagaj, kasa tipi gibi 23 hazır özellik kart olarak durur; tıklayınca form dolu açılır. Yeni şablon = `Yardimcilar/OzellikSablonlari.cs`'e bir satır. İkon yazılan her kutunun yanında **Seç** düğmesi çıkar (2000+ ikon, Türkçe arama: "araba", "anahtar", "kar"); bunu `genel.js` kendiliğinden ekler, view'a bir şey yazmak gerekmez.
 
+**Telefonda tablolar:** Yönetim panelindeki ve Hesabım sayfasındaki her `<table class="table">` telefonda (768 px altı) kendiliğinden karta dönüşür: her satır bir kart, sütun başlığı hücrenin solunda yazar (`genel.js` → "Telefonda tablolar kart olur", `stil.css` → "Telefonda tablo kartları"). Yeni tablo eklerken bir şey yapmanız gerekmez; sadece `<thead>` başlıklarını yazın. Yana kaydırması istenen tablo (ör. takvim gibi geniş ızgara): `<table class="table" data-mobil-tablo="kaydir">`.
+
+**Şifremi unuttum / e-posta:** `Servisler/EpostaServisi.cs` önce Brevo (HTTPS) anahtarına, yoksa SMTP ayarına bakar. Render ücretsiz planda SMTP portları kapalı olduğu için canlıda Brevo şart (README 13.9). Durum ve test: Yönetim → Personel ve Roller → E-posta gönderimi. Müşteri detayında "Sıfırlama e-postası gönder" (e-posta ayarlıysa) ve "Geçici şifre ver" düğmeleri var.
+
 **Ana sayfa efektleri:** akan çapraz bant (`vitrin.css` → "Akan bant"), adım kartlarındaki canlı önizleme çipleri (`Views/AnaSayfa/Index.cshtml` → "NASIL ÇALIŞIR"), özel fare imleci (`efektler.js` → 9; aç / kapa: Ayarlar → Görünüm → "Özel fare imleci"). Hepsi sadece `transform` / `opacity` kullanır, ekranda değilken durur ve "hareketi azalt" açık cihazlarda kapalıdır.
 
 ---

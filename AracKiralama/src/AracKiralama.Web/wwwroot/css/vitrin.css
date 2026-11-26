@@ -114,6 +114,8 @@ html.animasyon:has(> body.vitrin) { scroll-behavior: smooth; }
 .ust-menu .dropdown-item { padding: .6rem .8rem; }
 @media (max-width: 991.98px) {   /* telefonda açılır menü, menünün içinde girintili liste olur */
     .ust-menu .navbar-nav .dropdown-menu { border: 0; box-shadow: none; background: transparent; padding: 0 0 .25rem .9rem; margin: 0 !important; }
+    /* "Hesabım" listesi telefonda düğmenin SOLUNDAN değil sağına doğru açılsın (yoksa ekranın solundan taşıp kesiliyordu) */
+    .ust-menu .navbar-collapse .dropdown-menu-end[data-bs-popper] { left: 0; right: auto; max-width: calc(100vw - 2rem); }
 }
 .ust-menu .logo { color: var(--menu-yazi, var(--yazi)); font-family: var(--baslik-yazi); font-stretch: 112%; transition: color .3s; }
 .ust-menu .logo small { color: var(--menu-soluk, var(--soluk)); font-family: "Inter", system-ui, sans-serif; font-stretch: 100%; }
@@ -789,7 +791,7 @@ html:not(.animasyon) .hizli-hap.gizli, html:not(.animasyon) .hizli-kirala.gizli 
 /* =====================================================================
    HESABIM (Views/Profil/Index.cshtml): profil kartı, tamamlanma çubuğu, istatistikler
    ===================================================================== */
-.hesap-kart { position: relative; overflow: hidden; display: grid; gap: 1.25rem; padding: 1.5rem; border-radius: calc(var(--yuvarlak) * 1.4); background: var(--yuzey); border: 1px solid var(--cizgi); box-shadow: 0 24px 50px -36px rgba(15, 23, 42, .45); }
+.hesap-kart { position: relative; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.25rem; padding: 1.5rem; border-radius: calc(var(--yuvarlak) * 1.4); background: var(--yuzey); border: 1px solid var(--cizgi); box-shadow: 0 24px 50px -36px rgba(15, 23, 42, .45); }
 .hesap-kart::before { content: ""; position: absolute; inset: 0 0 auto; height: 4px; background: linear-gradient(90deg, var(--ana), var(--vurgu-2)); }
 .hesap-kimlik { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
 .hesap-avatar { width: 64px; height: 64px; flex: none; border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; font-family: var(--baslik-yazi); font-weight: 800; font-size: 1.4rem; color: #fff; background: linear-gradient(135deg, var(--ana), var(--vurgu-2)); box-shadow: 0 14px 30px -14px rgba(var(--ana-rgb), .8); }

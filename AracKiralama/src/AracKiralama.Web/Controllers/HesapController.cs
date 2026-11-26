@@ -10,6 +10,7 @@ using AracKiralama.Yardimcilar;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace AracKiralama.Controllers;
 
@@ -136,29 +137,36 @@ public class HesapController : TemelController
     // =====================================================================
 
     [HttpGet]
-    public IActionResult SifremiUnuttum() => View(new SifremiUnuttumFormu());
+    public IActionResult SifremiUnuttum([FromServices] EpostaServisi eposta, [FromServices] IWebHostEnvironment ortam)
+    {
+        // E-posta ayarı yoksa (canlıda Brevo anahtarı girilmemişse) "link gönderildi" diye yanıltmak yerine
+        // kişiye şifresini nasıl sıfırlatacağı yazılır: firmayı arar, admin "Geçici şifre ver" ile yardım eder.
+        ViewBag.EpostaKapali = !eposta.Ayarli && !ortam.IsDevelopment();
+        return View(new SifremiUnuttumFormu());
+    }
 
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> SifremiUnuttum(SifremiUnuttumFormu form, [FromServices] EpostaServisi eposta,
-        [FromServices] IWebHostEnvironment ortam, [FromServices] ILogger<HesapController> log)
+        [FromServices] IWebHostEnvironment ortam, [FromServices] ILogger<HesapController> log, [FromServices] IMemoryCache bellek)
     {
+        ViewBag.EpostaKapali = !eposta.Ayarli && !ortam.IsDevelopment();
+        if (ViewBag.EpostaKapali) return RedirectToAction(nameof(SifremiUnuttum));
         if (!ModelState.IsValid) return View(form);
 
         // Güvenlik: e-posta kayıtlı olsa da olmasa da AYNI mesaj gösterilir (kimin üye olduğu öğrenilemesin)
         const string mesaj = "Bu e-posta adresi kayıtlıysa şifre sıfırlama linki gönderildi. Gelen kutunuzu (ve gereksiz klasörünü) kontrol edin; link 2 saat geçerlidir.";
         var kullanici = await _kullanicilar.FindByEmailAsync(form.Eposta.Trim());
-        if (kullanici != null)
+        // Aynı adrese 1 dakikada en fazla bir e-posta (biri art arda basıp kişinin gelen kutusunu doldurmasın)
+        var bekleme = $"sifirlama:{form.Eposta.Trim().ToLowerInvariant()}";
+        if (kullanici != null && !bellek.TryGetValue(bekleme, out _))
         {
+            bellek.Set(bekleme, true, TimeSpan.FromMinutes(1));
             var kod = await _kullanicilar.GeneratePasswordResetTokenAsync(kullanici);
             var link = Url.Action(nameof(SifreSifirla), "Hesap", new { eposta = kullanici.Email, kod }, Request.Scheme)!;
-            var gonderildi = await eposta.GonderAsync(kullanici.Email!, $"{_ayarlar.FirmaAdi} · Şifre sıfırlama",
-                $"<p>Merhaba {System.Net.WebUtility.HtmlEncode(kullanici.Ad)},</p>" +
-                $"<p>Şifrenizi sıfırlamak için aşağıdaki bağlantıya tıklayın. Bağlantı 2 saat geçerlidir.</p>" +
-                $"<p><a href=\"{System.Net.WebUtility.HtmlEncode(link)}\">Yeni şifre belirle</a></p>" +
-                $"<p>Bu isteği siz yapmadıysanız bu e-postayı görmezden gelebilirsiniz.</p>");
+            var gonderildi = await eposta.SifirlamaLinkiGonderAsync(kullanici.Email!, kullanici.Ad, link, _ayarlar.FirmaAdi);
             if (!gonderildi)
             {
-                log.LogWarning("Şifre sıfırlama linki (e-posta gönderilmedi) {Eposta}: {Link}", kullanici.Email, link);
+                log.LogWarning("Şifre sıfırlama e-postası gönderilemedi: {Eposta}", kullanici.Email);
                 // Bilgisayarda (Development) e-posta ayarı yoksa link ekranda gösterilir; canlıda asla gösterilmez
                 if (ortam.IsDevelopment()) TempData["SifirlamaLinki"] = link;
             }

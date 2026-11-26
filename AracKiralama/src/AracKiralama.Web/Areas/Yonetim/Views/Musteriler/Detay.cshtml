@@ -5,6 +5,7 @@
    - Kara liste (herkes): rezervasyon yapmasını engeller *@
 @model Kullanici
 @using System.Security.Claims
+@inject AracKiralama.Servisler.EpostaServisi Eposta
 @{
     var k = Model;
     ViewData["Title"] = k.TamAd;
@@ -114,6 +115,14 @@
                     <input type="hidden" name="donus" value="@donus" />
                     <button class="btn btn-sm btn-sade w-100" data-onay="Yeni bir geçici şifre üretilsin mi? Kişinin şu anki şifresi geçersiz olur."><i class="bi bi-key me-1"></i>Geçici şifre ver</button>
                 </form>
+                @* E-posta ayarlıysa: kişiye "yeni şifre belirle" bağlantısı gider, admin şifreyi hiç görmez (Personel → E-posta gönderimi) *@
+                @if (Eposta.Ayarli)
+                {
+                    <form asp-controller="Personel" asp-action="SifirlamaGonder" asp-route-id="@k.Id" method="post" data-yukleniyor="Gönderiliyor…">
+                        <input type="hidden" name="donus" value="@donus" />
+                        <button class="btn btn-sm btn-sade w-100" data-onay="@k.Email adresine şifre sıfırlama bağlantısı gönderilsin mi?"><i class="bi bi-envelope-arrow-up me-1"></i>Sıfırlama e-postası gönder</button>
+                    </form>
+                }
                 <div class="d-flex gap-2">
                     <form asp-controller="Personel" asp-action="Dondur" asp-route-id="@k.Id" method="post" class="flex-fill">
                         <input type="hidden" name="donus" value="@donus" />

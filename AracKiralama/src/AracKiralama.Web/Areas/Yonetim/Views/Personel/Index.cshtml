@@ -3,6 +3,7 @@
    Kimin neyi verebileceği tek yerde: Yardimcilar/Genel.cs → Roller.Verebilecegi *@
 @model List<(Kullanici Kullanici, string Rol)>
 @using System.Security.Claims
+@inject AracKiralama.Servisler.EpostaServisi Eposta
 @{
     ViewData["Title"] = "Personel";
     var benimId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -13,6 +14,34 @@
     <div><h1>Personel ve Roller</h1><div class="alt-yazi">Süper Admin: her şey + site düzenleme. Admin: operasyon, kayıtlar ve bu sayfa. Personel: bu sayfa hariç Admin'in gördükleri.</div></div>
     <a href="/Yonetim/Personel/Ekle" class="btn btn-primary"><i class="bi bi-person-plus me-1"></i>Yeni kullanıcı</a>
 </div>
+
+@* E-posta gönderimi: "Şifremi unuttum" bu ayarla çalışır (Servisler/EpostaServisi.cs, README 13.9) *@
+<div class="card mb-4"><div class="card-body">
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+        <h2 class="h6 mb-0 me-auto"><i class="bi bi-envelope-at me-1"></i>E-posta gönderimi (şifremi unuttum)</h2>
+        <span class="durum @(Eposta.Ayarli ? "durum-onaylandi" : "durum-reddedildi")">@(Eposta.Ayarli ? "Açık" : "Ayarlı değil")</span>
+    </div>
+    <p class="small text-muted mb-3">
+        @Eposta.Yontem.
+        @if (Eposta.Ayarli)
+        {
+            <text>Müşteriler "Şifremi unuttum" ile şifrelerini kendileri sıfırlayabilir. Ayarı denemek için kendinize test e-postası gönderin.</text>
+        }
+        else
+        {
+            <text>Müşteriler şifrelerini e-postayla sıfırlayamaz; giriş sayfası onları sizi aramaya yönlendirir, siz de Müşteriler → kişi → <b>Geçici şifre ver</b> ile yardım edersiniz.
+            Açmak için Render → Environment'a <code>Eposta__BrevoApiAnahtari</code> ve <code>Eposta__Gonderen</code> ekleyin (README 13.9).</text>
+        }
+    </p>
+    @if (AracKiralama.Servisler.EpostaServisi.SonDeneme is { } son)
+    {
+        <p class="small mb-3">Son deneme (@Bicim.TarihSaat(son.Zaman)): <b class="@(son.Basarili ? "text-success" : "text-danger") text-break">@son.Mesaj</b></p>
+    }
+    <form asp-action="EpostaDene" method="post" class="row g-2 align-items-end" data-yukleniyor="Gönderiliyor…">
+        <div class="col-md-9"><label for="test-alici" class="form-label">Test e-postası gönderilecek adres</label><input id="test-alici" name="alici" type="email" class="form-control" required value="@User.Identity?.Name" /></div>
+        <div class="col-md-3"><button class="btn btn-sade w-100" disabled="@(!Eposta.Ayarli)"><i class="bi bi-send me-1"></i>Test gönder</button></div>
+    </form>
+</div></div>
 
 @* Sitede üye olmuş birine yetki vermek *@
 <div class="card mb-4"><div class="card-body">

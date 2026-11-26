@@ -32,7 +32,8 @@ public class AraclarController : YonetimController
         if (!string.IsNullOrWhiteSpace(arama))
         {
             var aranan = arama.Trim().ToUpper();
-            sorgu = sorgu.Where(a => a.Plaka.Contains(aranan) || (a.Marka!.Ad + " " + a.Model).ToUpper().Contains(aranan));
+            var bosluksuz = aranan.Replace(" ", "");   // "35SL256" de "35 SL 256"yı bulsun
+            sorgu = sorgu.Where(a => a.Plaka.Replace(" ", "").Contains(bosluksuz) || (a.Marka!.Ad + " " + a.Model).ToUpper().Contains(aranan));
         }
         if (kategoriId != null) sorgu = sorgu.Where(a => a.KategoriId == kategoriId);
         if (durum != null) sorgu = sorgu.Where(a => a.Durum == durum);

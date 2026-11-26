@@ -38,10 +38,20 @@ public class RezervasyonlarController : YonetimController
         if (filtre.SubeId != null) sorgu = sorgu.Where(r => r.AlisSubeId == filtre.SubeId || r.IadeSubeId == filtre.SubeId);
         if (!string.IsNullOrWhiteSpace(filtre.Arama))
         {
+            // Büyük/küçük harf fark etmesin ("ahmet" → "Ahmet Şahin"), ad soyad birlikte de aranabilsin,
+            // plaka boşluksuz da yazılabilsin ("35SL256"). Türkçe "i" için iki büyük harf biçimi de denenir (I / İ).
+            // SQLite'ın UPPER'ı sadece İngilizce harfleri büyütür ("Ayşe" → "AYşE"); onun için de bir biçim var.
             var aranan = filtre.Arama.Trim();
             var buyuk = aranan.ToUpperInvariant();
-            sorgu = sorgu.Where(r => r.Kod.Contains(buyuk) || r.Arac!.Plaka.Contains(buyuk)
-                || r.Musteri!.Ad.Contains(aranan) || r.Musteri.Soyad.Contains(aranan) || r.Musteri.Email!.Contains(aranan));
+            var buyukTr = aranan.ToUpper(new System.Globalization.CultureInfo("tr-TR"));
+            var buyukSqlite = new string(aranan.Select(h => h < 128 ? char.ToUpperInvariant(h) : h).ToArray());
+            var bosluksuz = buyuk.Replace(" ", "");
+            sorgu = sorgu.Where(r => r.Kod.Contains(buyuk) || r.Arac!.Plaka.Replace(" ", "").Contains(bosluksuz)
+                || (r.Musteri!.Ad + " " + r.Musteri.Soyad).Contains(aranan)
+                || (r.Musteri.Ad + " " + r.Musteri.Soyad).ToUpper().Contains(buyuk)
+                || (r.Musteri.Ad + " " + r.Musteri.Soyad).ToUpper().Contains(buyukTr)
+                || (r.Musteri.Ad + " " + r.Musteri.Soyad).ToUpper().Contains(buyukSqlite)
+                || r.Musteri.Email!.ToUpper().Contains(buyuk));
         }
         // Bekleyenlerde en eski talep önce, diğerlerinde en yeni alış tarihi önce
         sorgu = filtre.Durum == RezervasyonDurumu.OnayBekliyor ? sorgu.OrderBy(r => r.OlusturmaTarihi) : sorgu.OrderByDescending(r => r.BaslangicTarihi);

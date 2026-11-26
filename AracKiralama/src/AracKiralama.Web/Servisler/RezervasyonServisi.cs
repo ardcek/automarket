@@ -265,8 +265,15 @@ public class RezervasyonServisi
         GecisiKontrolEt(r, RezervasyonDurumu.Tamamlandi);
         if (iadeKm < (r.TeslimKm ?? 0)) throw new IsKuraliHatasi($"İade kilometresi teslim kilometresinden ({Bicim.Sayi(r.TeslimKm ?? 0)}) küçük olamaz.");
         if (hasarTutari < 0) throw new IsKuraliHatasi("Hasar tutarı negatif olamaz.");
-        if (r.TeslimTarihi != null && iadeTarihi < r.TeslimTarihi)
-            throw new IsKuraliHatasi($"İade zamanı, teslim zamanından ({Bicim.TarihSaat(r.TeslimTarihi.Value)}) önce olamaz.");
+        if (r.TeslimTarihi is DateTime teslim)
+        {
+            // Formdaki iade saati dakikaya yuvarlıdır (00:56), teslim ise saniyesiyle kaydedilir (00:56:37).
+            // Aynı dakika "önce" sayılmasın; iade, teslimden önceye düşmesin diye teslim anına çekilir.
+            var teslimDakikasi = new DateTime(teslim.Year, teslim.Month, teslim.Day, teslim.Hour, teslim.Minute, 0, teslim.Kind);
+            if (iadeTarihi < teslimDakikasi)
+                throw new IsKuraliHatasi($"İade zamanı, teslim zamanından ({Bicim.TarihSaat(teslim)}) önce olamaz.");
+            if (iadeTarihi < teslim) iadeTarihi = teslim;
+        }
 
         r.Durum = RezervasyonDurumu.Tamamlandi;
         r.IadeTarihi = iadeTarihi;

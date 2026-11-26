@@ -1,10 +1,12 @@
 // ============================================================================
 // MÜŞTERİLER ve PERSONEL
 //   /Yonetim/Musteriler  → bütün kullanıcılar (müşteri + personel), detay (geçmiş, ödemeler, hasarlar), kara liste
-//   /Yonetim/Personel    → yetkiler, yeni kullanıcı, geçici şifre, hesabı dondur / sil (SADECE Admin ve Süper Admin)
+//   /Yonetim/Personel    → yetkiler, yeni kullanıcı, geçici şifre, sıfırlama e-postası, hesabı dondur / sil,
+//                          e-posta gönderimi durumu + test (SADECE Admin ve Süper Admin)
 // ============================================================================
 using AracKiralama.FormModelleri;
 using AracKiralama.Modeller;
+using AracKiralama.Servisler;
 using AracKiralama.Veri;
 using AracKiralama.Yardimcilar;
 using Microsoft.AspNetCore.Authorization;
@@ -213,6 +215,43 @@ public class PersonelController : YonetimController
         TempData["GeciciSifre"] = sifre;
         TempData["GeciciSifreKime"] = $"{kullanici.TamAd} ({kullanici.Email})";
         return Geri();
+    }
+
+    /// <summary>
+    /// Kişiye "şifre sıfırlama" e-postası gönderir (Müşteri detayı → Hesap işlemleri). Kişi şifresini kendisi belirler;
+    /// geçici şifreden farkı: admin şifreyi hiç görmez. E-posta ayarı yoksa uyarır (o zaman "Geçici şifre ver" kullanılır).
+    /// </summary>
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> SifirlamaGonder(string id, [FromServices] EpostaServisi eposta, [FromServices] SiteAyarlari ayarlar)
+    {
+        var kullanici = await _kullanicilar.FindByIdAsync(id);
+        var engel = kullanici == null ? "Kullanıcı bulunamadı." : await EngelAsync(kullanici);
+        if (engel != null) { Hata(engel); return Geri(); }
+        if (!eposta.Ayarli) { Hata("E-posta gönderimi ayarlı değil (Personel ve Roller → E-posta gönderimi). Bunun yerine geçici şifre verin."); return Geri(); }
+
+        var kod = await _kullanicilar.GeneratePasswordResetTokenAsync(kullanici!);
+        var link = Url.Action("SifreSifirla", "Hesap", new { area = "", eposta = kullanici!.Email, kod }, Request.Scheme)!;
+        if (await eposta.SifirlamaLinkiGonderAsync(kullanici.Email!, kullanici.Ad, link, ayarlar.FirmaAdi))
+            Basarili($"Şifre sıfırlama bağlantısı {kullanici.Email} adresine gönderildi (2 saat geçerli).");
+        else Hata($"E-posta gönderilemedi: {EpostaServisi.SonDeneme?.Mesaj}");
+        return Geri();
+    }
+
+    /// <summary>E-posta ayarını denemek için yazılan adrese test e-postası gönderir (Personel ve Roller → E-posta gönderimi).</summary>
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> EpostaDene(string? alici, [FromServices] EpostaServisi eposta, [FromServices] SiteAyarlari ayarlar)
+    {
+        alici = alici?.Trim() ?? "";
+        if (alici.Length == 0 || !new System.ComponentModel.DataAnnotations.EmailAddressAttribute().IsValid(alici))
+        {
+            Hata("Geçerli bir e-posta adresi yazın.");
+            return RedirectToAction(nameof(Index));
+        }
+        var html = $"<p>Bu bir test e-postasıdır. \"Şifremi unuttum\" e-postaları bu ayarla gönderilir.</p><p>{System.Net.WebUtility.HtmlEncode(eposta.Yontem)}</p>";
+        if (await eposta.GonderAsync(alici, $"{ayarlar.FirmaAdi} · Test e-postası", html, "Bu bir test e-postasıdır."))
+            Basarili($"Test e-postası {alici} adresine gönderildi. Gelen kutusunu (ve gereksiz klasörünü) kontrol edin.");
+        else Hata($"Gönderilemedi: {EpostaServisi.SonDeneme?.Mesaj}");
+        return RedirectToAction(nameof(Index));
     }
 
     /// <summary>Hesabı dondurur (giriş yapamaz) ya da çözer. Kayıtları silinmez.</summary>

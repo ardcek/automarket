@@ -1,5 +1,6 @@
 @* ŞİFREMİ UNUTTUM: e-posta yazılır, 2 saat geçerli sıfırlama linki gönderilir (HesapController → SifremiUnuttum).
-   E-posta ayarı yoksa (appsettings.json → "Eposta") link loga yazılır; bilgisayarda (Development) aşağıda da görünür.
+   E-posta ayarı yoksa (Servisler/EpostaServisi.cs): bilgisayarda (Development) link aşağıda görünür,
+   canlıda form yerine "bizi arayın" kutusu çıkar (yanlışlıkla "gönderildi" denmesin).
    Yazılar: Yönetim → Site Düzenleyici → "Giriş ve kayıt" → Şifre işlemleri *@
 @model SifremiUnuttumFormu
 @{ ViewData["Title"] = Icerik.Metin("hesap.unuttum-baslik"); }
@@ -12,7 +13,7 @@
         <div class="ic" data-giris style="--i:0">
             <a asp-action="Giris" class="small"><i class="bi bi-arrow-left me-1"></i>Giriş sayfasına dön</a>
             <h1 class="h3 mt-2">@Icerik.Metin("hesap.unuttum-baslik")</h1>
-            <p class="text-muted">@Icerik.Metin("hesap.unuttum-metin")</p>
+            @if (ViewBag.EpostaKapali != true) { <p class="text-muted">@Icerik.Metin("hesap.unuttum-metin")</p> }
 
             @if (TempData["SifirlamaLinki"] is string link)
             {
@@ -22,16 +23,33 @@
                 </div>
             }
 
-            <form asp-action="SifremiUnuttum" method="post" data-yukleniyor="Gönderiliyor…">
-                <div asp-validation-summary="ModelOnly" class="hata-ozeti mb-3" role="alert"></div>
-                <div class="mb-3">
-                    <label asp-for="Eposta" class="form-label"></label>
-                    <input asp-for="Eposta" type="email" class="form-control" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="ornek@eposta.com" />
-                    <span asp-validation-for="Eposta"></span>
+            @if (ViewBag.EpostaKapali == true)
+            {
+                @* E-posta ayarı girilmemiş (Render → Environment → Eposta__BrevoApiAnahtari): link gönderilemez, kişi yanıltılmaz.
+                   Admin, Yönetim → Müşteriler → kişi → "Geçici şifre ver" ile yardımcı olur. *@
+                var a = Icerik.Ayarlar;
+                <div class="alert alert-warning" role="status">
+                    <b><i class="bi bi-envelope-exclamation me-1"></i>E-postayla şifre sıfırlama şu an kullanılamıyor.</b>
+                    <div class="mt-1">Bize ulaşın, kimliğinizi doğruladıktan sonra size geçici bir şifre verelim:</div>
+                    <div class="d-grid gap-2 mt-3">
+                        @if (!string.IsNullOrWhiteSpace(a.Telefon)) { <a class="btn btn-sade" href="tel:@a.Telefon.Replace(" ", "")"><i class="bi bi-telephone me-1"></i>@a.Telefon</a> }
+                        @if (!string.IsNullOrWhiteSpace(a.Eposta)) { <a class="btn btn-sade" href="mailto:@a.Eposta"><i class="bi bi-envelope me-1"></i>@a.Eposta</a> }
+                    </div>
                 </div>
-                <button class="btn btn-primary btn-lg w-100">Sıfırlama bağlantısı gönder <i class="bi bi-send ms-1"></i></button>
-            </form>
-            <p class="alt-not"><i class="bi bi-shield-lock"></i>Bağlantı tek kullanımlıktır ve 2 saat sonra geçersiz olur.</p>
+            }
+            else
+            {
+                <form asp-action="SifremiUnuttum" method="post" data-yukleniyor="Gönderiliyor…">
+                    <div asp-validation-summary="ModelOnly" class="hata-ozeti mb-3" role="alert"></div>
+                    <div class="mb-3">
+                        <label asp-for="Eposta" class="form-label"></label>
+                        <input asp-for="Eposta" type="email" class="form-control" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="ornek@eposta.com" />
+                        <span asp-validation-for="Eposta"></span>
+                    </div>
+                    <button class="btn btn-primary btn-lg w-100">Sıfırlama bağlantısı gönder <i class="bi bi-send ms-1"></i></button>
+                </form>
+                <p class="alt-not"><i class="bi bi-shield-lock"></i>Bağlantı tek kullanımlıktır ve 2 saat sonra geçersiz olur.</p>
+            }
         </div>
     </div>
 </div>

@@ -20,6 +20,8 @@
 //   data-sablon-ara             → (Filtreler ve Özellikler) hazır özellik kartlarında arama
 //   data-tc                     → T.C. Kimlik No kutusu: sadece rakam, 11 hanede resmi algoritmayla anında kontrol
 //                                 (sunucudaki kontrol: Yardimcilar/Dogrulama.cs → TcKimlikNo.GecerliMi)
+//   (her table.table)            → telefonda her satır kart olur, sütun adı hücrenin solunda yazar
+//   data-mobil-tablo="kaydir"    → (table) kart olmasın, telefonda yana kaysın
 // =====================================================================
 
 // ---- Açık / koyu tema ----
@@ -242,6 +244,41 @@ document.querySelectorAll("[data-tc]").forEach(kutu => {
     };
     kutu.addEventListener("input", kontrol);
     kontrol();
+});
+
+// ---- Telefonda tablolar kart olur ----
+// Her hücreye kendi sütun başlığı "data-etiket" olarak yazılır; telefonda (stil.css → "Telefonda tablo kartları")
+// satırlar kart olur ve başlık hücrenin soluna gelir. Bilgisayarda tablo aynen kalır.
+// Yana kaydırması istenen tablo için: <table class="table" data-mobil-tablo="kaydir">
+function tabloyaEtiketYaz(tablo) {
+    const basliklar = [];
+    tablo.querySelectorAll(":scope > thead > tr:first-child > th").forEach(th => {
+        for (let i = 0; i < (th.colSpan || 1); i++) basliklar.push(th.textContent.replace(/\s+/g, " ").trim());
+    });
+    tablo.classList.add("mobil-kart");
+    tablo.setAttribute("role", "table");   // görünüm değişince ekran okuyucular yine tablo olarak okusun
+    tablo.querySelectorAll(":scope > thead, :scope > tbody, :scope > tfoot").forEach(grup => grup.setAttribute("role", "rowgroup"));
+    tablo.querySelectorAll(":scope > * > tr").forEach(satir => {
+        satir.setAttribute("role", "row");
+        const baslikSatiri = satir.parentElement.tagName === "THEAD";
+        let sutun = 0;
+        [...satir.children].forEach(hucre => {
+            const genislik = hucre.colSpan || 1;
+            if (baslikSatiri) hucre.setAttribute("role", "columnheader");
+            else {
+                hucre.setAttribute("role", "cell");
+                const etiket = genislik > 1 ? "" : basliklar[sutun] || "";
+                if (hucre.dataset.etiket !== etiket) hucre.dataset.etiket = etiket;
+                hucre.classList.toggle("bos-hucre", !hucre.textContent.trim() && !hucre.querySelector("img, input, select, textarea, button, a, svg, .badge"));
+            }
+            sutun += genislik;
+        });
+    });
+}
+document.querySelectorAll("table.table:not([data-mobil-tablo='kaydir'])").forEach(tablo => {
+    tabloyaEtiketYaz(tablo);
+    // Satır sonradan eklenirse (ör. "satır ekle" düğmesi) onun da etiketleri yazılsın
+    new MutationObserver(() => tabloyaEtiketYaz(tablo)).observe(tablo, { childList: true, subtree: true });
 });
 
 // ---- Hazır özellik şablonlarında arama (Yönetim → Filtreler ve Özellikler) ----

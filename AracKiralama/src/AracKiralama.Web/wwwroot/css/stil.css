@@ -178,6 +178,24 @@ a { text-decoration: none; }
 .table thead th { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--soluk); background: var(--yuzey-2); white-space: nowrap; }
 .table-hover > tbody > tr:hover > * { --bs-table-bg-state: var(--yuzey-2); }
 .tablo-karti { overflow: hidden; }
+/* Telefonda tablo kartları: geniş tablo yana kaymasın, her satır bir kart olsun; sütun adı hücrenin solunda yazar.
+   Etiketleri genel.js ("Telefonda tablolar kart olur") ekler. Yana kaydırması istenen tablo: <table data-mobil-tablo="kaydir"> */
+@media (max-width: 767.98px) {
+    .table.mobil-kart, .table.mobil-kart > tbody, .table.mobil-kart > tfoot, .table.mobil-kart > * > tr { display: block; width: 100%; }
+    .table.mobil-kart > thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+    .table.mobil-kart > * > tr { padding: .8rem 1rem; border-bottom: 1px solid var(--cizgi); }
+    .table.mobil-kart > * > tr:last-child { border-bottom: 0; }
+    .table.mobil-kart > :not(caption) > tr > * { display: block; padding: .3rem 0; border: 0; box-shadow: none; text-align: left !important; }
+    .table.mobil-kart > * > tr > [data-etiket]:not([data-etiket=""]) { position: relative; padding-left: 7.25rem; min-height: 1.9rem; overflow-wrap: anywhere; }
+    .table.mobil-kart > * > tr > [data-etiket]:not([data-etiket=""])::before {
+        content: attr(data-etiket); position: absolute; left: 0; top: .5rem; width: 6.5rem;
+        font-size: .68rem; font-weight: 600; letter-spacing: .05em; line-height: 1.3; text-transform: uppercase; color: var(--soluk);
+    }
+    .table.mobil-kart > * > tr > [colspan] { padding-left: 0; }   /* "Kayıt yok" gibi bütün satırı kaplayan hücre: etiketsiz */
+    .table.mobil-kart > * > tr > .text-nowrap { white-space: normal !important; }   /* dar kartta uzun tarih alt satıra geçebilsin */
+    .table.mobil-kart > * > tr > .bos-hucre { display: none; }
+    .table.mobil-kart > * > tr > :last-child[data-etiket=""] { padding-top: .5rem; }   /* işlem düğmeleri */
+}
 .kucuk-gorsel { width: 64px; height: 42px; border-radius: 8px; object-fit: cover; background: var(--yuzey-2); }
 .plaka { font-family: ui-monospace, Consolas, monospace; font-weight: 600; padding: .15rem .45rem; border: 1px solid var(--cizgi); border-radius: 6px; background: var(--yuzey-2); font-size: .82rem; white-space: nowrap; }
 .bos-durum { text-align: center; padding: 3rem 1rem; color: var(--soluk); }

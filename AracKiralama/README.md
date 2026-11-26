@@ -222,7 +222,7 @@ Kimse kendi yetkisini değiştiremez (yanlışlıkla kendini kilitlemesin diye).
 
 **Yeni kullanıcı:** Müşteriler ve Kullanıcılar → **Yeni kullanıcı**. Hesap geçici şifreyle açılır; kişi ilk girişte kendi şifresini belirler.
 
-**Şifremi unuttum:** Giriş sayfasındaki bağlantı. Kişiye 2 saat geçerli, tek kullanımlık bir link e-postayla gider (ayarı: [13.9](#139-e-posta-gönderimi-şifremi-unuttum)). Kullanıcı şifresini **Hesabım → Şifremi değiştir**'den de değiştirebilir.
+**Şifremi unuttum:** Giriş sayfasındaki bağlantı. Kişiye 2 saat geçerli, tek kullanımlık bir link e-postayla gider (ayarı: [13.9](#139-e-posta-gönderimi-şifremi-unuttum); canlıda Brevo anahtarı girilmeden çalışmaz). Admin de **Müşteriler → kişi → Hesap işlemleri**nden "Sıfırlama e-postası gönder" ya da "Geçici şifre ver" diyebilir. Kullanıcı şifresini **Hesabım → Şifremi değiştir**'den de değiştirebilir.
 
 **İlk Süper Admin'i vermek (veritabanından):** Sistemde hiç Süper Admin yoksa ya da hepsi silindiyse ilk Süper Admin veritabanından verilir; sonrakileri o kişi panelden verebilir. Neon → projeniz → **SQL Editor**'de e-postayı değiştirip çalıştırın:
 
@@ -726,21 +726,31 @@ Sonra http://localhost:5080 açın. `http://localhost:5080/health` → `Healthy`
 
 ### 13.9. E-posta gönderimi ("Şifremi unuttum")
 
-"Şifremi unuttum" linki e-postayla gider (`Servisler/EpostaServisi.cs`, ek paket yok). Bir SMTP hesabı gerekir:
-- **Brevo** (ücretsiz, günde 300 e-posta): brevo.com → hesap → **SMTP & API** → SMTP anahtarı oluşturun.
-- **Gmail**: Google hesabı → Güvenlik → 2 adımlı doğrulama açık olmalı → **Uygulama şifreleri** → 16 haneli şifre.
+"Şifremi unuttum" linki e-postayla gider (`Servisler/EpostaServisi.cs`, ek paket yok).
 
-Render → servis → **Environment** sayfasına ekleyin (şifre içerdiği için GitHub'a yazılmaz):
+> **Önemli:** Render'ın ücretsiz planı Eylül 2025'ten beri e-posta portlarını (25, 465, 587) kapatıyor. Bu yüzden canlı sitede Gmail / SMTP **çalışmaz**. Canlıda e-posta, **Brevo**'nun HTTPS üzerinden çalışan API'siyle gönderilir.
+
+**Brevo kurulumu (ücretsiz, günde 300 e-posta, ~5 dakika):**
+1. [brevo.com](https://www.brevo.com) → ücretsiz hesap açın.
+2. **Senders, Domains & Dedicated IPs → Senders → Add a sender**: gönderen olarak kullanılacak adresi ekleyin (örn. kendi e-postanız). Brevo o adrese bir doğrulama e-postası yollar; içindeki bağlantıya tıklayın.
+3. **SMTP & API → API Keys → Generate a new API key**: çıkan `xkeysib-...` anahtarını kopyalayın.
+4. Render → servis → **Environment** sayfasına ekleyin (anahtar şifre gibidir, GitHub'a yazılmaz):
 
 | Anahtar | Örnek değer |
 |---|---|
-| `Eposta__Sunucu` | `smtp-relay.brevo.com` (Gmail: `smtp.gmail.com`) |
-| `Eposta__Port` | `587` |
-| `Eposta__Kullanici` | SMTP kullanıcı adı (Gmail: e-posta adresiniz) |
-| `Eposta__Sifre` | SMTP anahtarı / uygulama şifresi |
-| `Eposta__Gonderen` | Gönderen adres, örn. `destek@ardcek.com` (Gmail: kendi adresiniz) |
+| `Eposta__BrevoApiAnahtari` | `xkeysib-...` (3. adımdaki anahtar) |
+| `Eposta__Gonderen` | 2. adımda doğruladığınız adres |
+| `Eposta__GonderenAdi` | `Rota Rent a Car` (isteğe bağlı) |
 
-Ayar yoksa e-posta gönderilmez, link sadece Render loguna yazılır (`Şifre sıfırlama linki (e-posta gönderilmedi)`). Bilgisayarda (BASLAT.bat) ayar yoksa link ekranda da gösterilir, deneme yapılabilir.
+5. Kaydedince Render siteyi yeniden başlatır. Yönetim → **Personel ve Roller** → **E-posta gönderimi** kutusunda durum "Açık" olmalı; **Test gönder** ile kendinize bir e-posta yollayıp deneyin. Gelmezse aynı kutuda "Son deneme" satırı sebebini yazar (örn. `Brevo 401` = anahtar yanlış, `sender not valid` = gönderen adres doğrulanmamış).
+
+**Bilgisayarda (ya da ücretli sunucuda) SMTP de kullanılabilir:** `Eposta__Sunucu` (`smtp.gmail.com`), `Eposta__Port` (`587`), `Eposta__Kullanici`, `Eposta__Sifre` (Gmail: Google hesabı → Güvenlik → 2 adımlı doğrulama → **Uygulama şifreleri**), `Eposta__Gonderen`. İkisi birden girilirse Brevo kullanılır.
+
+**Ayar yoksa ne olur?**
+- Canlı sitede "Şifremi unuttum" sayfası form yerine **"bizi arayın"** kutusu gösterir (telefon ve e-posta Ayarlar → Genel'den gelir). Kişi aradığında admin **Müşteriler → kişi → Geçici şifre ver** ile yardım eder; kişi ilk girişte kendi şifresini belirler.
+- Bilgisayarda (BASLAT.bat, Development) link ekranda gösterilir, deneme yapılabilir.
+
+**Güvenlik:** Kayıtlı olsun olmasın her e-posta için aynı mesaj gösterilir (kimin üye olduğu öğrenilemez). Aynı adrese dakikada en fazla bir e-posta gider. Link 2 saat geçerlidir, bir kez kullanılır; şifre değişince eski link ve açık oturumlar geçersiz olur. Link loga yazılmaz.
 
 ## 14. Sorun çözme (bir şey çalışmıyorsa)
 

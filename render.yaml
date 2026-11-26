@@ -26,3 +26,9 @@ services:
       # sayfasında girilir. Boş bırakılırsa geçici SQLite kullanılır (her yeniden başlatmada sıfırlanır).
       - key: ConnectionStrings__PostgreSql
         sync: false
+      # "Şifremi unuttum" e-postası (Brevo, HTTPS). Ücretsiz planda SMTP portları kapalı olduğu için SMTP değil Brevo.
+      # Değerler Render → Environment sayfasında girilir; anlatım: AracKiralama/README.md → 13.9
+      - key: Eposta__BrevoApiAnahtari
+        sync: false
+      - key: Eposta__Gonderen
+        sync: false
