@@ -30,7 +30,10 @@ public class Kampanya
 
     // ---- KOŞULLAR (boş = fark etmez) ----
 
-    /// <summary>Müşteri bilgisi koşulu: bu alandaki cevabı MusteriDegeri olan müşteriler (örn. Meslek = Öğretmen).</summary>
+    /// <summary>
+    /// Müşteri bilgisi koşulu: bu alandaki cevabı MusteriDegeri olan müşteriler (örn. Meslek = Öğretmen).
+    /// Birden çok değer "|" ile ayrılır ve HERHANGİ BİRİ yeter: "Sağlık çalışanı|Kamu çalışanı|Emekli" → meslek grubu indirimi.
+    /// </summary>
     public int? MusteriAlanId { get; set; }
     public MusteriAlani? MusteriAlani { get; set; }
     [MaxLength(200)] public string? MusteriDegeri { get; set; }
@@ -56,6 +59,9 @@ public class Kampanya
     [Display(Name = "Yayında")] public bool Aktif { get; set; } = true;
     [Display(Name = "Sıra")] public int Sira { get; set; }
 
+    /// <summary>Müşteri koşulundaki değerler: "Sağlık çalışanı|Emekli" → ["Sağlık çalışanı", "Emekli"].</summary>
+    public string[] MusteriDegerListesi => (MusteriDegeri ?? "").Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
     /// <summary>"%15" gibi okunur oran.</summary>
     public string OranYazisi => "%" + (IndirimOrani * 100).ToString("0.#", Bicim.Tr);
 
@@ -69,7 +75,7 @@ public class Kampanya
     public string KosulOzeti()
     {
         var parcalar = new List<string>();
-        if (MusteriAlanId != null) parcalar.Add($"{MusteriAlani?.Ad ?? "Müşteri bilgisi"}: {MusteriDegeri}");
+        if (MusteriAlanId != null) parcalar.Add($"{MusteriAlani?.Ad ?? "Müşteri bilgisi"}: {(MusteriDegeri == "true" ? "Evet" : string.Join(", ", MusteriDegerListesi))}");
         if (KategoriId != null) parcalar.Add($"Kategori: {Kategori?.Ad}");
         if (MarkaId != null) parcalar.Add($"Marka: {Marka?.Ad}");
         if (AracOzellikId != null) parcalar.Add($"{AracOzelligi?.Ad ?? "Özellik"}: {(AracOzellikDegeri == "true" ? "Var" : AracOzellikDegeri)}");

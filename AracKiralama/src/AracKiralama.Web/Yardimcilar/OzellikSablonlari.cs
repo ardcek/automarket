@@ -41,7 +41,7 @@ public static partial class OzellikSablonlari
         new("menzil", "Elektrikli menzil", OzellikTuru.Sayi, "bi-battery-charging", "Tam şarjla gidilen yol", Birim: "km"),
 
         // ---- Seçim listeleri ----
-        new("kasa", "Kasa tipi", OzellikTuru.Secim, "bi-car-front", "Aracın gövde şekli", Secenekler: "Sedan|Hatchback|SUV|Station wagon|Minivan|Pick-up|Panelvan", KarttaGoster: true),
+        new("kasa", "Kasa tipi", OzellikTuru.Secim, "bi-car-front", "Aracın gövde şekli", Secenekler: "Sedan|Hatchback|SUV|Coupe|Station wagon|Minivan|Minibüs|Pick-up|Panelvan", KarttaGoster: true),
         new("cekis", "Çekiş", OzellikTuru.Secim, "bi-diagram-3", "Hangi tekerlekler güç alır", Secenekler: "Önden çekiş|Arkadan itiş|4x4"),
         new("lastik", "Lastik tipi", OzellikTuru.Secim, "bi-circle", "Mevsime uygun lastik", Secenekler: "Yaz|Kış|4 mevsim"),
         new("koltuk-dosemesi", "Koltuk döşemesi", OzellikTuru.Secim, "bi-person-workspace", "Kumaş, deri ya da yarı deri", Secenekler: "Kumaş|Yarı deri|Deri"),

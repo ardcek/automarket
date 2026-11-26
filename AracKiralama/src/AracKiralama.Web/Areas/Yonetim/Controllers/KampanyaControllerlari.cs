@@ -107,8 +107,13 @@ public class KampanyalarController : YonetimController
     {
         if (form.BaslangicTarihi != null && form.BitisTarihi != null && form.BitisTarihi < form.BaslangicTarihi)
             ModelState.AddModelError(nameof(form.BitisTarihi), "Bitiş tarihi başlangıçtan önce olamaz.");
-        if (!string.IsNullOrEmpty(form.MusteriKosulu) && KampanyaFormu.Ayir(form.MusteriKosulu).Id == null)
-            ModelState.AddModelError(nameof(form.MusteriKosulu), "Geçerli bir müşteri bilgisi seçin.");
+        var kosullar = form.MusteriKosullari.Select(KampanyaFormu.Ayir).ToList();
+        if (kosullar.Any(x => x.Id == null))
+            ModelState.AddModelError(nameof(form.MusteriKosullari), "Geçerli bir müşteri bilgisi seçin.");
+        else if (kosullar.Select(x => x.Id).Distinct().Count() > 1)
+            ModelState.AddModelError(nameof(form.MusteriKosullari), "Bir kampanyada tek bir müşteri bilgisinden seçim yapın (örn. sadece Meslek). Farklı bir bilgi için ikinci kampanya açın.");
+        else if ((form.MusteriKosulu().Degerler?.Length ?? 0) > 200)
+            ModelState.AddModelError(nameof(form.MusteriKosullari), "Çok fazla seçenek işaretlendi; grubu ikiye bölün.");
         if (!string.IsNullOrEmpty(form.AracKosulu) && KampanyaFormu.Ayir(form.AracKosulu).Id == null)
             ModelState.AddModelError(nameof(form.AracKosulu), "Geçerli bir araç özelliği seçin.");
     }
@@ -123,6 +128,7 @@ public class KampanyalarController : YonetimController
         foreach (var alan in await _vt.MusteriAlanlari.OrderBy(a => a.Sira).ThenBy(a => a.Ad).AsNoTracking().ToListAsync())
         {
             if (alan.Tur == OzellikTuru.Secim) musteriSecenekleri.AddRange(alan.SecenekListesi.Select(s => ($"{alan.Id}|{s}", $"{alan.Ad}: {s}")));
+            // (formda "Bilgi adı: değer" yazısı ":" işaretinden bölünüp bilgiye göre gruplanır)
             else if (alan.Tur == OzellikTuru.EvetHayir) musteriSecenekleri.Add(($"{alan.Id}|true", $"{alan.Ad}: Evet"));
         }
 
@@ -134,8 +140,9 @@ public class KampanyalarController : YonetimController
         }
 
         // Düzenlenen kampanyanın değeri listede yoksa (seçenek sonradan silinmiş) yine de görünsün
-        if (!string.IsNullOrEmpty(form?.MusteriKosulu) && musteriSecenekleri.All(s => s.Deger != form.MusteriKosulu))
-            musteriSecenekleri.Add((form.MusteriKosulu, form.MusteriKosulu.Split('|').Last() + " (artık listede yok)"));
+        foreach (var secili in form?.MusteriKosullari ?? [])
+            if (musteriSecenekleri.All(s => s.Deger != secili))
+                musteriSecenekleri.Add((secili, secili.Split('|').Last() + " (artık listede yok)"));
         if (!string.IsNullOrEmpty(form?.AracKosulu) && aracSecenekleri.All(s => s.Deger != form.AracKosulu))
             aracSecenekleri.Add((form.AracKosulu, form.AracKosulu.Split('|').Last() + " (artık listede yok)"));
 

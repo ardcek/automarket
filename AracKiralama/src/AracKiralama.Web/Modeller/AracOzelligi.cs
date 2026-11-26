@@ -41,6 +41,9 @@ public class AracOzelligi
     [Display(Name = "İkon"), MaxLength(40)]
     public string Ikon { get; set; } = "bi-tag";     // Bootstrap ikon adı
 
+    /// <summary>Hazır şablondan eklendiyse kodu ("motor-hacmi"): araçların değeri Yardimcilar/AracKatalogu.cs'ten otomatik dolar.</summary>
+    [MaxLength(40)] public string? SablonKod { get; set; }
+
     [Display(Name = "Araç listesinde filtre olarak göster")] public bool FiltredeGoster { get; set; } = true;
     [Display(Name = "Araç kartında göster")] public bool KarttaGoster { get; set; }
     [Display(Name = "Araç detayında göster")] public bool DetaydaGoster { get; set; } = true;

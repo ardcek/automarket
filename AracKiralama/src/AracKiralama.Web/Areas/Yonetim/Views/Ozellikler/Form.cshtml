@@ -3,33 +3,56 @@
 @{
     var duzenleme = Model.Id != null;
     ViewData["Title"] = duzenleme ? "Özelliği düzenle" : "Yeni özellik / filtre";
+    var sablon = OzellikSablonlari.Bul(Model.SablonKod);
+    var katalogdan = !duzenleme && AracKatalogu.Doldurabilir(Model.SablonKod);
 }
 <div class="sayfa-baslik"><div><a asp-action="Index" class="small"><i class="bi bi-arrow-left me-1"></i>Filtreler ve Özellikler</a><h1 class="mt-1">@ViewData["Title"]</h1></div></div>
 
 <form asp-action="@(duzenleme ? "Duzenle" : "Ekle")" asp-route-id="@Model.Id" method="post">
     <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="SablonKod" />
     <div asp-validation-summary="ModelOnly" class="alert alert-danger small"></div>
+    @if (sablon != null && !duzenleme)
+    {
+        @* Hazır özellik: hiçbir şeyi değiştirmeden Kaydet'e basmak yeterli *@
+        <div class="alert alert-info d-flex gap-3 align-items-start">
+            <i class="bi bi-magic fs-4"></i>
+            <div>
+                <b>Hazır özellik: bir şey doldurman gerekmiyor, Kaydet'e bas.</b><br />
+                @if (katalogdan)
+                {
+                    <span>Her aracın @sablon.Ad.ToLower(Bicim.Tr) bilgisi sistemde hazır duruyor; kaydedince bütün araçlara otomatik yazılır ve filtre araç listesinde hemen çıkar. Sonra tek tek değiştirebilirsin.</span>
+                }
+                else
+                {
+                    <span>Bu bilgi araçtan araca işletmeye göre değişir; kaydettikten sonra açılan ekranda hangi araçta olduğunu işaretlersin.</span>
+                }
+            </div>
+        </div>
+    }
     <div class="row g-3">
         <div class="col-xl-8">
             <div class="card"><div class="card-body row g-3">
                 <div class="col-md-6"><label asp-for="Ad" class="form-label"></label><input asp-for="Ad" class="form-control" placeholder="örn. Bagaj hacmi, Klima, Renk" /><span asp-validation-for="Ad"></span></div>
                 <div class="col-md-6">
                     <label asp-for="Tur" class="form-label"></label>
-                    <select asp-for="Tur" class="form-select" asp-items="Html.GetEnumSelectList<OzellikTuru>()"></select>
+                    <select asp-for="Tur" class="form-select" asp-items="Html.GetEnumSelectList<OzellikTuru>()" data-tur-secici></select>
                     <div class="form-text">Seçim listesi → açılır liste · Sayı → en az / en çok · Var / Yok → evet mi hayır mı · Serbest yazı → içinde arama</div>
                 </div>
                 @* Türüne göre gerekli olan alanlar *@
-                <div class="col-md-6">
+                <div class="col-md-6" data-tur-alani="Secim">
                     <label asp-for="SeceneklerMetni" class="form-label"></label>
                     <textarea asp-for="SeceneklerMetni" class="form-control" rows="5" placeholder="Beyaz&#10;Siyah&#10;Kırmızı"></textarea>
-                    <div class="form-text">Sadece "Seçim listesi" türünde kullanılır.</div>
+                    <div class="form-text">Açılır listede görünecek seçenekler.</div>
                     <span asp-validation-for="SeceneklerMetni"></span>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-6" data-tur-alani="Sayi">
                     <label asp-for="Birim" class="form-label"></label>
                     <input asp-for="Birim" class="form-control" placeholder="lt" />
-                    <div class="form-text">Sadece "Sayı" türünde kullanılır. Filtrede ve kartta sayının yanına yazılır.</div>
-                    <label asp-for="Ikon" class="form-label mt-3"></label>
+                    <div class="form-text">Filtrede ve kartta sayının yanına yazılır: "1598 cc".</div>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Ikon" class="form-label"></label>
                     <div class="input-group">
                         <span class="input-group-text"><i id="ikon-onizleme" class="bi @Model.Ikon"></i></span>
                         <input asp-for="Ikon" class="form-control" data-ikon-onizle="#ikon-onizleme" />

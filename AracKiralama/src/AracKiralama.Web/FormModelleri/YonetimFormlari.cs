@@ -159,6 +159,9 @@ public class OzellikFormu
         .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
         .Select(s => s.Replace("|", "/")).Distinct().ToList();
 
+    /// <summary>Hazır şablondan açıldıysa kodu (gizli alan). Kaydedince araçların değerleri katalogdan dolar.</summary>
+    public string? SablonKod { get; set; }
+
     /// <summary>Formdaki değerleri özelliğe kopyalar.</summary>
     public void Aktar(AracOzelligi ozellik)
     {
@@ -172,6 +175,7 @@ public class OzellikFormu
         ozellik.DetaydaGoster = DetaydaGoster;
         ozellik.Sira = Sira;
         ozellik.Aktif = Aktif;
+        if (OzellikSablonlari.Bul(SablonKod) != null) ozellik.SablonKod = SablonKod;
     }
 
     /// <summary>Var olan özellikten form oluşturur (düzenleme için).</summary>
@@ -179,6 +183,7 @@ public class OzellikFormu
     {
         Id = o.Id, Ad = o.Ad, Tur = o.Tur, SeceneklerMetni = string.Join("\n", o.SecenekListesi), Birim = o.Birim, Ikon = o.Ikon,
         FiltredeGoster = o.FiltredeGoster, KarttaGoster = o.KarttaGoster, DetaydaGoster = o.DetaydaGoster, Sira = o.Sira, Aktif = o.Aktif,
+        SablonKod = o.SablonKod,
     };
 }
 

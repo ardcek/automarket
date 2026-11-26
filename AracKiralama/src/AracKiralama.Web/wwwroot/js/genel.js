@@ -188,6 +188,18 @@ document.addEventListener("submit", olay => {
     hatali.focus();
 }, true);
 
+// ---- Özellik formu: türüne göre gerekli alanlar (Seçim listesi → seçenekler, Sayı → birim) ----
+// Değerler GetEnumSelectList'ten sayı olarak gelir: 0 = Seçim, 1 = Sayı, 2 = Var / Yok, 3 = Serbest yazı
+document.querySelectorAll("[data-tur-secici]").forEach(secici => {
+    const turler = ["Secim", "Sayi", "EvetHayir", "Yazi"];
+    const goster = () => {
+        const tur = turler[Number(secici.value)] ?? secici.value;
+        secici.form.querySelectorAll("[data-tur-alani]").forEach(alan => alan.hidden = alan.dataset.turAlani !== tur);
+    };
+    secici.addEventListener("change", goster);
+    goster();
+});
+
 // ---- Gönderilirken buton kilitlensin (iki kez tıklanıp iki kayıt olmasın) ----
 // Doğrulama formu durdurduysa (hatalı alan) buton kilitlenmez: kontrol, diğer dinleyiciler çalıştıktan sonra yapılır.
 document.querySelectorAll("form[data-yukleniyor]").forEach(form => form.addEventListener("submit", olay => setTimeout(() => {

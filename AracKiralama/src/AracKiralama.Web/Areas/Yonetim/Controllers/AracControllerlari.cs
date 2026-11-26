@@ -75,6 +75,9 @@ public class AraclarController : YonetimController
         _vt.Araclar.Add(arac);
         await OzellikleriAktarAsync(arac, form.Ozellikler);
         await _vt.SaveChangesAsync();
+        // Formda boş bırakılan hazır özellikler (motor hacmi, bagaj...) modelin katalog bilgisinden dolar
+        foreach (var ozellik in await _vt.AracOzellikleri.ToListAsync())
+            await AracKatalogu.DoldurAsync(_vt, ozellik, sadeceAracId: arac.Id);
         Basarili($"{arac.Plaka} plakalı araç eklendi.");
         return RedirectToAction(nameof(Detay), new { id = arac.Id });
     }

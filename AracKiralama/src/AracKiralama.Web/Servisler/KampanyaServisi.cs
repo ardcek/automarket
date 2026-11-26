@@ -101,7 +101,7 @@ public class KampanyaBaglami
         if (k.MusteriAlanId != null)
         {
             if (!MusteriDegerleri.TryGetValue(k.MusteriAlanId.Value, out var cevap)) sonuc = Sonuc.Olasi;
-            else if (!Ayni(cevap, k.MusteriDegeri)) return Sonuc.Uymaz;
+            else if (!k.MusteriDegerListesi.Any(d => Ayni(cevap, d))) return Sonuc.Uymaz;   // grup: herhangi biri yeter
         }
 
         // 4) En az gün: süre bilinmiyorsa ya da yetmiyorsa "olası" (müşteri süreyi uzatabilir)

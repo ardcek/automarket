@@ -37,13 +37,29 @@
                 <div class="card-header">Kime ve hangi araçlarda? <span class="small text-muted fw-normal">(boş bırakılan koşul "fark etmez" demektir)</span></div>
                 <div class="card-body row g-3">
                     <div class="col-md-6">
-                        <label asp-for="MusteriKosulu" class="form-label"></label>
-                        <select asp-for="MusteriKosulu" class="form-select">
-                            <option value="">Herkes</option>
-                            @foreach (var s in musteriSecenekleri) { <option value="@s.Deger">@s.Yazi</option> }
-                        </select>
-                        <div class="form-text">Liste boşsa: önce <a href="/Yonetim/MusteriAlanlari/Ekle" target="_blank">Müşteri Bilgileri</a>'nden "Meslek" gibi bir bilgi ekle.</div>
-                        <span asp-validation-for="MusteriKosulu"></span>
+                        <label class="form-label">Kimlere? <span class="text-muted fw-normal small">(hiçbiri işaretli değilse herkese)</span></label>
+                        @* Onay kutuları bilgiye göre gruplu: "Meslek" altında Öğretmen, Sağlık çalışanı... Birden çok işaretlenirse HERHANGİ BİRİ yeter. *@
+                        @{ var kutuNo = 0; }
+                        <div class="kosul-kutusu">
+                            @foreach (var grup in musteriSecenekleri.GroupBy(s => s.Yazi.Split(':')[0]))
+                            {
+                                <div class="kucuk-baslik mt-1 mb-1">@grup.Key</div>
+                                @foreach (var s in grup)
+                                {
+                                    kutuNo++;
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="MusteriKosullari" value="@s.Deger" id="mk-@kutuNo" checked="@Model.MusteriKosullari.Contains(s.Deger)" />
+                                        <label class="form-check-label" for="mk-@kutuNo">@s.Yazi[(s.Yazi.IndexOf(':') + 1)..].Trim()</label>
+                                    </div>
+                                }
+                            }
+                            @if (musteriSecenekleri.Count == 0)
+                            {
+                                <div class="small text-muted">Henüz müşteri bilgisi yok.</div>
+                            }
+                        </div>
+                        <div class="form-text">Örn. "Öğretmen" tek başına → öğretmen indirimi; Sağlık çalışanı + Kamu çalışanı + Emekli → meslek grubu indirimi. Seçenek eklemek: <a href="/Yonetim/MusteriAlanlari" target="_blank">Müşteri Bilgileri</a>.</div>
+                        <span asp-validation-for="MusteriKosullari"></span>
                     </div>
                     <div class="col-md-6">
                         <label asp-for="EnAzGun" class="form-label"></label>

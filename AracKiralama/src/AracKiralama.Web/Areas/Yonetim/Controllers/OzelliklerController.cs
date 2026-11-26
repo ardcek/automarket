@@ -6,6 +6,7 @@
 //   /Yonetim/Ozellikler/Duzenle/5   → özelliği değiştir
 //   /Yonetim/Ozellikler/Degerler/5  → bütün araçlara bu özelliğin değerini tek ekranda gir
 //   POST /Yonetim/Ozellikler/Sil/5  → özelliği ve araçlardaki değerlerini sil
+//   POST /Yonetim/Ozellikler/KatalogdanDoldur/5 → hazır özellikte boş araçları Yardimcilar/AracKatalogu.cs'ten doldur
 // Kullandığı tablolar: AracOzellikleri, AracOzellikDegerleri, Araclar, SiteAyarlari
 // ============================================================================
 using System.Globalization;
@@ -76,7 +77,7 @@ public class OzelliklerController : YonetimController
         return View("Form", s == null ? new OzellikFormu() : new OzellikFormu
         {
             Ad = s.Ad, Tur = s.Tur, Ikon = s.Ikon, Birim = s.Birim, KarttaGoster = s.KarttaGoster,
-            SeceneklerMetni = s.Secenekler?.Replace('|', '\n'),
+            SeceneklerMetni = s.Secenekler?.Replace('|', '\n'), SablonKod = s.Kod,
         });
     }
 
@@ -90,7 +91,14 @@ public class OzelliklerController : YonetimController
         form.Aktar(ozellik);
         _vt.AracOzellikleri.Add(ozellik);   // INSERT INTO "AracOzellikleri" ...
         await _vt.SaveChangesAsync();
-        Basarili($"\"{ozellik.Ad}\" eklendi. Şimdi araçlara değerlerini gir; boş bırakılan araç bu filtrede çıkmaz.");
+
+        // Hazır özellikse (motor hacmi, bagaj, klima...) araçların değerleri katalogdan hemen dolar
+        var (dolan, bilinmeyen) = await AracKatalogu.DoldurAsync(_vt, ozellik);
+        if (dolan > 0)
+            Basarili($"\"{ozellik.Ad}\" eklendi ve {dolan} aracın değeri hazır bilgilerden dolduruldu. Filtre araç listesinde şimdiden çalışıyor."
+                     + (bilinmeyen > 0 ? $" {bilinmeyen} araç için bilgi yok; aşağıdan girebilirsin." : " İstersen aşağıdan değiştirebilirsin."));
+        else
+            Basarili($"\"{ozellik.Ad}\" eklendi. Şimdi araçlara değerlerini gir; boş bırakılan araç bu filtrede çıkmaz.");
         return RedirectToAction(nameof(Degerler), new { id = ozellik.Id });
     }
 
@@ -142,6 +150,17 @@ public class OzelliklerController : YonetimController
                 .Where(a => a.Durum != AracDurumu.Pasif).OrderBy(a => a.Marka!.Ad).ThenBy(a => a.Model).AsNoTracking().ToListAsync(),
             Degerler = await _vt.AracOzellikDegerleri.Where(d => d.OzellikId == id).ToDictionaryAsync(d => d.AracId, d => d.Deger),
         });
+    }
+
+    /// <summary>Hazır özellikte boş kalan araçları katalogdan doldurur (Değerler ekranındaki düğme).</summary>
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> KatalogdanDoldur(int id)
+    {
+        var ozellik = await _vt.AracOzellikleri.FindAsync(id);
+        if (ozellik == null) return NotFound();
+        var (dolan, bilinmeyen) = await AracKatalogu.DoldurAsync(_vt, ozellik);
+        Basarili(dolan == 0 ? "Doldurulacak boş araç kalmadı." : $"{dolan} aracın değeri hazır bilgilerden dolduruldu." + (bilinmeyen > 0 ? $" {bilinmeyen} araç için bilgi yok." : ""));
+        return RedirectToAction(nameof(Degerler), new { id });
     }
 
     /// <summary>Tablodaki her aracın değerini kaydeder (boş bırakılanın değeri silinir).</summary>

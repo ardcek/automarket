@@ -53,8 +53,9 @@ public class KampanyaFormu
     [Display(Name = "İndirim (%)"), Range(1, 90, ErrorMessage = "İndirim %1 ile %90 arasında olmalıdır.")]
     public decimal IndirimYuzdesi { get; set; } = 10;
 
-    // Koşullar. Açılır listelerde "numara|değer" biçiminde gelir: "3|Öğretmen" (3 = alanın / özelliğin numarası)
-    [Display(Name = "Müşteri bilgisi")] public string? MusteriKosulu { get; set; }
+    // Koşullar. "numara|değer" biçiminde gelir: "3|Öğretmen" (3 = alanın / özelliğin numarası).
+    // Müşteri bilgisinde onay kutuları: birden çok seçilebilir (meslek grubu), hepsi aynı bilgiden olmalı.
+    [Display(Name = "Kimlere? (müşteri bilgisi)")] public List<string> MusteriKosullari { get; set; } = new();
     [Display(Name = "Kategori")] public int? KategoriId { get; set; }
     [Display(Name = "Marka")] public int? MarkaId { get; set; }
     [Display(Name = "Araç özelliği")] public string? AracKosulu { get; set; }
@@ -73,12 +74,20 @@ public class KampanyaFormu
         return parcalar.Length == 2 && int.TryParse(parcalar[0], out var id) && parcalar[1].Length > 0 ? (id, parcalar[1]) : (null, null);
     }
 
+    /// <summary>İşaretlenen kutular → (alan numarası, "Değer1|Değer2"). Hiçbiri yoksa (null, null) = herkes.</summary>
+    public (int? Id, string? Degerler) MusteriKosulu()
+    {
+        var secilenler = MusteriKosullari.Select(Ayir).Where(x => x.Id != null).ToList();
+        if (secilenler.Count == 0) return (null, null);
+        return (secilenler[0].Id, string.Join("|", secilenler.Select(x => x.Deger).Distinct()));
+    }
+
     public void Aktar(Kampanya k)
     {
         k.Ad = Ad.Trim();
         k.RozetYazisi = string.IsNullOrWhiteSpace(RozetYazisi) ? null : RozetYazisi.Trim();
         k.IndirimOrani = Math.Round(IndirimYuzdesi / 100m, 4);   // 15 → 0.15
-        (k.MusteriAlanId, k.MusteriDegeri) = Ayir(MusteriKosulu);
+        (k.MusteriAlanId, k.MusteriDegeri) = MusteriKosulu();
         k.KategoriId = KategoriId;
         k.MarkaId = MarkaId;
         (k.AracOzellikId, k.AracOzellikDegeri) = Ayir(AracKosulu);
@@ -92,7 +101,7 @@ public class KampanyaFormu
     public static KampanyaFormu Olustur(Kampanya k) => new()
     {
         Id = k.Id, Ad = k.Ad, RozetYazisi = k.RozetYazisi, IndirimYuzdesi = k.IndirimOrani * 100,
-        MusteriKosulu = k.MusteriAlanId == null ? null : $"{k.MusteriAlanId}|{k.MusteriDegeri}",
+        MusteriKosullari = k.MusteriAlanId == null ? new() : k.MusteriDegerListesi.Select(d => $"{k.MusteriAlanId}|{d}").ToList(),
         KategoriId = k.KategoriId, MarkaId = k.MarkaId,
         AracKosulu = k.AracOzellikId == null ? null : $"{k.AracOzellikId}|{k.AracOzellikDegeri}",
         EnAzGun = k.EnAzGun, BaslangicTarihi = k.BaslangicTarihi, BitisTarihi = k.BitisTarihi, Aktif = k.Aktif, Sira = k.Sira,

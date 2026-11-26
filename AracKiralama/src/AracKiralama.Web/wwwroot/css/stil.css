@@ -315,3 +315,6 @@ a { text-decoration: none; }
 .ikon-izgara button { display: grid; justify-items: center; gap: .3rem; padding: .7rem .3rem; border: 1px solid var(--cizgi); border-radius: 10px; background: var(--yuzey); color: var(--yazi); font-size: .68rem; line-height: 1.2; word-break: break-all; }
 .ikon-izgara button i { font-size: 1.4rem; }
 .ikon-izgara button:hover, .ikon-izgara button:focus-visible { border-color: var(--ana); background: var(--ana-acik); color: var(--ana-yazi); }
+
+/* Kampanya formu: müşteri bilgisi onay kutuları (Meslek → Öğretmen, Emekli...) */
+.kosul-kutusu { max-height: 240px; overflow-y: auto; border: 1px solid var(--cizgi); border-radius: .6rem; padding: .5rem .75rem; }

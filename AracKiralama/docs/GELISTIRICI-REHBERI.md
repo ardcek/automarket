@@ -315,6 +315,10 @@ Tabloya kolon eklenmediği için (hesaplanan değer) veritabanını silmeye gere
 - **Soru-cevap sayfası (SSS):** **Soru-cevap düzeni**'ni açın. Her `## Soru?` satırı açılır kapanır bir soru, altındaki satırlar cevabı olur. Yeni soru eklemek = yeni bir `## ` satırı yazmak.
 - Yapay Zekâ Asistanı da aynısını yapabilir: "SSS'ye 'Kasko dahil mi?' sorusunu ekle", "Kampanya koşulları diye bir sayfa aç, Kurumsal menüsüne koy".
 
+**Araç kataloğu (gizli teknik bilgiler):** `Yardimcilar/AracKatalogu.cs` her modelin motor hacmi, beygir, bagaj, kapı, kasa tipi, çekiş, tüketim ve menzilini tutar; klima, park sensörü gibi Var / Yok bilgileri aracın yılı ve sınıfından çıkarılır. Bu bilgiler sitede görünmez: Filtreler ve Özellikler'den hazır özellik (örn. "Motor hacmi") eklendiği anda bütün araçlara yazılır ve filtre hemen çalışır. Panelden yeni araç eklenince de dolar. Elle girilen değer ezilmez. Yeni model = sözlüğe bir satır.
+
+**Meslek grubu kampanyası:** Kampanya formundaki "Kimlere?" kutusunda birden çok meslek işaretlenebilir (veritabanında `MusteriDegeri = "Sağlık çalışanı|Emekli"`); müşterinin mesleği herhangi biriyse indirim uygulanır. Birden çok kampanya uyarsa en yüksek oran kazanır (üst üste binmez).
+
 **Hazır özellik şablonları ve ikon seçici:** Yönetim → Filtreler ve Özellikler sayfasında klima, bagaj, kasa tipi gibi 23 hazır özellik kart olarak durur; tıklayınca form dolu açılır. Yeni şablon = `Yardimcilar/OzellikSablonlari.cs`'e bir satır. İkon yazılan her kutunun yanında **Seç** düğmesi çıkar (2000+ ikon, Türkçe arama: "araba", "anahtar", "kar"); bunu `genel.js` kendiliğinden ekler, view'a bir şey yazmak gerekmez.
 
 **Ana sayfa efektleri:** akan çapraz bant (`vitrin.css` → "Akan bant"), adım kartlarındaki canlı önizleme çipleri (`Views/AnaSayfa/Index.cshtml` → "NASIL ÇALIŞIR"), özel fare imleci (`efektler.js` → 9; aç / kapa: Ayarlar → Görünüm → "Özel fare imleci"). Hepsi sadece `transform` / `opacity` kullanır, ekranda değilken durur ve "hareketi azalt" açık cihazlarda kapalıdır.
