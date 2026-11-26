@@ -247,7 +247,7 @@ Sayfalarda hiç `<script>` kodu yoktur (güvenlik politikası). Davranışlar HT
 | `fiyat-hesapla.js` | Araç detayında canlı fiyat | detay sayfasındaki fiyat formu |
 | `rezervasyon-adimlari.js` | Rezervasyonun 3 adımı arasında geçiş | rezervasyon formu |
 | `grafikler.js` | Gösterge paneli ve rapor grafikleri (Chart.js) | `<script type="application/json" id="grafik-verisi">` bloğu |
-| `tema.js` | Sayfa açılmadan koyu / açık temayı uygular (beyaz yanıp sönme olmasın); hareket açıksa (alt bilgideki "Hareketi azalt" anahtarı, yoksa cihaz ayarı) `<html>`'e `animasyon` sınıfını ekler | `<head>` içinde |
+| `tema.js` | Sayfa açılmadan koyu / açık temayı uygular (beyaz yanıp sönme olmasın); cihazda "hareketi azalt" kapalıysa `<html>`'e `animasyon` sınıfını ekler | `<head>` içinde |
 | `efektler.js` | Müşteri sitesinin fareyle / görünürlükle çalışan hareketleri: kaydırınca belirme, sayaçlar, kartın fareyle eğilmesi, koyu bölümlerde fareyle derinlik, ekranda olmayan hareketleri durdurma, üst menünün saydam → buzlu cam olması, telefondaki alt rezervasyon çubuğu. Görünümü ve kaydırmaya bağlı paralaks `wwwroot/css/vitrin.css`'te (JavaScript'siz) | `data-goster`, `data-sayac="1481"`, `data-egim`, `data-sahne` + `data-derinlik` / `data-dondur`, `data-duraklat`, `data-miknatis`, `data-mobil-cubuk="#id"` (tam liste dosyanın başında) |
 | `yapay-zeka.js` | Yapay Zekâ Asistanı: durum çubuğu, istek gönderme, işlem kartları, önizleme, kod modu adımları | `/Yonetim/YapayZeka` sayfası |
 | `duzenleyici.js` | Site Düzenleyici: yazdıkça taslak, sağda canlı önizleme | `/Yonetim/Duzenleyici` sayfası |

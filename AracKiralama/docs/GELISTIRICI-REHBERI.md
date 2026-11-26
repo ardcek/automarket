@@ -427,18 +427,10 @@ Efektler için JavaScript yazılmaz, HTML etiketine bir **data-** özelliği ekl
 
 Ana sayfadaki **akan yazı bandı**, **marka şeridi** ve **son çağrı bandı** panelden kapatılabilir: Yönetim → Site Metinleri → "Ana sayfa" → yazılarını boş bırakın.
 
-**Erişilebilirlik kuralları** (yeni efekt eklerken):
-- Kendiliğinden başlayan ve 5 saniyeden uzun süren hareketin yanına "Durdur / başlat" düğmesi konur: `<button class="bant-dugme" type="button" data-bant-dugme aria-pressed="false" aria-label="…durdur">` (bulunduğu `<section>`'a `durdu` sınıfı ekler; CSS'te `.durdu .yeni-serit { animation-play-state: paused }`).
-- Ziyaretçi alt bilgideki **"Hareketi azalt"** anahtarıyla bütün efektleri kapatabilir (`localStorage` → `hareket`, `tema.js` okur). Yeni efekt mutlaka `.animasyon` sınıfının altında yazılmalı ki bu anahtar ve cihazdaki "hareketi azalt" ayarı onu da durdursun.
-- Koyu bölümlerde klavye odağı beyaz halkadır (`--odak`); yeni bir koyu bölüm eklenirse `vitrin.css`'te `--odak: #fff` listesine eklenir.
-- Yazı rengi ile zemini arasında en az **4,5:1** kontrast olmalı (büyük başlıkta 3:1). Durum renkleri (`--yesil`, `--turuncu`) buna göre seçildi; koyu temada açık tonlarına döner. Dolgunun üstündeki yazı için `--dolgu-yazi` kullanılır.
-- Ana sayfanın büyük başlığı (h1) giriş animasyonu almaz: sayfa açılış hızı (LCP) ona göre ölçülür.
-
 **Performans kuralları** (site yavaşlarsa önce buraya bakın):
 - Sürekli dönen bir animasyon sadece `transform` ve `opacity` değiştirmeli; `filter`, `background-position`, `box-shadow`, `backdrop-filter` (buzlu cam) ve `mix-blend-mode` her karede işlemciyi yorar.
 - Kaydırmaya bağlı hareketler JavaScript ile değil CSS (`animation-timeline`) ile yapılır; tarayıcı bunları kaydırmayla birlikte ayrı iş parçacığında oynatır.
-- **Yeni araç fotoğrafı:** en fazla ~1600 px genişlikte olsun. Kartlar `wwwroot/img/cars/k/` klasöründeki 720 px'lik `.webp` kopyayı kullanır (aynı ad, örn. `Audi_A3.jpg` → `k/Audi_A3.webp`; herhangi bir resim programıyla ya da squoosh.app ile üretilir). Fotoğraf 1300 px'ten genişse `wwwroot/img/cars/o/` klasörüne 1200 px'lik bir `.webp` kopyası daha konur (yüksek çözünürlüklü ekranlar büyük JPG yerine onu alır). Kopyası yoksa büyük fotoğraf kullanılır, hiçbir şey bozulmaz. Özgün fotoğrafın gerçek genişliği açılışta dosyadan okunur. Kod: `Yardimcilar/Gorseller.cs`.
-- `<img>`'deki `sizes` değeri görselin ekranda kapladığı **gerçek** genişliktir; büyük yazılırsa tarayıcı gereksiz büyük dosya indirir (örn. ana sayfadaki kategori kartları geniş ekranda `38vw`).
+- **Yeni araç fotoğrafı:** en fazla ~1600 px genişlikte olsun. Kartlar `wwwroot/img/cars/k/` klasöründeki 720 px'lik `.webp` kopyayı kullanır (aynı ad, örn. `Audi_A3.jpg` → `k/Audi_A3.webp`; herhangi bir resim programıyla ya da squoosh.app ile üretilir). Kopyası yoksa büyük fotoğraf kullanılır, hiçbir şey bozulmaz. Kod: `Yardimcilar/Gorseller.cs`.
 - Fotoğraflar ve kütüphaneler tarayıcıda önbelleğe alınır (`Yardimcilar/Altyapi.cs`); bir fotoğrafı aynı adla değiştirdiyseniz tarayıcıda `Ctrl + F5`.
 
 Hoca "kodda nerede?" derse:
@@ -449,9 +441,7 @@ Hoca "kodda nerede?" derse:
 | Işık bulutları, yol ızgarası, far izleri | `Views/Shared/_SahneZemini.cshtml` + `vitrin.css` → "SAHNE ZEMİNİ" |
 | Karttan detaya uçan fotoğraf (sayfa geçişi) | `_AracKarti.cshtml` ve `Araclar/Detay.cshtml`'deki `view-transition-name: arac-@id` + `vitrin.css` → "Sayfalar arası geçiş" |
 | Tema butonunda daire gibi açılan yeni tema | `wwwroot/js/genel.js` → "Açık / koyu tema" |
-| "Hareketi azalt" açık cihazda / alt bilgideki anahtarla her şeyin durması | `wwwroot/js/tema.js` (`animasyon` sınıfı), `efektler.js` → 2b, `_AltBilgi.cshtml` |
-| Kayan şeritlerdeki "Durdur / başlat" düğmesi | `efektler.js` → 5b (`data-bant-dugme`) + `vitrin.css` → `.bant-dugme` |
-| "İçeriğe geç" bağlantısı (klavye) | `Views/Shared/_Layout.cshtml` + `vitrin.css` → `.atla` |
+| "Hareketi azalt" açık cihazda her şeyin durması | `wwwroot/js/tema.js` (`animasyon` sınıfı) |
 | Kategorilerin yatay akması, katmanların farklı hızda kayması | `vitrin.css` → "KAYDIRMAYA BAĞLI PARALAKS" |
 | Kartlardaki küçük fotoğraf, tarayıcı önbelleği | `Yardimcilar/Gorseller.cs`, `Yardimcilar/Altyapi.cs` |
 

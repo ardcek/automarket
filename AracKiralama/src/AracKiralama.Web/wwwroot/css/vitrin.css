@@ -19,8 +19,7 @@
    PERFORMANS KURALI: sürekli dönen animasyonlar SADECE transform ve opacity değiştirir (ekran kartı
    çizer, işlemci yorulmaz). Sürekli animasyonda filter, background-position, box-shadow, buzlu cam
    (backdrop-filter) ve mix-blend-mode KULLANMAYIN.
-   "Hareketi azalt" açık cihazlarda ve alt bilgideki "Hareketi azalt" düğmesine basan ziyaretçide hiçbir şey
-   hareket etmez (tema.js <html>'e "animasyon" eklemez). Sürekli kayan şeritlerin yanında "Durdur" düğmesi vardır.
+   "Hareketi azalt" açık cihazlarda hiçbir şey hareket etmez (tema.js <html>'e "animasyon" eklemez).
    ===================================================================== */
 
 :root { --ust-yukseklik: 72px; }   /* üst menünün yüksekliği; efektler.js gerçeğini ölçüp yazar */
@@ -45,17 +44,8 @@
 }
 .vitrin h1, .vitrin h2, .vitrin .h1, .vitrin .h2 { font-weight: 800; }
 .vitrin ::selection { background: rgba(var(--ana-rgb), .28); }
-/* Klavye odağı: açık zeminde ana renk, koyu bölümlerde beyaz halka (ana renk koyu zeminde 2,6:1 kalıyordu; en az 3:1 olmalı) */
-.vitrin a:focus-visible, .vitrin button:focus-visible, .vitrin summary:focus-visible { outline: 2px solid var(--odak, var(--ana-yazi)); outline-offset: 3px; }
-.sahne, .cagri, .alt-bilgi, .sayfa-sahne, .giris-yan, .js .ust-menu.saydam-baslar:not(.kaydi):not(.menu-acik) { --odak: #fff; }
-.vitrin .btn { --bs-btn-focus-box-shadow: none; }   /* Bootstrap'in mavi odak gölgesi yerine yukarıdaki halka */
-html:has(> body.vitrin) { scroll-padding-top: calc(var(--ust-yukseklik) + 1rem); }   /* #subeler gibi bağlantılar yapışkan menünün altında kalmasın */
+.vitrin a:focus-visible, .vitrin button:focus-visible, .vitrin summary:focus-visible { outline: 2px solid var(--ana-yazi); outline-offset: 3px; }
 html.animasyon:has(> body.vitrin) { scroll-behavior: smooth; }
-
-/* "İçeriğe geç" bağlantısı: klavyeyle ilk Tab'da sol üstte görünür, menüyü atlayıp sayfanın içeriğine gider (_Layout.cshtml) */
-.atla { position: fixed; z-index: 3001; left: 1rem; top: .75rem; padding: .7rem 1.1rem; border-radius: 999px; background: var(--yuzey); color: var(--yazi); font-weight: 700; box-shadow: var(--golge-buyuk); transform: translateY(-200%); }
-.atla:focus { transform: none; color: var(--yazi); }
-main:focus { outline: none; }   /* bağlantıyla odaklanan <main> çerçevelenmesin */
 .vitrin i.bi-arrow-right, .vitrin i.bi-arrow-left { display: inline-block; transition: transform .35s var(--egri); }
 .vitrin .btn:hover i.bi-arrow-right, .vitrin a:hover > i.bi-arrow-right { transform: translateX(4px); }
 .vitrin .btn:hover i.bi-arrow-left, .vitrin a:hover > i.bi-arrow-left { transform: translateX(-4px); }
@@ -82,15 +72,16 @@ main:focus { outline: none; }   /* bağlantıyla odaklanan <main> çerçevelenme
 .vitrin .btn-yumusak { transition: background-color .3s, color .3s; }
 
 /* ---------- Özel fare imleci (efektler.js → 9; aç / kapa: Ayarlar → Görünüm) ----------
-   Farenin etrafında onu yumuşakça izleyen bir halka. Tıklanabilir şeyin üstünde büyür, basınca küçülür.
-   Normal fare imleci GİZLENMEZ (büyütülmüş sistem imleci kullananlar imleci kaybetmesin).
-   Sadece fareli bilgisayarda ve "hareketi azalt" kapalıyken; yazı kutularında halka görünmez. */
-.imlec-halka { position: fixed; left: 0; top: 0; z-index: 3000; pointer-events: none; opacity: 0; transition: opacity .25s; will-change: transform; width: 38px; height: 38px; margin: -19px 0 0 -19px; }
-.imlec-gorunur:not(.imlec-yazi) .imlec-halka { opacity: 1; }
+   Nokta fareyi anında, halka yumuşakça izler. Tıklanabilir şeyin üstünde halka büyür, basınca küçülür.
+   Sadece fareli bilgisayarda ve "hareketi azalt" kapalıyken; yazı kutularında normal imleç görünür. */
+.imlec-nokta, .imlec-halka { position: fixed; left: 0; top: 0; z-index: 3000; pointer-events: none; opacity: 0; transition: opacity .25s; will-change: transform; }
+.imlec-gorunur:not(.imlec-yazi) .imlec-nokta, .imlec-gorunur:not(.imlec-yazi) .imlec-halka { opacity: 1; }
+.imlec-nokta { width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: var(--ana); box-shadow: 0 0 0 2px rgba(255, 255, 255, .7); }
+.imlec-halka { width: 38px; height: 38px; margin: -19px 0 0 -19px; }
 .imlec-halka::before { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 1.5px solid rgba(var(--ana-rgb), .55); transition: transform .4s var(--egri), background-color .3s, border-color .3s; }
 .imlec-buyuk .imlec-halka::before { transform: scale(1.55); background: rgba(var(--ana-rgb), .1); border-color: rgba(var(--ana-rgb), .85); }
 .imlec-bas .imlec-halka::before { transform: scale(.75); }
-html:not(.animasyon) .imlec-halka { display: none; }   /* sayfa açıkken hareket kapatılırsa */
+.ozel-imlec.imlec-gorunur:not(.imlec-yazi), .ozel-imlec.imlec-gorunur:not(.imlec-yazi) * { cursor: none !important; }
 
 /* =====================================================================
    ÜST MENÜ
@@ -124,8 +115,7 @@ html:not(.animasyon) .imlec-halka { display: none; }   /* sayfa açıkken hareke
 .ust-menu .logo small { color: var(--menu-soluk, var(--soluk)); font-family: "Inter", system-ui, sans-serif; font-stretch: 100%; }
 .ust-menu .logo-isaret { transition: transform .6s var(--egri); }
 .ust-menu .logo:hover .logo-isaret { transform: rotate(-12deg) scale(1.06); }
-.ust-menu .navbar-toggler { color: var(--menu-yazi, var(--yazi)); min-width: 44px; min-height: 44px; }   /* parmakla rahat basılsın (en az 44 px) */
-.ust-menu .navbar-toggler:focus { box-shadow: none; }   /* fareyle basınca halka çıkmasın; klavyede :focus-visible halkası var */
+.ust-menu .navbar-toggler { color: var(--menu-yazi, var(--yazi)); }
 .ust-menu .btn-sade { transition: color .3s, border-color .3s, background-color .3s; }
 /* Ana sayfada (ve koyu başlıklı sayfalarda, _Layout → "saydam-baslar") menü, koyu bölümün üstünde SAYDAM başlar; kaydırınca buzlu cama döner.
    "js" sınıfı: JavaScript çalışıyorsa (tema.js). Çalışmıyorsa menü hep düz görünür, yazılar kaybolmaz. */
@@ -247,14 +237,14 @@ html:not(.animasyon) .imlec-halka { display: none; }   /* sayfa açıkken hareke
 .animasyon .yuzen-kart + .yuzen-kart .ic { animation-duration: 6.5s; animation-delay: -2.5s; }
 @keyframes yuz { from { transform: translateY(-8px); } to { transform: translateY(8px); } }
 
-/* Sayfa açılınca üst bölümün sırayla belirmesi (data-giris, style="--i:0,1,2...").
-   Büyük başlık (h1) BİLEREK beklemeden görünür: sayfanın en büyük yazısı; saydamdan başlarsa sayfa geç açılmış ölçülür (LCP).
-   Başlıkta sadece vurgulu parçanın üstünden bir kez ışıltı geçer. */
+/* Sayfa açılınca üst bölümün sırayla belirmesi (data-giris, style="--i:0,1,2...") */
 .animasyon [data-giris] { animation: giris-yukari 1s var(--egri) both; animation-delay: calc(var(--i, 0) * 110ms + 120ms); }
-.animasyon .sahne-baslik .vurgu { animation: parilti 2.6s ease-in-out .9s 1; }
+.animasyon .sahne-baslik .parca { animation: odak 1.1s var(--egri) both; animation-delay: calc(var(--i, 0) * 160ms + 200ms); }
+.animasyon .sahne-baslik .vurgu { animation: odak 1.1s var(--egri) both, parilti 2.6s ease-in-out 1; animation-delay: calc(var(--i, 0) * 160ms + 200ms), 1.4s; }
 .animasyon [data-giris="sag"] { animation-name: giris-sag; animation-duration: 1.4s; }
 @keyframes giris-yukari { from { opacity: 0; transform: translateY(26px); } }
 @keyframes giris-sag { from { opacity: 0; transform: translateX(60px) scale(.96); } }
+@keyframes odak { from { opacity: 0; filter: blur(12px); } }      /* bir kez, açılışta */
 @keyframes parilti { to { background-position: -220% 0; } }       /* bir kez geçen ışıltı */
 
 /* ---------- Arama kutusu: üst bölümün üstüne biner, üst kenarında ışık süzülür ---------- */
@@ -293,12 +283,11 @@ html:not(.animasyon) .imlec-halka { display: none; }   /* sayfa açıkken hareke
 .animasyon [data-goster].gorundu { opacity: 1; transform: none; }
 .animasyon [data-goster].hemen { transition: none; }   /* sayfa geçişiyle gelindi: ilk ekrandakiler beklemeden */
 
+/* ---------- Akan yazı bandı: kaydırdıkça iki satır ters yönlere kayar ---------- */
 /* ---------- Akan bant: iki çapraz şerit ters yönlere SÜREKLİ akar (Views/AnaSayfa/Index.cshtml → "AKAN BANT") ----------
-   Hareket sadece transform: içerik 4 kez yazılı, şerit yarısı kadar kayınca başa döner (kesintisiz). Ekranda değilken,
-   fare üstündeyken ve "Durdur" düğmesine basılınca durur.
-   Renkli şeridin sağ ucu ikinci rengin KOYULAŞTIRILMIŞ hali: açık camgöbeği üstünde beyaz yazı 2,2:1 kalıyordu (şimdi ~5,9:1). */
+   Hareket sadece transform: içerik 4 kez yazılı, şerit yarısı kadar kayınca başa döner (kesintisiz). Ekranda değilken durur. */
 .akan-bant { position: relative; padding: 5rem 0 3.5rem; overflow: hidden; isolation: isolate; }
-.akan-serit { position: relative; padding: 1.05rem 0; transform: rotate(-2.5deg); background: linear-gradient(100deg, var(--ana), color-mix(in oklab, var(--vurgu-2), var(--koyu) 45%)); box-shadow: 0 24px 50px -24px rgba(var(--ana-rgb), .75); z-index: 2; margin: 0 -2vw; }
+.akan-serit { position: relative; padding: 1.05rem 0; transform: rotate(-2.5deg); background: linear-gradient(100deg, var(--ana), var(--vurgu-2)); box-shadow: 0 24px 50px -24px rgba(var(--ana-rgb), .75); z-index: 2; margin: 0 -2vw; }
 .akan-serit.ters { transform: rotate(1.8deg); margin-top: -1.6rem; background: var(--yuzey); border-block: 1px solid var(--cizgi); box-shadow: 0 18px 40px -30px rgba(15, 23, 42, .45); z-index: 1; }
 .akan-satir { display: flex; align-items: center; gap: 1.6rem; width: max-content; white-space: nowrap; font-family: var(--baslik-yazi); font-stretch: 120%; font-weight: 900; font-size: clamp(1.6rem, 3.6vw, 3rem); line-height: 1; letter-spacing: -.03em; text-transform: uppercase; color: #fff; }
 .akan-serit.ters .akan-satir { color: transparent; -webkit-text-stroke: 1.5px var(--yazi); }
@@ -310,20 +299,8 @@ html:not(.animasyon) .imlec-halka { display: none; }   /* sayfa açıkken hareke
 .duraklat .akan-satir { animation-play-state: paused !important; }        /* ekranda değilken işlemci yorulmasın */
 @keyframes akan-dongu { to { transform: translateX(-50%); } }
 
-/* "Durdur / başlat" düğmesi (akan bant ve marka şeridi; efektler.js → data-bant-dugme). 5 saniyeden uzun süren,
-   kendiliğinden başlayan hareket durdurulabilmeli (WCAG 2.2.2). Hareket kapalıysa düğme de görünmez. */
-.bant-dugme { position: absolute; z-index: 3; width: 44px; height: 44px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; padding: 0; font-size: 1.15rem; background: var(--yuzey); color: var(--yazi); border: 1px solid var(--cizgi); box-shadow: var(--golge); transition: background-color .25s, border-color .25s; }
-.bant-dugme:hover { border-color: rgba(var(--ana-rgb), .5); background: var(--yuzey-2); }
-.bant-dugme[aria-pressed="true"] { background: var(--ana); border-color: var(--ana); color: #fff; }
-html:not(.animasyon) .bant-dugme { display: none; }
-.akan-bant .bant-dugme { right: max(1rem, calc((100vw - 1320px) / 2)); bottom: .25rem; }
-.durdu .akan-satir, .durdu .serit-ic, .marka-seridi:focus-within .serit-ic { animation-play-state: paused !important; }
-
 /* ---------- Marka şeridi: sonsuz kayan logolar ---------- */
 .marka-seridi { padding: 3.5rem 0 0; }
-.serit-ust { position: relative; min-height: 44px; display: flex; align-items: center; justify-content: center; }
-.serit-ust .kucuk-baslik { padding-inline: 3.25rem; }   /* düğmeye yer kalsın */
-.serit-ust .bant-dugme { right: 12px; top: 50%; translate: 0 -50%; }
 .serit { overflow: hidden; padding: .5rem 0; -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); }
 .serit-ic { display: flex; gap: 1rem; width: max-content; }
 .animasyon .serit-ic { animation: serit-kay 45s linear infinite; }
@@ -435,7 +412,7 @@ html:not(.animasyon) .serit .kopya { display: none; }
 .ozellikler span { display: inline-flex; align-items: center; gap: .3rem; padding: .22rem .6rem; border-radius: 999px; background: var(--yuzey-2); border: 1px solid var(--cizgi); }
 
 /* Kampanya rozeti ve indirimli fiyat */
-.kampanya-rozeti { max-width: 62%; display: inline-flex; align-items: center; gap: .3rem; padding: .25rem .65rem; border-radius: 999px; background: var(--yesil); color: var(--dolgu-yazi); font-size: .75rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 6px 16px rgba(22, 163, 74, .4); }
+.kampanya-rozeti { max-width: 62%; display: inline-flex; align-items: center; gap: .3rem; padding: .25rem .65rem; border-radius: 999px; background: var(--yesil); color: #fff; font-size: .75rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 6px 16px rgba(22, 163, 74, .4); }
 .kampanya-rozeti.olasi { background: rgba(255, 255, 255, .94); color: #15803d; box-shadow: none; }   /* henüz uygulanmayan (örn. meslek seçilmedi) */
 .fiyat-indirimli { color: var(--yesil); }
 
@@ -620,7 +597,7 @@ html:not(.animasyon) .serit .kopya { display: none; }
 .adimlar .numara { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--yuzey-2); font-size: .8rem; flex: none; transition: background-color .4s, color .4s, transform .5s var(--egri); }
 .adimlar .adim.aktif { border-color: rgba(var(--ana-rgb), .5); color: var(--yazi); box-shadow: 0 14px 30px -20px rgba(var(--ana-rgb), .8); }
 .adimlar .adim.aktif .numara { background: var(--ana); color: #fff; transform: scale(1.08); }
-.adimlar .adim.bitti .numara { background: var(--yesil); color: var(--dolgu-yazi); }
+.adimlar .adim.bitti .numara { background: var(--yesil); color: #fff; }
 .adim-paneli { display: none; }
 .adim-paneli.aktif { display: block; }
 .animasyon .adim-paneli.aktif { animation: panel-gir .6s var(--egri) both; }
@@ -723,16 +700,8 @@ html:not(.animasyon) .serit .kopya { display: none; }
 .vitrin main > .bolum:last-child { padding-bottom: 0; }   /* son bölümle alt bilgi arasında çift boşluk olmasın */
 .alt-bilgi::before { content: ""; position: absolute; left: 8%; right: 8%; top: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--isik), transparent); }
 .alt-bilgi::after { content: ""; position: absolute; z-index: -1; left: 50%; top: 0; width: 70%; height: 340px; translate: -50% -62%; border-radius: 50%; background: radial-gradient(closest-side, rgba(var(--ana-rgb), .5), transparent); pointer-events: none; }
-/* Sütun başlıkları gerçekte h2 (başlık sırası atlamasın), görünüşü küçük büyük-harfli etiket */
-.alt-bilgi .alt-baslik { color: #fff; font-family: inherit; font-stretch: 100%; font-weight: 700; font-size: .8rem; line-height: 1.2; text-transform: uppercase; letter-spacing: .12em; }
+.alt-bilgi h6 { color: #fff; font-size: .8rem; text-transform: uppercase; letter-spacing: .12em; }
 .alt-bilgi a, .alt-bilgi .logo { color: rgba(255, 255, 255, .8); transition: color .25s; }
-.alt-bilgi li > a { display: inline-flex; align-items: center; min-height: 28px; }   /* parmakla basılabilir yükseklik (en az 24 px) */
-.hareket-dugme { display: inline-flex; align-items: center; gap: .55rem; min-height: 32px; padding: 0; border: 0; background: none; color: rgba(255, 255, 255, .8); font: inherit; }
-.hareket-dugme:hover { color: #fff; }
-.hareket-dugme .anahtar { position: relative; width: 30px; height: 18px; border-radius: 999px; background: rgba(255, 255, 255, .22); transition: background-color .25s; }
-.hareket-dugme .anahtar::after { content: ""; position: absolute; left: 3px; top: 3px; width: 12px; height: 12px; border-radius: 50%; background: #fff; transition: transform .25s var(--egri); }
-.hareket-dugme[aria-pressed="true"] .anahtar { background: var(--ana); }
-.hareket-dugme[aria-pressed="true"] .anahtar::after { transform: translateX(12px); }
 .alt-bilgi a:hover { color: #fff; }
 .alt-bilgi .logo { font-family: var(--baslik-yazi); font-stretch: 112%; }
 .alt-bilgi .sosyal a { width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; border: 1px solid rgba(255, 255, 255, .18); font-size: 1rem; transition: background-color .3s, border-color .3s, transform .4s var(--egri); }
@@ -746,28 +715,13 @@ html:not(.animasyon) .serit .kopya { display: none; }
 }
 
 /* ---------- Mobil ---------- */
-/* İstatistiklerin telefondaki kopyası: arama formunun altında, açık zeminde (Index.cshtml → "form-alti") */
-.istatistikler.form-alti { display: none; }
 @media (max-width: 991.98px) {
-    /* Telefon ve tablette ARAMA FORMU İLK EKRANDA başlasın: araç fotoğrafı yazının arkasında silik bir zemine dönüşür,
-       istatistikler formun altına iner. Masaüstü görünümü değişmez. */
-    .sahne { min-height: 0; padding-bottom: 8rem; }
-    .sahne-gorsel { position: absolute; z-index: -1; right: -12%; bottom: -3rem; width: min(560px, 90%); margin: 0; padding: 0; opacity: .32; pointer-events: none;
-        -webkit-mask-image: linear-gradient(to top, transparent 4%, #000 40%, #000 72%, transparent); mask-image: linear-gradient(to top, transparent 4%, #000 40%, #000 72%, transparent); }
-    .sahne-gorsel .halka, .sahne-gorsel .hale { display: none; }
-    .animasyon .sahne-gorsel [data-giris] { animation: none; }   /* zemin fotoğrafı beklemeden çizilsin (telefonda en büyük öğe o) */
-    .sahne .istatistikler, .yuzen-kart { display: none; }
-    .istatistikler.form-alti { display: flex; justify-content: space-around; gap: 1rem; margin: 1.75rem 0 0; padding: 0; border: 0; text-align: center; }
-    .istatistikler.form-alti strong { color: var(--yazi); font-size: 1.5rem; }
-    .istatistikler.form-alti span { color: var(--soluk); }
+    .sahne { min-height: 0; padding-bottom: 9rem; }
+    .vitrin-arac { margin-top: .5rem; }
+    .yuzen-kart { display: none; }
 }
 @media (max-width: 575.98px) {
-    .sahne { --ust-bosluk: 2.25rem; padding: 2.25rem 0 6.5rem; }
-    .sahne-baslik { font-size: 2.15rem; }
-    .sahne .lead { font-size: 1rem; line-height: 1.55; }
-    .sahne-butonlar { margin-top: 1.5rem; }
-    .sahne-butonlar .btn-cam { display: none; }   /* "Nasıl çalışır" hemen aşağıda; buton tek satıra sığsın */
-    .arama-kutusu { margin-top: -4.75rem; padding: 1rem; }
+    .sahne { --ust-bosluk: 3rem; padding: 3rem 0 8rem; }
     .istatistikler { gap: 1rem 1.75rem; }
     .istatistikler strong { font-size: 1.55rem; }
     .bolum, .kategori-sahne { padding: 4rem 0; }
@@ -791,14 +745,15 @@ html:not(.animasyon) .serit .kopya { display: none; }
 @supports (animation-timeline: view()) {
     .animasyon .kaydirma-cubugu { animation: cubuk-dol linear both; animation-timeline: scroll(root); }
 
-    /* Üst bölüm: katmanlar farklı hızlarda kayar (zemin yavaş, yazı ve araç hızlı, kartlar en hızlı).
-       Hız farkı bilerek küçük (sayfanın 0,85 – 1,15 katı): büyük fark baş dönmesi yapabiliyor. */
+    /* Üst bölüm: katmanlar farklı hızlarda kayar (zemin yavaş, yazı ve araç hızlı, kartlar en hızlı) */
     .animasyon .sahne .katman-zemin { animation: zemin-kay linear both; animation-timeline: scroll(root); animation-range: 0 100vh; }
     .animasyon .sahne .dev-ad { animation: dev-ad-kay linear both; animation-timeline: scroll(root); animation-range: 0 100vh; }
     .animasyon .sahne .katman-yazi { animation: yazi-kay linear both; animation-timeline: scroll(root); animation-range: 0 85vh; }
     .animasyon .sahne .katman-arac { animation: arac-kay linear both; animation-timeline: scroll(root); animation-range: 0 100vh; }
     .animasyon .sahne .yuzen-kart { animation: kart-kay linear both; animation-timeline: scroll(root); animation-range: 0 100vh; }
     .animasyon .sahne .yuzen-kart + .yuzen-kart { animation-name: kart-kay-2; }
+
+    /* Akan yazı bandı: iki satır ters yönlere */
 
     /* Öne çıkan araçlar: tek ve çift sütunlar farklı hızda (hafif "dalga") */
     .animasyon .kayan { animation: kayan-y linear both; animation-timeline: view(); animation-range: cover 0% cover 100%; }
@@ -834,12 +789,12 @@ html:not(.animasyon) .serit .kopya { display: none; }
     }
 }
 @keyframes cubuk-dol { to { transform: scaleX(1); } }
-@keyframes zemin-kay { to { transform: translateY(15vh); } }
-@keyframes dev-ad-kay { to { transform: translateX(-10%); opacity: .3; } }
-@keyframes yazi-kay { to { transform: translateY(-12vh); opacity: .2; } }
-@keyframes arac-kay { to { transform: translateY(-9vh) scale(1.04); } }
-@keyframes kart-kay { to { transform: translateY(-12vh); } }
-@keyframes kart-kay-2 { to { transform: translateY(-15vh); } }
+@keyframes zemin-kay { to { transform: translateY(26vh); } }
+@keyframes dev-ad-kay { to { transform: translateX(-14%); opacity: .3; } }
+@keyframes yazi-kay { to { transform: translateY(-16vh); opacity: .1; } }
+@keyframes arac-kay { to { transform: translateY(-9vh) scale(1.06); } }
+@keyframes kart-kay { to { transform: translateY(-24vh); } }
+@keyframes kart-kay-2 { to { transform: translateY(-34vh); } }
 @keyframes kayan-y { from { transform: translateY(28px); } to { transform: translateY(-28px); } }
 @keyframes kayan-y-hizli { from { transform: translateY(70px); } to { transform: translateY(-70px); } }
 @keyframes sehir-kay { from { transform: translateX(14%); } to { transform: translateX(-10%); } }

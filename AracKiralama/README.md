@@ -796,7 +796,7 @@ Bütün yollar `AracKiralama/src/AracKiralama.Web/` klasörüne göredir.
 | Yönetim paneli menüsü | `Views/Shared/_YonetimLayout.cshtml` |
 | Renklerin nerede kullanıldığı (CSS) | `wwwroot/css/stil.css` (ortak parçalar + yönetim paneli; renk değerleri panelden gelir) |
 | Müşteri sitesinin tasarımı ve hareketli efektleri | `wwwroot/css/vitrin.css` (görünüm + kaydırmaya bağlı paralaks) + `wwwroot/js/efektler.js` (kaydırınca belirme, kart eğilmesi, fareyle derinlik, sayaçlar...) |
-| Kartlardaki küçük fotoğraflar / tarayıcı önbelleği | `Yardimcilar/Gorseller.cs` (`wwwroot/img/cars/k/*.webp`, orta boy `o/*.webp`) / `Yardimcilar/Altyapi.cs` |
+| Kartlardaki küçük fotoğraflar / tarayıcı önbelleği | `Yardimcilar/Gorseller.cs` (`wwwroot/img/cars/k/*.webp`) / `Yardimcilar/Altyapi.cs` |
 | Hata mesajları | İlgili servis dosyasındaki `IsKuraliHatasi("...")` satırları |
 
 > Kod dosyasında (`.cs` veya `.cshtml`) değişiklik yaptıktan sonra siteyi kapatıp (`Ctrl + C`) tekrar `dotnet run` ile açın.

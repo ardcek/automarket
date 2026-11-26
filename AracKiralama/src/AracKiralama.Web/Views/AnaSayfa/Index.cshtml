@@ -15,15 +15,6 @@
     var tekrarSayisi = Model.Markalar.Count == 0 ? 0 : (int)Math.Ceiling(12.0 / Model.Markalar.Count);
     // Akan yazı bandı: "Şeffaf fiyat · Anında onay · ..." → parçalar
     var akanlar = M("akan-yazilar").Split('·', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
-    // İstatistikler iki yerde çıkar: geniş ekranda üst bölümde, telefonda arama formunun altında (form ilk ekrana sığsın diye).
-    // İçerik tek yerde yazılır; hangisinin görüneceğine vitrin.css → "Mobil" karar verir.
-    void IstatistikIcerigi()
-    {
-        <div><strong data-sayac="@Model.AracSayisi" data-sonek="+">@Model.AracSayisi+</strong><span>@M("istatistik-arac")</span></div>
-        <div><strong data-sayac="@Model.TamamlananKiralama">@Bicim.Sayi(Model.TamamlananKiralama)</strong><span>@M("istatistik-kiralama")</span></div>
-        <div><strong>@M("istatistik-ucuncu-deger")</strong><span>@M("istatistik-ucuncu")</span></div>
-    }
 }
 
 @* ---------------- ÜST BÖLÜM (SAHNE): kaydırınca 5 katman farklı hızda kayar, fareyle derinlik kazanır ---------------- *@
@@ -35,31 +26,34 @@
             <div class="col-lg-6">
                 <div class="katman-yazi">
                     <span class="rozet-cam mb-4" data-giris style="--i:0"><span class="nokta"></span> @M("rozet").Replace("{sube}", Model.Subeler.Count.ToString()).Replace("{arac}", Model.AracSayisi.ToString())</span>
-                    @* Başlık beklemeden görünür (sayfanın en büyük yazısı, hızlı açılış ölçümü buna bakar); ortadaki parça ışıltılı renkte *@
-                    <h1 class="sahne-baslik mb-4"><span class="parca">@M("baslik")</span> <span class="parca vurgu">@M("baslik-vurgu")</span> <span class="parca">@M("baslik-son")</span></h1>
-                    <p class="lead mb-0" data-giris style="--i:1">@M("aciklama")</p>
-                    <div class="sahne-butonlar" data-giris style="--i:2">
+                    @* Başlığın 3 parçası sırayla "odaklanarak" belirir; ortadaki parça ışıltılı renkte *@
+                    <h1 class="sahne-baslik mb-4" data-giris style="--i:1"><span class="parca" style="--i:1">@M("baslik")</span> <span class="parca vurgu" style="--i:2">@M("baslik-vurgu")</span> <span class="parca" style="--i:3">@M("baslik-son")</span></h1>
+                    <p class="lead mb-0" data-giris style="--i:4">@M("aciklama")</p>
+                    <div class="sahne-butonlar" data-giris style="--i:5">
                         @if (!string.IsNullOrWhiteSpace(M("cagri-buton"))) { <a href="/Araclar" class="btn btn-primary btn-lg" data-miknatis>@M("cagri-buton") <i class="bi bi-arrow-right ms-1"></i></a> }
                         @if (a.NasilCalisirGoster) { <a href="#nasil-calisir" class="btn btn-cam btn-lg">@M("adimlar-ust")</a> }
                     </div>
                     @if (a.IstatistikleriGoster)
                     {
-                        <div class="istatistikler" data-giris style="--i:3">@{ IstatistikIcerigi(); }</div>
+                        <div class="istatistikler" data-giris style="--i:6">
+                            <div><strong data-sayac="@Model.AracSayisi" data-sonek="+">@Model.AracSayisi+</strong><span>@M("istatistik-arac")</span></div>
+                            <div><strong data-sayac="@Model.TamamlananKiralama">@Bicim.Sayi(Model.TamamlananKiralama)</strong><span>@M("istatistik-kiralama")</span></div>
+                            <div><strong>@M("istatistik-ucuncu-deger")</strong><span>@M("istatistik-ucuncu")</span></div>
+                        </div>
                     }
                 </div>
             </div>
-            <div class="col-lg-6 sahne-gorsel">
-                @* Fotoğraf fareyle 3B döner (data-dondur), ışık halesi ve kartlar farklı derinlikte kayar (data-derinlik).
-                   Telefonda yazının arkasında silik zemin olur (vitrin.css → "Mobil"); o yüzden orada küçük kopya yeter (sizes 60vw). *@
+            <div class="col-lg-6">
+                @* Fotoğraf fareyle 3B döner (data-dondur), ışık halesi ve kartlar farklı derinlikte kayar (data-derinlik) *@
                 <div class="katman-arac">
-                    <div class="vitrin-arac" data-giris="sag" style="--i:1">
+                    <div class="vitrin-arac" data-giris="sag" style="--i:2">
                         <span class="hale" aria-hidden="true" data-derinlik="12"></span>
                         <svg class="halka" viewBox="0 0 200 200" aria-hidden="true">
                             <circle cx="100" cy="100" r="98" fill="none" stroke="currentColor" stroke-width=".5" stroke-dasharray="1 4" />
                             <circle cx="100" cy="100" r="86" fill="none" stroke="currentColor" stroke-width=".25" />
                         </svg>
                         <div class="cerceve" data-dondur="8">
-                            <img src="@Gorseller.Kucuk(a.AnaSayfaGorseli)" srcset="@Gorseller.Secenekler(a.AnaSayfaGorseli)" sizes="(min-width: 992px) 46vw, 60vw" alt="" fetchpriority="high" />
+                            <img src="@Gorseller.Kucuk(a.AnaSayfaGorseli)" srcset="@Gorseller.Secenekler(a.AnaSayfaGorseli)" sizes="(min-width: 992px) 46vw, 92vw" alt="" fetchpriority="high" />
                         </div>
                         <div class="yuzen-kart" style="left:-30px; bottom:60px" data-derinlik="30">
                             <div class="ic">
@@ -82,22 +76,16 @@
 
 @* ---------------- ARAMA KUTUSU (üst kenarında ışık süzülür) ---------------- *@
 <div class="container">
-    <div class="arama-kutusu parlayan-kenar" data-giris style="--i:3">
+    <div class="arama-kutusu parlayan-kenar" data-giris style="--i:7">
         <partial name="_AramaFormu" model="(new AracFiltresi(), Model.Subeler)" />
     </div>
-    @if (a.IstatistikleriGoster)
-    {
-        @* Telefonda istatistikler burada görünür (üst bölümdeki kopya gizlenir) *@
-        <div class="istatistikler form-alti">@{ IstatistikIcerigi(); }</div>
-    }
 </div>
 
-@* ---------------- AKAN YAZI BANDI (iki çapraz şerit ters yönlere sürekli akar) ---------------- *@
+@* ---------------- AKAN YAZI BANDI (kaydırdıkça iki satır ters yöne kayar) ---------------- *@
 @if (akanlar.Length > 0)
 {
     @* AKAN BANT: iki çapraz şerit ters yönlere sürekli akar (vitrin.css → "Akan bant"). Yazılar: Site Metinleri → anasayfa.akan-yazilar
-       (· ile ayrılır). İçerik 4 kez yazılır; şerit yarısı kadar kayıp başa döner → kesintisiz. Ekranda değilken durur (data-duraklat);
-       sağ alttaki düğmeyle ziyaretçi durdurabilir (data-bant-dugme, efektler.js). *@
+       (· ile ayrılır). İçerik 4 kez yazılır; şerit yarısı kadar kayıp başa döner → kesintisiz. Ekranda değilken durur (data-duraklat). *@
     <section class="akan-bant" aria-label="@M("akan-yazilar")" data-duraklat>
         @for (var satir = 0; satir < 2; satir++)
         {
@@ -110,18 +98,14 @@
                 </div>
             </div>
         }
-        <button class="bant-dugme" type="button" data-bant-dugme aria-pressed="false" aria-label="Kayan yazıyı durdur" title="Durdur / başlat"><i class="bi bi-pause-fill" aria-hidden="true"></i></button>
     </section>
 }
 
-@* ---------------- MARKA ŞERİDİ (sonsuz kayar; fareyle, klavye odağında ve "Durdur" düğmesiyle durur) ---------------- *@
+@* ---------------- MARKA ŞERİDİ (sonsuz kayar, fareyle durur) ---------------- *@
 @if (Model.Markalar.Count > 0 && !string.IsNullOrWhiteSpace(M("markalar-baslik")))
 {
     <section class="marka-seridi" aria-label="@M("markalar-baslik")">
-        <div class="container serit-ust mb-3">
-            <div class="kucuk-baslik text-center" data-goster>@M("markalar-baslik")</div>
-            <button class="bant-dugme" type="button" data-bant-dugme aria-pressed="false" aria-label="Kayan logoları durdur" title="Durdur / başlat"><i class="bi bi-pause-fill" aria-hidden="true"></i></button>
-        </div>
+        <div class="container"><div class="kucuk-baslik text-center mb-3" data-goster>@M("markalar-baslik")</div></div>
         <div class="serit" data-goster data-duraklat>
             <div class="serit-ic">
                 @* İki eş yarım: şerit yarısı kadar kayınca başa sarar. Sadece ilk takım ekran okuyucuya ve klavyeye açıktır. *@
@@ -158,10 +142,8 @@
                 <div class="kategori-izgara">
                     @foreach (var (k, sira) in Model.Kategoriler.Select((k, i) => (k, i + 1)))
                     {
-                        @* sizes = kartın ekrandaki gerçek genişliği (geniş ekranda ~30vw kart, fotoğraf %124 → ~38vw; telefonda ilk kart
-                           tam genişlik, diğerleri iki sütun); yanlış yazılırsa gereksiz büyük fotoğraf iner *@
                         <a class="kategori-karti" href="/Araclar?KategoriId=@k.Kategori.Id" data-goster="olcek">
-                            <img src="@Gorseller.Kucuk(k.Kategori.GorselAdresi)" srcset="@Gorseller.Secenekler(k.Kategori.GorselAdresi)" sizes="(min-width: 992px) 38vw, @(sira == 1 ? "(min-width: 768px) 50vw, 100vw" : "50vw")" alt="" loading="lazy" decoding="async" />
+                            <img src="@Gorseller.Kucuk(k.Kategori.GorselAdresi)" srcset="@Gorseller.Secenekler(k.Kategori.GorselAdresi)" sizes="(min-width: 992px) 75vw, (min-width: 768px) 50vw, 100vw" alt="" loading="lazy" decoding="async" />
                             <span class="sira" aria-hidden="true">@sira.ToString("00")</span>
                             <div class="icerik">
                                 <div class="min-w-0">
@@ -299,8 +281,7 @@
             <div class="cagri" data-sahne data-goster="olcek">
                 @if (Model.CagriGorseli != null)
                 {
-                    @* Fotoğraf %40 saydam ve karartılmış: tam çözünürlük gerekmez, bilerek küçük kopya istenir (sizes 60vw) *@
-                    <div class="cagri-gorsel" aria-hidden="true"><img src="@Gorseller.Kucuk(Model.CagriGorseli)" srcset="@Gorseller.Secenekler(Model.CagriGorseli)" sizes="(min-width: 768px) 60vw, 100vw" alt="" loading="lazy" decoding="async" /></div>
+                    <div class="cagri-gorsel" aria-hidden="true"><img src="@Gorseller.Kucuk(Model.CagriGorseli)" srcset="@Gorseller.Secenekler(Model.CagriGorseli)" sizes="(min-width: 1200px) 1300px, 100vw" alt="" loading="lazy" decoding="async" /></div>
                 }
                 <partial name="_SahneZemini" />
                 <h2>@M("cagri-baslik")</h2>

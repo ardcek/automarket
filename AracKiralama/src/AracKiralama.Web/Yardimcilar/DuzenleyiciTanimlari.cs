@@ -122,7 +122,7 @@ public static class DuzenleyiciTanimlari
         ["anasayfa.subeler-baslik"] = ("Şubeler", "Büyük başlık"),
         ["anasayfa.subeler-buton"] = ("Şubeler", "Şube kartındaki buton"),
         ["anasayfa.markalar-baslik"] = ("Marka şeridi", "Kayan logoların başlığı (boş bırakılırsa şerit gizlenir)"),
-        ["anasayfa.akan-yazilar"] = ("Akan yazı bandı", "Sürekli akan büyük yazılar; aralarına · koyun (boş bırakılırsa bant gizlenir)"),
+        ["anasayfa.akan-yazilar"] = ("Akan yazı bandı", "Kaydırdıkça kayan büyük yazılar; aralarına · koyun (boş bırakılırsa bant gizlenir)"),
         ["anasayfa.adimlar-ust"] = ("Nasıl çalışır (3 adım)", "Küçük üst başlık"),
         ["anasayfa.adimlar-baslik"] = ("Nasıl çalışır (3 adım)", "Büyük başlık"),
         ["anasayfa.cagri-baslik"] = ("Son çağrı bandı", "Büyük başlık (boş bırakılırsa bant gizlenir)"),

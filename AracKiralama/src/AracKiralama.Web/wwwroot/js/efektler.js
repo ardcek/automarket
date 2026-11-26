@@ -11,18 +11,15 @@
 //   data-duraklat          → ekranda değilken sürekli hareketi durur (örn. marka şeridi)
 //   data-miknatis          → buton fareye doğru hafifçe çekilir
 //   data-mobil-cubuk="#id" → telefondaki alt çubuk, #id ekranda görününce gizlenir
-//   data-bant-dugme        → sürekli kayan şeridi (akan bant, marka şeridi) durdurur / başlatır (bulunduğu <section>'a "durdu" ekler)
-//   data-hareket-degistir  → alt bilgideki "Hareketi azalt" anahtarı: tercihi saklar (tema.js okur), sayfayı yeniler
 //   <body data-imlec="acik"> → özel fare imleci (Yönetim → Ayarlar → Görünüm → "Özel fare imleci")
 //   .ust-menu.saydam-baslar → üst menü sayfanın en üstünde saydam, kaydırınca buzlu cam (view'da ViewData["SaydamMenu"] = true)
-// "Hareketi azalt" açıksa (tema.js <html>'e "animasyon" eklemez) sadece menü, alt çubuk ve hareket anahtarı çalışır.
+// "Hareketi azalt" açıksa (tema.js <html>'e "animasyon" eklemez) sadece menü ve alt çubuk çalışır.
 // PERFORMANS: fare hareketinde sadece ilgili öğelerin translate / transform değeri yazılır (kare başına bir kez).
 // =====================================================================
 (function () {
     window.efektlerHazir = true;   // tema.js: bu dosya yüklenemezse gizli bölümleri geri açar
     const kok = document.documentElement;
     const hareket = kok.classList.contains("animasyon");
-    const acik = () => kok.classList.contains("animasyon");   // cihaz ayarı sayfa açıkken değişirse tema.js sınıfı kaldırır
     const fareVar = matchMedia("(hover: hover) and (pointer: fine)").matches;   // dokunmatik ekranda eğme yok
 
     // ---- 1) Üst menü: yüksekliği ölçülür, kaydırınca gölge ("saydam-baslar" varsa en üstte saydamdır) ----
@@ -49,23 +46,6 @@
         const hedef = document.querySelector(cubuk.dataset.mobilCubuk);
         if (!hedef) return;
         new IntersectionObserver(([g]) => cubuk.classList.toggle("gizli", g.isIntersecting)).observe(hedef);
-    });
-
-    // ---- 2b) "Hareketi azalt" anahtarı (alt bilgi): basılıysa (aria-pressed=true) sitede hiçbir şey hareket etmez.
-    //          Tercih localStorage "hareket" olarak saklanır, tema.js her sayfada okur (WCAG 2.3.3):
-    //            "kapali" → ziyaretçi hareketi kapattı · "acik" → cihazı "azalt" dese de ziyaretçi bu sitede açtı
-    //            kayıt yok → cihazın ayarı geçerli (hareketi geri açan, cihazı azaltma istemiyorsa varsayılana döner)
-    //          Efektler sayfa açılırken kurulduğu için değişiklik sayfa yenilenerek uygulanır (kaydırma yeri korunur).
-    document.querySelectorAll("[data-hareket-degistir]").forEach(dugme => {
-        dugme.setAttribute("aria-pressed", String(!hareket));
-        dugme.addEventListener("click", () => {
-            try {
-                if (hareket) localStorage.setItem("hareket", "kapali");
-                else if (matchMedia("(prefers-reduced-motion: reduce)").matches) localStorage.setItem("hareket", "acik");
-                else localStorage.removeItem("hareket");
-            } catch { /* gizli sekme: tercih saklanamaz */ }
-            location.reload();
-        });
     });
 
     if (!hareket) {   // hareket kapalı: her şey olduğu gibi görünür
@@ -109,16 +89,6 @@
     const duraklatici = new IntersectionObserver(girdiler => girdiler.forEach(g => g.target.classList.toggle("duraklat", !g.isIntersecting)));
     document.querySelectorAll("[data-sahne], [data-duraklat]").forEach(e => duraklatici.observe(e));
 
-    // ---- 5b) "Durdur / başlat" düğmesi: 5 saniyeden uzun süren kendiliğinden hareket durdurulabilmeli (WCAG 2.2.2) ----
-    document.querySelectorAll("[data-bant-dugme]").forEach(dugme => {
-        const bolum = dugme.closest("section"), ikon = dugme.querySelector("i");
-        dugme.addEventListener("click", () => {
-            const durdu = bolum.classList.toggle("durdu");
-            dugme.setAttribute("aria-pressed", String(durdu));
-            if (ikon) ikon.className = "bi " + (durdu ? "bi-play-fill" : "bi-pause-fill");
-        });
-    });
-
     if (!fareVar) return;
 
     // ---- 6) Koyu bölümlerde fareyle derinlik: her katman kendi derinliğinde kayar ----
@@ -133,7 +103,6 @@
             for (const [e, a] of donenler) e.style.transform = `rotateY(${(x * -a).toFixed(2)}deg) rotateX(${(y * a * .75).toFixed(2)}deg)`;
         };
         sahne.addEventListener("pointermove", olay => {
-            if (!acik()) return;
             const r = sahne.getBoundingClientRect();
             x = (olay.clientX - r.left) / r.width * 2 - 1;   // -1 (sol) … 1 (sağ)
             y = (olay.clientY - r.top) / r.height * 2 - 1;   // -1 (üst) … 1 (alt)
@@ -157,7 +126,6 @@
         };
         kart.addEventListener("pointerenter", () => { kutu = kart.getBoundingClientRect(); kart.classList.add("egiliyor"); });
         kart.addEventListener("pointermove", olay => {
-            if (!acik()) return;
             kutu ??= kart.getBoundingClientRect();
             x = (olay.clientX - kutu.left) / kutu.width;
             y = (olay.clientY - kutu.top) / kutu.height;
@@ -173,23 +141,23 @@
     // ---- 8) Mıknatıslı butonlar ----
     document.querySelectorAll("[data-miknatis]").forEach(buton => {
         buton.addEventListener("pointermove", olay => {
-            if (!acik()) return;
             const r = buton.getBoundingClientRect();
             buton.style.translate = `${((olay.clientX - r.left - r.width / 2) * .22).toFixed(1)}px ${((olay.clientY - r.top - r.height / 2) * .3).toFixed(1)}px`;
         });
         buton.addEventListener("pointerleave", () => buton.style.translate = "");
     });
 
-    // ---- 9) Özel fare imleci: farenin etrafında onu yumuşakça izleyen halka; tıklanabilir şeyin üstünde büyür ----
-    // Normal imleç gizlenmez (büyütülmüş sistem imleci kullananlar için). Halka sadece süstür.
+    // ---- 9) Özel fare imleci: nokta fareyi anında, halka yumuşakça izler; tıklanabilir şeyin üstünde büyür ----
     // Aç / kapa: Yönetim → Ayarlar → Görünüm → "Özel fare imleci" (_Layout <body data-imlec="acik">).
     // Dokunmatik ekranda ve "hareketi azalt" açıkken hiç çalışmaz. Görünüm: vitrin.css → "Özel fare imleci".
-    // PERFORMANS: sadece tek küçük öğenin transform değeri yazılır; halka durunca döngü de durur.
+    // PERFORMANS: sadece iki küçük öğenin transform değeri yazılır; halka durunca döngü de durur.
     if (fareVar && hareket && document.body.dataset.imlec === "acik") {
-        const halka = document.createElement("div");
+        const nokta = document.createElement("div"), halka = document.createElement("div");
+        nokta.className = "imlec-nokta";
         halka.className = "imlec-halka";
+        nokta.setAttribute("aria-hidden", "true");
         halka.setAttribute("aria-hidden", "true");
-        document.body.append(halka);
+        document.body.append(nokta, halka);
         kok.classList.add("ozel-imlec");
 
         let x = -100, y = -100, hx = -100, hy = -100, donuyor = false;
@@ -203,6 +171,7 @@
             if (olay.pointerType !== "mouse") return;
             x = olay.clientX;
             y = olay.clientY;
+            nokta.style.transform = `translate(${x}px, ${y}px)`;
             kok.classList.add("imlec-gorunur");
             if (!donuyor) { donuyor = true; requestAnimationFrame(adim); }
         }, { passive: true });

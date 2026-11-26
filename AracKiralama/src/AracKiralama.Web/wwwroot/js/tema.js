@@ -11,19 +11,13 @@
 
     // Hareketli efektler (wwwroot/css/vitrin.css + js/efektler.js):
     //   "js"        → JavaScript çalışıyor (örn. üst menü en üstte saydam olabilir)
-    //   "animasyon" → hareket açık; kaydırınca belirme, kayan şerit vb. çalışır
-    // Hareket kararı: ziyaretçinin sitedeki seçimi (alt bilgi → "Hareketi azalt", localStorage "hareket") → cihazın ayarı
+    //   "animasyon" → cihazda "hareketi azalt" kapalı; kaydırınca belirme, kayan şerit vb. açık
     kok.classList.add("js");
-    let hareketTercihi = null;
-    try { hareketTercihi = localStorage.getItem("hareket"); } catch { /* gizli sekme */ }
-    const cihazAzalt = matchMedia("(prefers-reduced-motion: reduce)");
-    if (hareketTercihi === "acik" || (hareketTercihi !== "kapali" && !cihazAzalt.matches)) kok.classList.add("animasyon");
-    // Sayfa açıkken cihazda "hareketi azalt" açılırsa hareketler hemen durur (ziyaretçi sitede bilerek açmadıysa)
-    cihazAzalt.addEventListener?.("change", olay => { if (olay.matches && hareketTercihi !== "acik") kok.classList.remove("animasyon"); });
+    if (!matchMedia("(prefers-reduced-motion: reduce)").matches) kok.classList.add("animasyon");
     // Site içinden (bir önceki sayfa da bu siteyse) gelindiyse geçiş efekti olacak: ilk çizim, ana içerik (#icerik-sonu)
     // okunana kadar bekletilir ki uçan araç fotoğrafı yeni sayfada yerini bulsun. Dışarıdan ilk girişte beklenmez (sayfa hızlı açılır).
     try {
-        if (kok.hasAttribute("data-vitrin") && kok.classList.contains("animasyon") && "onpagereveal" in window && document.referrer && new URL(document.referrer).origin === location.origin) {
+        if (kok.hasAttribute("data-vitrin") && "onpagereveal" in window && document.referrer && new URL(document.referrer).origin === location.origin) {
             const bekle = document.createElement("link");
             bekle.rel = "expect"; bekle.href = "#icerik-sonu"; bekle.setAttribute("blocking", "render");
             document.head.appendChild(bekle);
@@ -39,13 +33,11 @@
         sessizce(olay.viewTransition);
         let hedef = "";
         try { hedef = new URL(olay.activation?.entry?.url ?? "", location.href).pathname.toLowerCase(); } catch { }
-        if (formGonderildi || hedef.startsWith("/yonetim") || !kok.classList.contains("animasyon")) olay.viewTransition?.skipTransition();
+        if (formGonderildi || hedef.startsWith("/yonetim")) olay.viewTransition?.skipTransition();
     });
     addEventListener("pagereveal", olay => {
         sessizce(olay.viewTransition);
-        if (!olay.viewTransition) return;
-        if (!kok.classList.contains("animasyon")) { olay.viewTransition.skipTransition(); return; }   // ziyaretçi hareketi kapattı
-        kok.classList.add("gecisle-geldi");
+        if (olay.viewTransition) kok.classList.add("gecisle-geldi");
     });
     // Güvenlik ağı: efektler.js yüklenemezse gizli bekleyen bölümler sonsuza dek gizli kalmasın
     addEventListener("load", () => {
