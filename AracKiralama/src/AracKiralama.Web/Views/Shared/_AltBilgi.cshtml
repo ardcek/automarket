@@ -1,5 +1,7 @@
 @* ALT BİLGİ (footer). Firma bilgileri Ayarlar'dan, yazılar Site Metinleri'nden, linkler Sayfalar'dan.
-   En alttaki kocaman, içi boş firma adı sadece süstür; kaydırınca aşağıdan yükselir (vitrin.css → .dev-yazi). *@
+   En alttaki kocaman, içi boş firma adı sadece süstür; kaydırınca aşağıdan yükselir (vitrin.css → .dev-yazi).
+   Sütun başlıkları h2 (sayfanın başlık sırası atlamasın), görünüşleri vitrin.css → .alt-baslik.
+   "Hareketi azalt" düğmesi: ziyaretçi sitedeki bütün hareketli efektleri kapatır / açar (efektler.js → data-hareket-degistir). *@
 @{
     var a = Icerik.Ayarlar;
     var kurumsalSayfalar = Icerik.Sayfalar.Where(s => s.AltBilgideGoster).ToList();   // yayında sayfa yoksa "Kurumsal" sütunu hiç çizilmez
@@ -17,8 +19,8 @@
                 </div>
             </div>
             <div class="col-6 col-lg-2">
-                <h6 class="mb-3">@Icerik.Metin("altbilgi.kiralama")</h6>
-                <ul class="list-unstyled small d-grid gap-2">
+                <h2 class="alt-baslik mb-3">@Icerik.Metin("altbilgi.kiralama")</h2>
+                <ul class="list-unstyled small d-grid gap-1">
                     <li><a href="/Araclar">@Icerik.Metin("menu.araclar")</a></li>
                     <li><a href="/Profil">@Icerik.Metin("menu.rezervasyonlarim")</a></li>
                     @if (a.SubeleriGoster) { <li><a href="/#subeler">@Icerik.Metin("menu.subeler")</a></li> }
@@ -27,8 +29,8 @@
             @if (kurumsalSayfalar.Count > 0)
             {
                 <div class="col-6 col-lg-2">
-                    <h6 class="mb-3">@Icerik.Metin("altbilgi.kurumsal")</h6>
-                    <ul class="list-unstyled small d-grid gap-2">
+                    <h2 class="alt-baslik mb-3">@Icerik.Metin("altbilgi.kurumsal")</h2>
+                    <ul class="list-unstyled small d-grid gap-1">
                         @foreach (var sayfa in kurumsalSayfalar)
                         {
                             <li><a href="/Sayfa/@sayfa.Adres">@sayfa.Baslik</a></li>
@@ -37,7 +39,7 @@
                 </div>
             }
             <div class="@(kurumsalSayfalar.Count > 0 ? "col-lg-4" : "col-6 col-lg-6")">
-                <h6 class="mb-3">@Icerik.Metin("altbilgi.iletisim")</h6>
+                <h2 class="alt-baslik mb-3">@Icerik.Metin("altbilgi.iletisim")</h2>
                 <ul class="list-unstyled small d-grid gap-2">
                     <li><i class="bi bi-telephone me-2"></i>@a.Telefon</li>
                     <li><i class="bi bi-envelope me-2"></i>@a.Eposta</li>
@@ -47,9 +49,12 @@
             </div>
         </div>
         <div class="dev-yazi" aria-hidden="true">@a.FirmaAdi</div>
-        <div class="en-alt d-flex flex-wrap justify-content-between gap-2">
+        <div class="en-alt d-flex flex-wrap justify-content-between align-items-center gap-2">
             <span>© @DateTime.Now.Year @a.FirmaAdi · @Icerik.Metin("altbilgi.telif")</span>
-            @if (a.ApiLinkiniGoster) { <a href="/swagger" target="_blank"><i class="bi bi-braces me-1"></i>API</a> }
+            <div class="d-flex flex-wrap align-items-center gap-3">
+                <button class="hareket-dugme" type="button" data-hareket-degistir aria-pressed="false"><span class="anahtar" aria-hidden="true"></span>Hareketi azalt</button>
+                @if (a.ApiLinkiniGoster) { <a href="/swagger" target="_blank"><i class="bi bi-braces me-1"></i>API</a> }
+            </div>
         </div>
     </div>
 </footer>

@@ -25,6 +25,8 @@
     <link rel="stylesheet" href="~/css/vitrin.css" asp-append-version="true" />
 </head>
 <body class="vitrin" data-imlec="@(a.OzelImlec ? "acik" : "kapali")">
+    @* Klavyeyle gezenler için: ilk Tab'da görünür, menüyü atlayıp içeriğe gider (vitrin.css → .atla) *@
+    <a class="atla" href="#icerik">İçeriğe geç</a>
     <header class="ust-menu @(saydamMenu ? "saydam-baslar" : "")">
         <div class="kaydirma-cubugu" aria-hidden="true"></div>
         <nav class="navbar navbar-expand-lg">
@@ -107,7 +109,7 @@
         </nav>
     </header>
 
-    <main>@RenderBody()</main>
+    <main id="icerik" tabindex="-1">@RenderBody()</main>
     <span id="icerik-sonu" hidden></span>
 
     <partial name="_AltBilgi" />
